@@ -1,0 +1,618 @@
+{
+ "id": "e3_lo_que_viste",
+ "order": 3,
+ "tramo": 1,
+ "title": "Lo que viste",
+ "question": "¿Debemos tratar siempre a todos de la misma manera?",
+ "sensitive": false,
+ "scenario": {
+  "layout": "single",
+  "paragraphs": [
+   "Ves a tu hermano rayar un auto al estacionar e irse sin dejar sus datos.",
+   "Al día siguiente, el dueño, un taxista del barrio al que no conoces, pregunta si alguien vio algo.",
+   "Tu hermano te dice: «Prométeme que no dirás nada. Yo lo arreglo después»."
+  ]
+ },
+ "probes": [
+  {
+   "id": "e3_anillos",
+   "type": "proximityRings",
+   "placement": "vuelve",
+   "prompt": "¿Y si no hubiera sido tu hermano?",
+   "config": {
+    "rings": [
+     {
+      "id": "companero",
+      "label": "Un compañero de trabajo"
+     },
+     {
+      "id": "desconocido",
+      "label": "Un desconocido"
+     }
+    ],
+    "choices": [
+     {
+      "value": -1,
+      "label": "Callaría"
+     },
+     {
+      "value": 0,
+      "label": "No lo sé"
+     },
+     {
+      "value": 1,
+      "label": "Se lo contaría al dueño"
+     }
+    ]
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "¿Qué harías?",
+  "left": {
+   "label": "Callar y exigirle que repare",
+   "short": "Callar"
+  },
+  "right": {
+   "label": "Contarle al dueño lo que vi",
+   "short": "Contarlo"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e3_r_familia",
+   "text": "Con la familia es distinto",
+   "tags": [
+    "p_cercanos"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e3_r_reparar",
+   "text": "Lo importante es que el daño se repare",
+   "tags": [
+    "p_mejor_resultado"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e3_r_mismo_trato",
+   "text": "El dueño tiene los mismos derechos que mi hermano",
+   "tags": [
+    "p_imparcial"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e3_r_encubrir",
+   "text": "Encubrir también le hace daño a mi hermano",
+   "tags": [
+    "p_imparcial"
+   ],
+   "aligns": "right"
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e3_t_mem_callar",
+   "priority": 1,
+   "kind": "memory",
+   "question": "e3_q_mem_callar",
+   "condition": {
+    "all": [
+     {
+      "fact": "e2_promesa_sabado.reason.id",
+      "op": "eq",
+      "value": "e2_r_palabra"
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "lt",
+      "value": 0
+     }
+    ]
+   },
+   "memory": {
+    "source": "e2_promesa_sabado",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e3_t_mem_contar",
+   "priority": 2,
+   "kind": "memory",
+   "question": "e3_q_mem_contar",
+   "condition": {
+    "all": [
+     {
+      "fact": "e2_promesa_sabado.reason.id",
+      "op": "eq",
+      "value": "e2_r_palabra"
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     }
+    ]
+   },
+   "memory": {
+    "source": "e2_promesa_sabado",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e3_t_familia",
+   "priority": 10,
+   "kind": "assumption",
+   "question": "e3_q_familia",
+   "condition": {
+    "all": [
+     {
+      "fact": "this.stance.initial",
+      "op": "lt",
+      "value": 0
+     },
+     {
+      "fact": "this.reason.id",
+      "op": "eq",
+      "value": "e3_r_familia"
+     }
+    ]
+   }
+  },
+  {
+   "id": "e3_t_madre",
+   "priority": 11,
+   "kind": "internal",
+   "question": "e3_q_madre",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e3_t_reparar",
+   "priority": 12,
+   "kind": "assumption",
+   "question": "e3_q_reparar",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e3_t_centro",
+   "priority": 13,
+   "kind": "internal",
+   "question": "e3_q_centro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e3_q_mem_callar",
+   "kind": "tension",
+   "text": "En «{titulo}» elegiste «{razon}». Tu hermano te pidió prometer silencio. ¿Obliga igual una promesa de ocultar algo?",
+   "implication": "Entonces, una promesa obliga aunque sirva para ocultar un daño a otro. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e3_q_mem_contar",
+   "kind": "tension",
+   "text": "En «{titulo}» elegiste «{razon}». Aquí contarías, aunque tu hermano te pidió una promesa. Hay algo interesante aquí.",
+   "implication": "Entonces, la palabra dada no obliga cuando se pidió para ocultar algo. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e3_q_familia",
+   "kind": "assumption",
+   "text": "Tu razón supone que cuidar a la familia incluye protegerla de las consecuencias de sus actos. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e3_q_madre",
+   "kind": "clarification",
+   "text": "Si hubiera sido tu madre, ¿también se lo contarías al dueño?",
+   "answers": [
+    {
+     "id": "si",
+     "label": "Sí, también",
+     "map": {
+      "axis": "ax_mios_todos",
+      "value": 1
+     }
+    },
+    {
+     "id": "no",
+     "label": "No, con ella sería distinto",
+     "next": "e3_q_madre_b",
+     "map": {
+      "axis": "ax_mios_todos",
+      "value": -1
+     }
+    },
+    {
+     "id": "nose",
+     "label": "No lo sé"
+    }
+   ]
+  },
+  {
+   "id": "e3_q_madre_b",
+   "kind": "tension",
+   "text": "Con tu hermano lo contarías; con tu madre, no. Hay algo interesante aquí.",
+   "implication": "Entonces, cuánto quieres a alguien cambia lo que le debes a un desconocido. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e3_q_reparar",
+   "kind": "assumption",
+   "text": "Tu razón supone que tu hermano realmente reparará el daño si callas. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e3_q_centro",
+   "kind": "clarification",
+   "text": "¿Qué te ayudaría a decidir?",
+   "answers": [
+    {
+     "id": "hablar",
+     "label": "Hablar primero con mi hermano"
+    },
+    {
+     "id": "dano",
+     "label": "Saber cuánto le cuesta al taxista"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: los dos lados pesan igual"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e3_dif_especiales",
+   "text": "A los nuestros les debemos cosas que no debemos a todos",
+   "distinction": "d05_nuestros_todos",
+   "test": "Si esa diferencia importa, con un desconocido que rayó el auto tu decisión podría ser otra. ¿Lo sostienes?"
+  },
+  {
+   "id": "e3_dif_proteger",
+   "text": "Proteger a alguien no es lo mismo que ocultar el daño",
+   "distinction": "d05_nuestros_todos",
+   "test": "Si esa diferencia importa, puedes proteger a tu hermano y aun así asegurar que el taxista sepa lo que pasó. ¿Lo sostienes?"
+  },
+  {
+   "id": "e3_dif_promesa",
+   "text": "Una promesa para ocultar algo no obliga igual",
+   "distinction": "d03_deber_que_pesa",
+   "test": "Si esa diferencia importa, la promesa pesa, pero no decide en este caso. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e3_l_v1",
+     "text": "Las relaciones cercanas crean deberes especiales",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e3_l_v2",
+     "text": "Tratar a un hermano como a un extraño destruye algo valioso",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e3_l_r1",
+     "text": "Es un daño material y tu hermano puede repararlo",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e3_l_r2",
+     "text": "Puedes protegerlo y exigirle que se haga cargo",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e3_l_c",
+     "text": "Callar, pero asegurar que repare el daño",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e3_l_resp1",
+     "text": "El dueño tiene derechos, y se respetan si el daño se repara, sin que tú delates a tu hermano.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e3_r_mismo_trato"
+     ]
+    },
+    {
+     "id": "e3_l_resp2",
+     "text": "No es encubrir si le exiges que lo arregle; es darle la oportunidad de hacerlo bien.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e3_r_encubrir"
+     ]
+    },
+    {
+     "id": "e3_l_respg",
+     "text": "La lealtad no pide ocultar el daño: pide cuidar a quien lo causó mientras lo repara.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e3_l_k1",
+     "text": "Solo quieren salvar a los suyos",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No es salvarlo: le exigen que repare.",
+     "slots": []
+    },
+    {
+     "id": "e3_l_k2",
+     "text": "A la familia se la protege haga lo que haga",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No es cualquier cosa: es un daño que se puede reparar.",
+     "slots": []
+    },
+    {
+     "id": "e3_l_k3",
+     "text": "Es solo un rayón",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "No lo minimizan: quieren que se repare, sin romper el vínculo.",
+     "slots": []
+    },
+    {
+     "id": "e3_l_own",
+     "text": "Todos merecen el mismo trato",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e3_l_v1",
+     "descriptor": "Perspectiva de quien cuida a sus hermanos menores",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí: a un hermano no lo entregas, lo haces responder.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e3_l_v2",
+     "descriptor": "Perspectiva de quien viene de una familia muy unida",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta por qué aplica aquí.",
+      "reconocible": "Así lo diría.",
+      "fuerte": "Especialmente fuerte: respondiste a tu propia razón."
+     }
+    },
+    {
+     "id": "e3_l_v3",
+     "descriptor": "Perspectiva de quien cometió un error de joven",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí: a mí me dieron la oportunidad de reparar.",
+      "fuerte": "Así mismo."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e3_r_v1",
+     "text": "Si las reglas solo valen para los extraños, no son reglas",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e3_r_v2",
+     "text": "La lealtad no incluye ocultar un daño a otra persona",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e3_r_r1",
+     "text": "El taxista vive de su auto y no sabe quién lo dañó",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e3_r_r2",
+     "text": "Tu hermano se fue sin dejar sus datos",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e3_r_c",
+     "text": "Contarle al dueño lo que viste",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e3_r_resp1",
+     "text": "Con la familia es distinto, sí: por eso importa que tu hermano aprenda a responder.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e3_r_familia"
+     ]
+    },
+    {
+     "id": "e3_r_resp2",
+     "text": "Que se repare depende de que el dueño sepa a quién pedírselo.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e3_r_reparar"
+     ]
+    },
+    {
+     "id": "e3_r_respg",
+     "text": "Decir la verdad también es una forma de cuidar a tu hermano.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e3_r_k1",
+     "text": "Quieren castigar al hermano",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No buscan castigo: buscan que el daño no quede oculto.",
+     "slots": []
+    },
+    {
+     "id": "e3_r_k2",
+     "text": "Hay que denunciar a la familia por cualquier cosa",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No es cualquier cosa: hay un tercero perjudicado que no sabe nada.",
+     "slots": []
+    },
+    {
+     "id": "e3_r_k3",
+     "text": "Las reglas son las reglas",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón concreta: el taxista necesita saber qué pasó.",
+     "slots": []
+    },
+    {
+     "id": "e3_r_own",
+     "text": "Con la familia es distinto",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e3_r_v1",
+     "descriptor": "Perspectiva de quien trabaja como conductor",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Algo hay, pero falta lo que más me importa.",
+      "reconocible": "Sí: ese auto es su trabajo.",
+      "fuerte": "Especialmente fuerte. Así es."
+     }
+    },
+    {
+     "id": "e3_r_v2",
+     "descriptor": "Perspectiva de quien nunca recibió reparación por un daño",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta decir qué concluimos.",
+      "reconocible": "Así lo diría: el que calla también decide.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e3_r_v3",
+     "descriptor": "Perspectiva de quien tuvo que contar algo de un familiar",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta por qué aplica aquí.",
+      "reconocible": "Sí: no fue fácil, pero era justo.",
+      "fuerte": "Muy fuerte: entendiste que también fue cuidar."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "Antes de volver a decidir, cambia a la persona que rayó el auto.",
+  "probe": "e3_anillos"
+ },
+ "reflection": "¿Tratar a todos por igual es justicia, o hay cosas que solo les debemos a los nuestros?",
+ "map": [
+  {
+   "axis": "ax_mios_todos",
+   "source": "stance",
+   "polarity": 1,
+   "context": "cercanos"
+  },
+  {
+   "axis": "ax_mios_todos",
+   "source": "probe",
+   "probe": "e3_anillos",
+   "key": "desconocido",
+   "values": {
+    "-1": -2,
+    "0": 0,
+    "1": 2
+   },
+   "context": "desconocidos"
+  }
+ ],
+ "deepDive": {
+  "problem": "¿Debemos tratar a todos por igual, o hay deberes especiales con quienes queremos? La pregunta aparece en tradiciones muy distintas.",
+  "positions": [
+   "Las relaciones cercanas crean deberes especiales que la imparcialidad no puede borrar.",
+   "La justicia exige aplicar las mismas reglas a todos, también a los nuestros."
+  ],
+  "traditions": "En el Eutifrón de Platón, un hijo acusa a su padre. En las Analectas (13.18) y en el Mencio (7A35) se valora proteger a la familia. William Godwin defendió una imparcialidad estricta. Bernard Williams criticó exigirla en las relaciones personales. La ética del cuidado de Nel Noddings pone los vínculos en el centro.",
+  "objection": "Si los deberes especiales pesan tanto, la lealtad puede convertirse en complicidad con una injusticia.",
+  "references": [
+   "ref_platon_eutifron",
+   "ref_analectas",
+   "ref_mencio",
+   "ref_godwin_1793",
+   "ref_williams_pcm",
+   "ref_noddings_1984"
+  ]
+ }
+}

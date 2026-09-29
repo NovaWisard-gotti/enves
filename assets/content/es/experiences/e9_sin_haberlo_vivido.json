@@ -1,0 +1,595 @@
+{
+ "id": "e9_sin_haberlo_vivido",
+ "order": 9,
+ "tramo": 3,
+ "title": "Sin haberlo vivido",
+ "question": "¿Puedes comprender una posición sin haberla vivido?",
+ "sensitive": false,
+ "scenario": {
+  "layout": "single",
+  "paragraphs": [
+   "Una amiga migró sola a otro país hace años y ahora está decidiendo si volver.",
+   "Cuando le das tu opinión, te responde: «No puedes entenderlo; no lo viviste»."
+  ]
+ },
+ "probes": [
+  {
+   "id": "e9_formas",
+   "type": "knowingForms",
+   "placement": "vuelve",
+   "prompt": "Mira las posiciones que reconstruiste. ¿Qué comprendiste de cada una?",
+   "config": {
+    "options": [
+     {
+      "id": "que",
+      "label": "Qué piensan"
+     },
+     {
+      "id": "porque",
+      "label": "Por qué lo piensan"
+     },
+     {
+      "id": "siente",
+      "label": "Cómo se siente pensarlo"
+     }
+    ]
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "¿Tiene razón tu amiga?",
+  "left": {
+   "label": "No puedo entenderlo sin haberlo vivido",
+   "short": "No puedo"
+  },
+  "right": {
+   "label": "Puedo entender sus razones sin haberlo vivido",
+   "short": "Sí puedo"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e9_r_sentir",
+   "text": "Hay cosas que solo se saben sintiéndolas",
+   "tags": [
+    "p_experiencia_vivida"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e9_r_escuchar",
+   "text": "Lo que me toca es escucharla, no opinar",
+   "tags": [
+    "p_experiencia_vivida"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e9_r_razones",
+   "text": "Las razones se pueden compartir",
+   "tags": [
+    "p_razones_compartibles"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e9_r_imaginar",
+   "text": "Escuchar e imaginar también enseñan",
+   "tags": [
+    "p_razones_compartibles"
+   ],
+   "aligns": "right"
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e9_t_mem_onb_tension",
+   "priority": 1,
+   "kind": "memory",
+   "question": "e9_q_mem_onb_tension",
+   "condition": {
+    "any": [
+     {
+      "all": [
+       {
+        "fact": "onboarding.stance",
+        "op": "gt",
+        "value": 0
+       },
+       {
+        "fact": "this.stance.initial",
+        "op": "lt",
+        "value": 0
+       }
+      ]
+     },
+     {
+      "all": [
+       {
+        "fact": "onboarding.stance",
+        "op": "lt",
+        "value": 0
+       },
+       {
+        "fact": "this.stance.initial",
+        "op": "gt",
+        "value": 0
+       }
+      ]
+     }
+    ]
+   },
+   "memory": {
+    "source": "onboarding",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e9_t_mem_hollow",
+   "priority": 2,
+   "kind": "memory",
+   "question": "e9_q_mem_hollow",
+   "condition": {
+    "fact": "hollow.count",
+    "op": "gte",
+    "value": 1
+   },
+   "memory": {
+    "source": "hollow",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e9_t_mem_onb",
+   "priority": 3,
+   "kind": "memory",
+   "question": "e9_q_mem_onb",
+   "condition": {
+    "fact": "onboarding.stance",
+    "op": "exists"
+   },
+   "memory": {
+    "source": "onboarding",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e9_t_sentir",
+   "priority": 10,
+   "kind": "assumption",
+   "question": "e9_q_sentir",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e9_t_opinar",
+   "priority": 11,
+   "kind": "assumption",
+   "question": "e9_q_opinar",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e9_t_centro",
+   "priority": 12,
+   "kind": "internal",
+   "question": "e9_q_centro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e9_q_mem_onb_tension",
+   "kind": "tension",
+   "text": "Al empezar respondiste «{postura}» ({seguridad}) a «¿Se puede entender a alguien sin darle la razón?». Ahora elegiste «{esta_postura}». Hay algo interesante aquí.",
+   "implication": "Entonces, entender a alguien sin darle la razón no es lo mismo que entender lo que vivió. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e9_q_mem_hollow",
+   "kind": "clarification",
+   "text": "En este recorrido reconstruiste {n} posiciones, y {k} fueron reconocidas como justas. ¿Eso es comprender?",
+   "answers": [
+    {
+     "id": "si",
+     "label": "Sí, es una forma de comprender"
+    },
+    {
+     "id": "no",
+     "label": "No del todo: faltaría haberlo vivido",
+     "next": "e9_q_hollow_b",
+     "nextCondition": {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     }
+    },
+    {
+     "id": "nose",
+     "label": "No lo sé"
+    }
+   ]
+  },
+  {
+   "id": "e9_q_hollow_b",
+   "kind": "tension",
+   "text": "Dijiste que puedes entender sus razones sin haberlo vivido, pero que reconstruir no es comprender del todo. Hay algo interesante aquí.",
+   "implication": "Entonces, entender razones y comprender a alguien son cosas distintas. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e9_q_mem_onb",
+   "kind": "clarification",
+   "text": "Al empezar respondiste «{postura}» ({seguridad}) a «¿Se puede entender a alguien sin darle la razón?». ¿Lo sigues pensando?",
+   "answers": [
+    {
+     "id": "si",
+     "label": "Sí, lo sigo pensando"
+    },
+    {
+     "id": "matiz",
+     "label": "Ahora lo matizaría"
+    },
+    {
+     "id": "nose",
+     "label": "No lo sé"
+    }
+   ]
+  },
+  {
+   "id": "e9_q_sentir",
+   "kind": "assumption",
+   "text": "Tu razón supone que las razones de tu amiga dependen de lo que sintió. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e9_q_opinar",
+   "kind": "assumption",
+   "text": "Tu razón supone que entender sus razones basta para opinar sobre su decisión. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e9_q_centro",
+   "kind": "clarification",
+   "text": "¿Qué te haría inclinarte?",
+   "answers": [
+    {
+     "id": "escuchar",
+     "label": "Escucharla más tiempo"
+    },
+    {
+     "id": "vivir",
+     "label": "Haber vivido algo parecido"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: las dos cosas pesan igual"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e9_dif_saber_sentir",
+   "text": "Entender sus razones no es saber cómo se siente",
+   "distinction": "d12_saber_vivido",
+   "test": "Si esa diferencia importa, puedes entender por qué decide sin saber cómo se siente decidirlo. ¿Lo sostienes?"
+  },
+  {
+   "id": "e9_dif_decidir",
+   "text": "Puedo entender, y aun así no me toca decidir",
+   "distinction": null,
+   "test": "Si esa diferencia importa, comprender no te da derecho a decidir por ella. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e9_l_v1",
+     "text": "Hay un saber que solo da la experiencia",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e9_l_v2",
+     "text": "No escuchar a quien lo vivió es no tomarla en serio",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e9_l_r1",
+     "text": "Ella vivió años sola en otro país",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e9_l_r2",
+     "text": "Tus razones pueden ser correctas y aun así no saber cuánto pesan",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e9_l_c",
+     "text": "Solo quien lo vivió lo entiende del todo",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e9_l_resp1",
+     "text": "Sus razones se pueden compartir; lo que pesan, no.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e9_r_razones"
+     ]
+    },
+    {
+     "id": "e9_l_resp2",
+     "text": "Imaginar ayuda, pero puede hacerte creer que ya sabes.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e9_r_imaginar"
+     ]
+    },
+    {
+     "id": "e9_l_respg",
+     "text": "Entender de lejos no es lo mismo que entender de cerca.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e9_l_k1",
+     "text": "Solo quieren callar a los demás",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No buscan callar a nadie: piden escuchar primero.",
+     "slots": []
+    },
+    {
+     "id": "e9_l_k2",
+     "text": "Nadie puede entender a nadie",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No dicen eso: dicen que hay algo que solo da la experiencia.",
+     "slots": []
+    },
+    {
+     "id": "e9_l_k3",
+     "text": "Si no lo viviste, no opines",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón: el peso de lo vivido.",
+     "slots": []
+    },
+    {
+     "id": "e9_l_own",
+     "text": "Las razones se pueden compartir",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e9_l_v1",
+     "descriptor": "Perspectiva de quien migró sola",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí: hay noches que no se explican.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e9_l_v2",
+     "descriptor": "Perspectiva de quien regresó a su país",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta por qué aplica aquí.",
+      "reconocible": "Así lo diría.",
+      "fuerte": "Especialmente fuerte: respondiste a tu propia razón."
+     }
+    },
+    {
+     "id": "e9_l_v3",
+     "descriptor": "Perspectiva de quien vivió una pérdida",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí: me explicaron mucho, pero no era lo mismo.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e9_r_v1",
+     "text": "Si nadie pudiera entender sin vivirlo, ningún desacuerdo se resolvería",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e9_r_v2",
+     "text": "Escuchar, preguntar e imaginar permiten comprender razones",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e9_r_r1",
+     "text": "Puedes conocer sus motivos sin sentir lo mismo",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e9_r_r2",
+     "text": "Muchas personas la acompañaron sin haber migrado",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e9_r_c",
+     "text": "Se pueden entender sus razones, aunque no se sienta lo mismo",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e9_r_resp1",
+     "text": "Es cierto: no sabrás cómo se siente. Pero puedes entender por qué decide lo que decide.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e9_r_sentir"
+     ]
+    },
+    {
+     "id": "e9_r_resp2",
+     "text": "Escuchar es justamente el camino para entender.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e9_r_escuchar"
+     ]
+    },
+    {
+     "id": "e9_r_respg",
+     "text": "Comprender razones no exige haberlas vivido; exige escucharlas bien.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e9_r_k1",
+     "text": "Quieren opinar de todo",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No es opinar de todo: es poder entender a otros.",
+     "slots": []
+    },
+    {
+     "id": "e9_r_k2",
+     "text": "Leer un artículo es lo mismo que vivirlo",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No dicen que sea lo mismo: dicen que las razones se pueden comprender.",
+     "slots": []
+    },
+    {
+     "id": "e9_r_k3",
+     "text": "Todo se puede entender",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón: sin comprensión entre vidas distintas, no habría diálogo.",
+     "slots": []
+    },
+    {
+     "id": "e9_r_own",
+     "text": "Hay cosas que solo se saben sintiéndolas",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e9_r_v1",
+     "descriptor": "Perspectiva de quien escribe historias de otras personas",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Algo hay, pero falta lo que más me importa.",
+      "reconocible": "Sí: escuchar bien también es una forma de saber.",
+      "fuerte": "Especialmente fuerte. Así es."
+     }
+    },
+    {
+     "id": "e9_r_v2",
+     "descriptor": "Perspectiva de quien acompañó a una amiga migrante",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta decir qué concluimos.",
+      "reconocible": "Así lo diría.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e9_r_v3",
+     "descriptor": "Perspectiva de quien enseña a escuchar",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta por qué aplica aquí.",
+      "reconocible": "Sí: comprender empieza por preguntar.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "Antes de volver a decidir, mira lo que reconstruiste en este recorrido.",
+  "probe": "e9_formas"
+ },
+ "reflection": "Comprender a alguien, ¿se termina alguna vez?",
+ "map": [],
+ "openQuestion": true,
+ "deepDive": {
+  "problem": "¿Hace falta haber vivido algo para comprenderlo? ¿O las razones de otra persona pueden comprenderse sin sentir lo mismo?",
+  "positions": [
+   "Hay un saber que solo da la experiencia, y no escucharlo es no tomar en serio a quien lo vivió.",
+   "Las razones se pueden comprender a través del testimonio, la narración y la imaginación."
+  ],
+  "traditions": "Bertrand Russell distinguió el conocimiento por familiaridad del conocimiento por descripción. Thomas Nagel y Frank Jackson defendieron que algo de la experiencia no se capta desde fuera. L. A. Paul lo aplicó a las decisiones que nos transforman. Miranda Fricker estudió cómo se desoye el testimonio de algunas personas. Martha Nussbaum defendió que la literatura ayuda a comprender vidas ajenas.",
+  "objection": "Si nadie puede comprender lo que no vivió, no habría forma de resolver desacuerdos entre personas con vidas distintas.",
+  "references": [
+   "ref_russell_1911",
+   "ref_nagel_1974",
+   "ref_jackson_1982",
+   "ref_paul_2014",
+   "ref_fricker_2007",
+   "ref_nussbaum_1995"
+  ]
+ }
+}

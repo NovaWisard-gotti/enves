@@ -1,0 +1,569 @@
+{
+ "id": "e7_la_carta",
+ "order": 7,
+ "tramo": 3,
+ "title": "La carta",
+ "question": "¿Comprender es solo responder bien?",
+ "sensitive": false,
+ "scenario": {
+  "layout": "single",
+  "paragraphs": [
+   "Un amigo acaba de perder a Luna, la perra que lo acompañó once años.",
+   "Recibe una carta de consuelo. Léela: no sabes quién la escribió."
+  ]
+ },
+ "probes": [
+  {
+   "id": "e7_carta",
+   "type": "annotatedLetter",
+   "placement": "elige",
+   "prompt": "Toca las frases que te suenan a comprensión.",
+   "config": {
+    "phrases": [
+     "Supe lo de Luna y quise escribirte.",
+     "Once años es mucho tiempo para compartir una casa.",
+     "Me acuerdo de cómo te esperaba en la puerta cada tarde.",
+     "No hay palabras que llenen ese silencio.",
+     "Está bien si hoy no quieres hablar con nadie.",
+     "Lo que sientes tiene el tamaño del cariño que le tuviste.",
+     "Cuando quieras, cuéntame una historia de ella.",
+     "Aquí estoy."
+    ],
+    "reveal": "Esta carta la escribió un sistema automático a partir de unos pocos datos: el nombre de la perra, los años que vivieron juntos y un recuerdo."
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "¿La carta comprendía lo que tu amigo estaba viviendo?",
+  "left": {
+   "label": "No comprendía: usó bien las palabras",
+   "short": "No comprendía"
+  },
+  "right": {
+   "label": "Comprendía, a su manera",
+   "short": "Comprendía"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e7_r_interior",
+   "text": "Comprender requiere sentir o querer decir algo",
+   "tags": [
+    "p_interior"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e7_r_reglas",
+   "text": "Seguir reglas no es entender",
+   "tags": [
+    "p_interior"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e7_r_conducta",
+   "text": "A las personas también las juzgamos por lo que hacen",
+   "tags": [
+    "p_conducta"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e7_r_efecto",
+   "text": "Consoló de verdad, y eso cuenta",
+   "tags": [
+    "p_conducta"
+   ],
+   "aligns": "right"
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e7_t_mem_piezas",
+   "priority": 1,
+   "kind": "memory",
+   "question": "e7_q_mem_piezas",
+   "condition": {
+    "fact": "hollow.count",
+    "op": "gte",
+    "value": 1
+   },
+   "memory": {
+    "source": "hollow",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e7_t_saber",
+   "priority": 10,
+   "kind": "internal",
+   "question": "e7_q_saber",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e7_t_loro",
+   "priority": 11,
+   "kind": "internal",
+   "question": "e7_q_loro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e7_t_centro",
+   "priority": 12,
+   "kind": "internal",
+   "question": "e7_q_centro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e7_q_mem_piezas",
+   "kind": "clarification",
+   "text": "Hasta ahora reconstruiste {n} posiciones con piezas. ¿Las comprendiste, o acomodaste bien las piezas?",
+   "answers": [
+    {
+     "id": "comprendi",
+     "label": "Las comprendí",
+     "next": "e7_q_piezas_a",
+     "nextCondition": {
+      "fact": "this.stance.initial",
+      "op": "lt",
+      "value": 0
+     }
+    },
+    {
+     "id": "acomode",
+     "label": "Acomodé bien las piezas",
+     "next": "e7_q_piezas_b",
+     "nextCondition": {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     }
+    },
+    {
+     "id": "nose",
+     "label": "No sé distinguirlo"
+    }
+   ]
+  },
+  {
+   "id": "e7_q_piezas_a",
+   "kind": "tension",
+   "text": "Dijiste que usar bien las palabras no es comprender. Tú también usaste bien unas piezas. ¿Qué te hace distinto de la carta?",
+   "implication": "Entonces, a ti y a la carta los juzgas con criterios distintos. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e7_q_piezas_b",
+   "kind": "tension",
+   "text": "Dijiste que la carta comprendía por lo que hizo. Tú acomodaste bien las piezas. Hay algo interesante aquí.",
+   "implication": "Entonces, acomodar bien las piezas ya sería comprender. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e7_q_saber",
+   "kind": "clarification",
+   "text": "Tu razón supone que puedes saber si otra persona siente algo. ¿Cómo lo sabes?",
+   "answers": [
+    {
+     "id": "hace",
+     "label": "Por lo que hace y dice",
+     "next": "e7_q_conducta"
+    },
+    {
+     "id": "siento",
+     "label": "Porque yo también siento"
+    },
+    {
+     "id": "nose",
+     "label": "No lo sé con certeza"
+    }
+   ]
+  },
+  {
+   "id": "e7_q_conducta",
+   "kind": "tension",
+   "text": "Si a las personas les atribuyes comprensión por lo que hacen y dicen, la carta también hizo y dijo. Hay algo interesante aquí.",
+   "implication": "Entonces, a una persona y a la carta las juzgas con criterios distintos. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e7_q_loro",
+   "kind": "clarification",
+   "text": "Si un loro repitiera esas mismas frases, ¿también comprendería?",
+   "answers": [
+    {
+     "id": "si",
+     "label": "Sí, también"
+    },
+    {
+     "id": "no",
+     "label": "No",
+     "next": "e7_q_loro_b"
+    },
+    {
+     "id": "nose",
+     "label": "No lo sé"
+    }
+   ]
+  },
+  {
+   "id": "e7_q_loro_b",
+   "kind": "tension",
+   "text": "Dijiste que la carta comprendía, pero que un loro que dice lo mismo no. Hay algo interesante aquí.",
+   "implication": "Entonces, no basta con decir lo correcto: importa cómo se llegó a decirlo. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e7_q_centro",
+   "kind": "clarification",
+   "text": "¿Qué necesitarías saber para decidir?",
+   "answers": [
+    {
+     "id": "como",
+     "label": "Cómo se escribió exactamente"
+    },
+    {
+     "id": "amigo",
+     "label": "Qué sintió mi amigo al leerla"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: no creo que se pueda saber"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e7_dif_significado",
+   "text": "Yo sé lo que significan; la carta no",
+   "distinction": "d10_usar_entender",
+   "test": "Si esa diferencia importa, podrías usar palabras que no entiendes y la carta podría no entender las suyas. ¿Lo sostienes?"
+  },
+  {
+   "id": "e7_dif_vivido",
+   "text": "Algo de lo que reconstruí lo he vivido",
+   "distinction": "d12_saber_vivido",
+   "test": "Si esa diferencia importa, comprender depende de haber vivido algo parecido. ¿Lo sostienes?"
+  },
+  {
+   "id": "e7_dif_intencion",
+   "text": "Yo quise entender; la carta no quiso nada",
+   "distinction": "d10_usar_entender",
+   "test": "Si esa diferencia importa, sin intención no hay comprensión, aunque el resultado sea el mismo. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e7_l_v1",
+     "text": "Seguir reglas sobre palabras no produce significado",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e7_l_v2",
+     "text": "Comprender es entender lo que se dice, no solo decirlo bien",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e7_l_r1",
+     "text": "La carta no sabe qué es perder a un perro",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e7_l_r2",
+     "text": "Nadie quiso decir nada al escribirla",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e7_l_c",
+     "text": "La carta no comprendía, aunque consolara",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e7_l_resp1",
+     "text": "A las personas las juzgamos por lo que hacen porque sabemos que también sienten; con la carta no lo sabemos.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e7_r_conducta"
+     ]
+    },
+    {
+     "id": "e7_l_resp2",
+     "text": "Consoló, sí. Un poema también consuela y no te conoce.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e7_r_efecto"
+     ]
+    },
+    {
+     "id": "e7_l_respg",
+     "text": "Que algo consuele no prueba que comprenda.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e7_l_k1",
+     "text": "Odian la tecnología",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No es rechazo a la tecnología: es una pregunta sobre qué es comprender.",
+     "slots": []
+    },
+    {
+     "id": "e7_l_k2",
+     "text": "Una máquina nunca podrá hacer nada humano",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No dicen nunca: dicen que esta carta no comprendía.",
+     "slots": []
+    },
+    {
+     "id": "e7_l_k3",
+     "text": "Es una máquina y punto",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón: sin significado, no hay comprensión.",
+     "slots": []
+    },
+    {
+     "id": "e7_l_own",
+     "text": "Comprender es responder bien",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e7_l_v1",
+     "descriptor": "Perspectiva de quien escribe cartas a mano",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí: una carta dice algo porque alguien quiso decirlo.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e7_l_v2",
+     "descriptor": "Perspectiva de quien trabaja con el lenguaje",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta por qué aplica aquí.",
+      "reconocible": "Así lo diría: forma no es significado.",
+      "fuerte": "Especialmente fuerte: respondiste a tu propia razón."
+     }
+    },
+    {
+     "id": "e7_l_v3",
+     "descriptor": "Perspectiva de quien perdió a su mascota",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí: me consoló, pero no me conocía.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e7_r_v1",
+     "text": "A otros les atribuimos comprensión por lo que hacen, no porque veamos dentro",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e7_r_v2",
+     "text": "Exigirle más a una máquina que a una persona es un doble estándar",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e7_r_r1",
+     "text": "Respondió justo a lo que tu amigo necesitaba",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e7_r_r2",
+     "text": "Usó el nombre y un recuerdo en el momento justo",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e7_r_c",
+     "text": "La carta comprendía, a su manera",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e7_r_resp1",
+     "text": "¿Cómo sabes que otra persona siente algo? Lo sabes por lo que hace.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e7_r_interior"
+     ]
+    },
+    {
+     "id": "e7_r_resp2",
+     "text": "Nuestro cerebro también funciona siguiendo procesos; eso no nos impide comprender.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e7_r_reglas"
+     ]
+    },
+    {
+     "id": "e7_r_respg",
+     "text": "Si comprender se ve en lo que alguien hace, la carta hizo lo que haría alguien que comprende.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e7_r_k1",
+     "text": "Quieren reemplazar a las personas",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No buscan reemplazar a nadie: preguntan qué criterio usamos para decir que alguien comprende.",
+     "slots": []
+    },
+    {
+     "id": "e7_r_k2",
+     "text": "Las máquinas ya son personas",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No dicen eso: dicen que esta carta comprendía a su manera.",
+     "slots": []
+    },
+    {
+     "id": "e7_r_k3",
+     "text": "Si funciona, da igual",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón: juzgamos la comprensión por la conducta.",
+     "slots": []
+    },
+    {
+     "id": "e7_r_own",
+     "text": "Comprender requiere sentir algo",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e7_r_v1",
+     "descriptor": "Perspectiva de quien programa sistemas de texto",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Algo hay, pero falta lo que más me importa.",
+      "reconocible": "Sí: la comprensión se ve en la respuesta.",
+      "fuerte": "Especialmente fuerte. Así es."
+     }
+    },
+    {
+     "id": "e7_r_v2",
+     "descriptor": "Perspectiva de quien recibió consuelo de un desconocido",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta decir qué concluimos.",
+      "reconocible": "Así lo diría: me comprendió sin conocerme.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e7_r_v3",
+     "descriptor": "Perspectiva de quien estudia cómo aprendemos",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta por qué aplica aquí.",
+      "reconocible": "Sí: comprender también es saber usar.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "¿Y si la hubiera escrito una persona copiando frases de un manual de condolencias? ¿Cambia algo?"
+ },
+ "reflection": "¿Cómo sabes que alguien te comprende?",
+ "map": [],
+ "openQuestion": true,
+ "deepDive": {
+  "problem": "¿Comprender es responder bien, o hace falta algo más, como entender lo que se dice o querer decirlo?",
+  "positions": [
+   "Manejar símbolos con acierto no basta: comprender requiere significado.",
+   "Atribuimos comprensión por la conducta; exigir más a una máquina sería un doble estándar."
+  ],
+  "traditions": "Alan Turing propuso juzgar la inteligencia por la conducta (1950). John Searle respondió con el argumento de la habitación china (1980). Daniel Dennett defendió atribuir estados mentales cuando eso ayuda a entender y predecir. Emily Bender y Alexander Koller distinguieron la forma del significado en los sistemas de lenguaje.",
+  "objection": "Si solo vemos la conducta de los demás, nos falta un criterio claro para negar comprensión a una máquina y concedérsela a una persona.",
+  "references": [
+   "ref_turing_1950",
+   "ref_searle_1980",
+   "ref_dennett_1987",
+   "ref_bender_koller_2020",
+   "ref_sep_chinese_room"
+  ]
+ }
+}

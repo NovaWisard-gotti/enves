@@ -1,0 +1,599 @@
+{
+ "id": "e1_mismo_descuido",
+ "order": 1,
+ "tramo": 1,
+ "title": "El mismo descuido",
+ "question": "¿Importa más lo que decidiste hacer o lo que ocurrió?",
+ "sensitive": true,
+ "sensitiveNote": "Esta pregunta menciona un accidente en el que un niño resulta herido.",
+ "scenario": {
+  "layout": "twin",
+  "paragraphs": [
+   "Dos personas hacen exactamente lo mismo. Solo cambia lo que pasa después."
+  ],
+  "twin": [
+   {
+    "name": "Ana",
+    "lines": [
+     "Mira el celular tres segundos mientras maneja.",
+     "Misma calle, misma velocidad.",
+     "No pasa nada."
+    ]
+   },
+   {
+    "name": "Beto",
+    "lines": [
+     "Mira el celular tres segundos mientras maneja.",
+     "Misma calle, misma velocidad.",
+     "Un niño cruza. Beto no alcanza a frenar y el niño queda herido."
+    ]
+   }
+  ]
+ },
+ "probes": [
+  {
+   "id": "e1_gemelos",
+   "type": "twinCases",
+   "placement": "elige",
+   "prompt": "Primera impresión: ¿cuánto reproche merece cada uno?",
+   "config": {
+    "subjects": [
+     {
+      "id": "ana",
+      "label": "Ana"
+     },
+     {
+      "id": "beto",
+      "label": "Beto"
+     }
+    ],
+    "scale": [
+     "Nada",
+     "Poco",
+     "Algo",
+     "Bastante",
+     "Mucho"
+    ]
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "¿Merecen el mismo reproche?",
+  "left": {
+   "label": "Merecen el mismo reproche",
+   "short": "El mismo"
+  },
+  "right": {
+   "label": "Beto merece más reproche",
+   "short": "Beto, más"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e1_r_decision",
+   "text": "Importa lo que cada uno decidió hacer",
+   "tags": [
+    "p_decision"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e1_r_riesgo",
+   "text": "Importa el riesgo que cada uno tomó",
+   "tags": [
+    "p_riesgo"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e1_r_resultado",
+   "text": "Importa lo que terminó pasando",
+   "tags": [
+    "p_resultado"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e1_r_victima",
+   "text": "Un niño herido lo cambia todo",
+   "tags": [
+    "p_resultado"
+   ],
+   "aligns": "right"
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e1_t_impresion",
+   "priority": 5,
+   "kind": "internal",
+   "question": "e1_q_impresion",
+   "condition": {
+    "all": [
+     {
+      "fact": "this.probe.e1_gemelos.diff",
+      "op": "gt",
+      "value": 0
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "lte",
+      "value": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "e1_t_misma_decision",
+   "priority": 10,
+   "kind": "twin",
+   "question": "e1_q_misma_decision",
+   "condition": {
+    "all": [
+     {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     },
+     {
+      "fact": "this.reason.id",
+      "op": "in",
+      "value": [
+       "e1_r_decision",
+       "e1_r_riesgo"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "e1_t_diez_segundos",
+   "priority": 11,
+   "kind": "twin",
+   "question": "e1_q_diez_segundos",
+   "condition": {
+    "all": [
+     {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     },
+     {
+      "fact": "this.reason.id",
+      "op": "in",
+      "value": [
+       "e1_r_resultado",
+       "e1_r_victima"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "e1_t_sancion",
+   "priority": 12,
+   "kind": "twin",
+   "question": "e1_q_sancion",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e1_t_inclinarte",
+   "priority": 13,
+   "kind": "internal",
+   "question": "e1_q_inclinarte",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  },
+  {
+   "id": "e1_t_misma_decision_b",
+   "priority": 14,
+   "kind": "twin",
+   "question": "e1_q_misma_decision_b",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e1_q_impresion",
+   "kind": "clarification",
+   "text": "En tu primera impresión, Beto merecía más reproche que Ana. En tu postura, no. ¿Qué cambió?",
+   "answers": [
+    {
+     "id": "pense",
+     "label": "Lo pensé mejor",
+     "next": "e1_q_sancion",
+     "nextCondition": {
+      "fact": "this.stance.initial",
+      "op": "lt",
+      "value": 0
+     }
+    },
+    {
+     "id": "reaccion",
+     "label": "Mi primera reacción no es mi juicio",
+     "next": "e1_q_sancion",
+     "nextCondition": {
+      "fact": "this.stance.initial",
+      "op": "lt",
+      "value": 0
+     }
+    },
+    {
+     "id": "otra",
+     "label": "Otra cosa"
+    }
+   ]
+  },
+  {
+   "id": "e1_q_misma_decision",
+   "kind": "tension",
+   "text": "Elegiste «{esta_razon}». Ana y Beto decidieron exactamente lo mismo, pero juzgas distinto a Beto. Hay algo interesante aquí.",
+   "implication": "Entonces, si tu razón se sostiene, Ana y Beto deberían recibir el mismo reproche. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e1_q_misma_decision_b",
+   "kind": "tension",
+   "text": "Ana y Beto decidieron exactamente lo mismo, pero juzgas distinto a Beto. Hay algo interesante aquí.",
+   "implication": "Entonces, lo que decidieron no alcanza para explicar tu juicio. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e1_q_diez_segundos",
+   "kind": "tension",
+   "text": "Elegiste «{esta_razon}». Imagina que Ana hubiera mirado el celular diez segundos y aun así no pasara nada. ¿Merecería menos reproche que Beto, que miró tres?",
+   "implication": "Entonces, alguien más imprudente podría merecer menos reproche solo porque tuvo suerte. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e1_q_sancion",
+   "kind": "tension",
+   "text": "Si el reproche es igual, ¿deberían recibir la misma sanción? ¿Beto debería pagar el tratamiento del niño y Ana no pagar nada?",
+   "implication": "Entonces, Ana debería responder igual que Beto ante la familia del niño. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e1_q_inclinarte",
+   "kind": "clarification",
+   "text": "¿Qué necesitarías saber para inclinarte hacia un lado?",
+   "answers": [
+    {
+     "id": "frenar",
+     "label": "Si Beto pudo frenar a tiempo"
+    },
+    {
+     "id": "primera",
+     "label": "Si era la primera vez que lo hacían"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: los dos lados pesan igual"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e1_dif_reparar",
+   "text": "Una cosa es cuánto se le reprocha y otra quién repara el daño",
+   "distinction": "d01_reproche_reparacion",
+   "test": "Si esa diferencia importa, Ana y Beto merecen el mismo reproche, pero solo Beto debe reparar el daño. ¿Lo sostienes?"
+  },
+  {
+   "id": "e1_dif_cargar",
+   "text": "Beto carga con lo que pasó, aunque no sea peor persona",
+   "distinction": "d02_cargar_con_lo_hecho",
+   "test": "Si esa diferencia importa, Beto puede sentir un peso que Ana no siente, sin ser peor que ella. ¿Lo sostienes?"
+  },
+  {
+   "id": "e1_dif_castigo",
+   "text": "Castigar distinto puede servir para otras cosas, como proteger a otros",
+   "distinction": null,
+   "test": "Si esa diferencia importa, la sanción puede ser distinta aunque el reproche sea el mismo. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e1_l_v1",
+     "text": "Juzgar por lo que nadie controla es juzgar a la suerte",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e1_l_v2",
+     "text": "Cada persona responde por lo que decide",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e1_l_r1",
+     "text": "Ana y Beto tomaron la misma decisión, en la misma calle",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e1_l_r2",
+     "text": "Que el niño cruzara en ese instante no dependió de Beto",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e1_l_c",
+     "text": "Merecen el mismo reproche, aunque solo Beto deba reparar el daño",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e1_l_resp1",
+     "text": "Pasó algo terrible, y por eso Beto debe reparar. Pero reparar no es lo mismo que ser peor persona.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e1_r_resultado",
+      "e1_r_victima"
+     ]
+    },
+    {
+     "id": "e1_l_respg",
+     "text": "Lo que ocurrió importa para reparar, no para decidir quién fue más imprudente.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e1_l_k1",
+     "text": "Les da igual el niño herido",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "Quien sostiene esta postura no minimiza el daño: separa el daño del reproche.",
+     "slots": []
+    },
+    {
+     "id": "e1_l_k2",
+     "text": "Nadie es responsable de nada",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No niegan la responsabilidad: dicen que Ana y Beto son igual de responsables.",
+     "slots": []
+    },
+    {
+     "id": "e1_l_k3",
+     "text": "Total, todos miramos el celular alguna vez",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "No lo justifican por costumbre: lo juzgan igual de grave en los dos casos.",
+     "slots": []
+    },
+    {
+     "id": "e1_l_own",
+     "text": "Lo único que cuenta es lo que ocurrió",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e1_l_v1",
+     "descriptor": "Perspectiva de quien maneja a diario",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí, así lo diría: juzgo lo que cada uno decidió.",
+      "fuerte": "Lo dijiste mejor que yo: reproche igual, reparación aparte."
+     }
+    },
+    {
+     "id": "e1_l_v2",
+     "descriptor": "Perspectiva de quien evalúa accidentes de tránsito",
+     "reactions": {
+      "noRepresenta": "No me representa: así no razono los casos.",
+      "parcial": "Hay algo, pero falta por qué aplica a este caso.",
+      "reconocible": "Así lo diría: la decisión fue la misma.",
+      "fuerte": "Muy bien construido: separaste culpa y reparación."
+     }
+    },
+    {
+     "id": "e1_l_v3",
+     "descriptor": "Perspectiva de quien vivió un casi accidente",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que siento ni lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí: yo pude ser Beto, y no por eso fui mejor.",
+      "fuerte": "Así mismo. Entendiste por qué no me siento mejor que Beto."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e1_r_v1",
+     "text": "Lo que hacemos incluye lo que causamos",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e1_r_v2",
+     "text": "Las disculpas y las reparaciones responden a lo que ocurrió",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e1_r_r1",
+     "text": "Beto hirió a un niño; Ana no hirió a nadie",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e1_r_r2",
+     "text": "Muchos sistemas penales distinguen un daño consumado de uno que no ocurrió",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e1_r_c",
+     "text": "Beto merece más reproche que Ana",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e1_r_resp1",
+     "text": "Decidieron lo mismo, sí. Pero el reproche también responde a lo que pasó en el mundo, no solo en la cabeza.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e1_r_decision"
+     ]
+    },
+    {
+     "id": "e1_r_resp2",
+     "text": "El riesgo fue igual; el daño no. Y el daño también cuenta.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e1_r_riesgo"
+     ]
+    },
+    {
+     "id": "e1_r_respg",
+     "text": "Nadie vive solo de intenciones: lo ocurrido forma parte de lo que hicimos.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e1_r_k1",
+     "text": "Solo quieren un culpable",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No buscan un culpable: dicen que el daño real cambia lo que Beto hizo.",
+     "slots": []
+    },
+    {
+     "id": "e1_r_k2",
+     "text": "Si no pasa nada, puedes hacer lo que quieras",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No aprueban lo que hizo Ana: dicen que Beto hizo algo más.",
+     "slots": []
+    },
+    {
+     "id": "e1_r_k3",
+     "text": "Beto tuvo mala suerte, que se aguante",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "No es desprecio por Beto: es tomar en serio lo que le pasó al niño.",
+     "slots": []
+    },
+    {
+     "id": "e1_r_own",
+     "text": "Solo importa lo que cada uno decidió",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e1_r_v1",
+     "descriptor": "Perspectiva de quien tiene un familiar herido en la calle",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: suena a la otra postura.",
+      "parcial": "Algo hay, pero falta lo que más nos importa.",
+      "reconocible": "Sí, así lo diría: el daño fue real.",
+      "fuerte": "Especialmente fuerte: respondiste a lo que el otro lado diría."
+     }
+    },
+    {
+     "id": "e1_r_v2",
+     "descriptor": "Perspectiva de quien trabaja en justicia",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta la conexión con este caso.",
+      "reconocible": "Así lo diría: el resultado forma parte del acto.",
+      "fuerte": "Muy bien: incluiste cómo responderíamos a tu razón."
+     }
+    },
+    {
+     "id": "e1_r_v3",
+     "descriptor": "Perspectiva de quien cruza esa calle a diario",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí: el niño herido cambia lo que Beto hizo.",
+      "fuerte": "Así mismo, y dicho con respeto por los dos."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "Muchos sistemas penales castigan distinto un daño consumado que uno que no llegó a ocurrir, aunque la conducta haya sido la misma. ¿Cambia algo en tu postura?"
+ },
+ "reflection": "Si la suerte decide tanto de lo que hacemos, ¿qué parte de lo que hacemos es realmente nuestra?",
+ "map": [
+  {
+   "axis": "ax_intencion_resultado",
+   "source": "stance",
+   "polarity": 1
+  }
+ ],
+ "deepDive": {
+  "problem": "El problema de la suerte moral. Solemos pensar que solo merecemos juicio por lo que controlamos, pero en la práctica también juzgamos por lo que ocurre, y lo que ocurre depende en parte de la suerte.",
+  "positions": [
+   "El reproche depende solo de lo que cada persona decidió y controló.",
+   "Lo que hacemos incluye lo que causamos, aunque no lo controlemos del todo."
+  ],
+  "traditions": "Bernard Williams y Thomas Nagel plantearon el problema en 1976. Kant sostuvo que el valor moral de una acción está en la buena voluntad y no en sus efectos. Jeremy Waldron discutió cómo repartir las cargas cuando dos descuidos iguales tienen consecuencias distintas.",
+  "objection": "Nagel mostró que, si se aplica con rigor la idea de juzgar solo lo que controlamos, casi nada queda libre de la suerte: ni las circunstancias, ni el carácter, ni los resultados.",
+  "references": [
+   "ref_williams_1976",
+   "ref_nagel_1976",
+   "ref_waldron_1995",
+   "ref_kant_fundamentacion",
+   "ref_sep_moral_luck"
+  ]
+ }
+}

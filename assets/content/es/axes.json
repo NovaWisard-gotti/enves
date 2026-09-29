@@ -1,0 +1,24 @@
+{
+ "axes": [
+  {
+   "id": "ax_intencion_resultado",
+   "left": "Lo que quisiste hacer",
+   "right": "Lo que ocurrió"
+  },
+  {
+   "id": "ax_mios_todos",
+   "left": "Los míos",
+   "right": "Todos por igual"
+  },
+  {
+   "id": "ax_limites_resultado",
+   "left": "Límites que no cruzo",
+   "right": "El mejor resultado"
+  },
+  {
+   "id": "ax_decidir_proteger",
+   "left": "Decidir por mí",
+   "right": "Que me protejan"
+  }
+ ]
+}

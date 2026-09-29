@@ -1,0 +1,562 @@
+{
+ "id": "e2_promesa_sabado",
+ "order": 2,
+ "tramo": 1,
+ "title": "La promesa del sábado",
+ "question": "¿Cuándo es legítimo romper una promesa?",
+ "sensitive": false,
+ "scenario": {
+  "layout": "single",
+  "paragraphs": [
+   "Le prometiste a tu hermana de 12 años que irías el sábado a su presentación de danza. Nadie más de la familia puede ir.",
+   "El viernes te ofrecen un turno extra muy bien pagado que cubriría una deuda urgente de tu familia. Solo puede ser ese sábado."
+  ]
+ },
+ "probes": [
+  {
+   "id": "e2_secreto",
+   "type": "choiceVariant",
+   "placement": "vuelve",
+   "prompt": "Imagina que ella nunca se enteraría: creería que llegaste tarde y te fuiste pronto.",
+   "config": {
+    "options": [
+     {
+      "id": "falle",
+      "label": "Sigue estando mal: falté a mi palabra"
+     },
+     {
+      "id": "cambia",
+      "label": "Cambia: si no la decepciono, no hay daño"
+     },
+     {
+      "id": "nose",
+      "label": "No lo sé"
+     }
+    ]
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "¿Qué harías?",
+  "left": {
+   "label": "Cumplir la promesa",
+   "short": "Cumplir"
+  },
+  "right": {
+   "label": "Romperla, explicándolo",
+   "short": "Romperla"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e2_r_palabra",
+   "text": "Una promesa se cumple aunque cueste",
+   "tags": [
+    "p_palabra"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e2_r_hermana",
+   "text": "Ella cuenta conmigo y nadie más irá",
+   "tags": [
+    "p_cuidado"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e2_r_deuda",
+   "text": "La deuda afecta a toda la familia",
+   "tags": [
+    "p_mejor_resultado"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e2_r_liberar",
+   "text": "Puedo pedirle que me libere y reparar",
+   "tags": [
+    "p_mejor_resultado"
+   ],
+   "aligns": "right"
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e2_t_mem_decision",
+   "priority": 1,
+   "kind": "memory",
+   "question": "e2_q_mem_decision",
+   "condition": {
+    "all": [
+     {
+      "fact": "e1_mismo_descuido.reason.id",
+      "op": "in",
+      "value": [
+       "e1_r_decision",
+       "e1_r_riesgo"
+      ]
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     }
+    ]
+   },
+   "memory": {
+    "source": "e1_mismo_descuido",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e2_t_mem_resultado",
+   "priority": 2,
+   "kind": "memory",
+   "question": "e2_q_mem_resultado",
+   "condition": {
+    "all": [
+     {
+      "fact": "e1_mismo_descuido.reason.id",
+      "op": "in",
+      "value": [
+       "e1_r_resultado",
+       "e1_r_victima"
+      ]
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "lt",
+      "value": 0
+     }
+    ]
+   },
+   "memory": {
+    "source": "e1_mismo_descuido",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e2_t_liberar",
+   "priority": 10,
+   "kind": "assumption",
+   "question": "e2_q_liberar",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e2_t_unica",
+   "priority": 11,
+   "kind": "assumption",
+   "question": "e2_q_unica",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e2_t_centro",
+   "priority": 12,
+   "kind": "internal",
+   "question": "e2_q_centro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e2_q_mem_decision",
+   "kind": "tension",
+   "text": "En «{titulo}» elegiste «{razon}». Aquí romperías la promesa por una buena razón. ¿Alcanza la buena intención si ella igual se queda esperando?",
+   "implication": "Entonces, lo que decidiste importa más que lo que ella vive ese sábado. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e2_q_mem_resultado",
+   "kind": "tension",
+   "text": "En «{titulo}» elegiste «{razon}». Aquí cumplir la promesa trae un peor resultado para tu familia. ¿Cómo lo ves?",
+   "implication": "Entonces, en este caso, la palabra dada pesa más que el resultado. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e2_q_liberar",
+   "kind": "assumption",
+   "text": "Tu razón supone que una promesa obliga aunque ella pudiera liberarte si se lo pidieras. ¿Lo crees?",
+   "answers": [],
+   "followUp": "e2_q_liberar_b"
+  },
+  {
+   "id": "e2_q_liberar_b",
+   "kind": "tension",
+   "text": "Si ella pudiera liberarte, la promesa quizá no obliga del todo. ¿Qué hacemos con eso?",
+   "implication": "Entonces, una promesa obliga incluso cuando la otra persona podría liberarte. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e2_q_unica",
+   "kind": "assumption",
+   "text": "Tu razón supone que el turno extra es la única forma de cubrir la deuda. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e2_q_centro",
+   "kind": "clarification",
+   "text": "¿Qué haría que te inclinaras hacia un lado?",
+   "answers": [
+    {
+     "id": "hablar",
+     "label": "Poder hablarlo antes con ella"
+    },
+    {
+     "id": "monto",
+     "label": "Saber cuánto pesa la deuda"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: las dos cosas pesan igual"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e2_dif_pesa",
+   "text": "Un deber puede pesar sin ser el que decide",
+   "distinction": "d03_deber_que_pesa",
+   "test": "Si esa diferencia importa, la promesa sigue pesando aunque decidas romperla, y algo quedas debiendo. ¿Lo sostienes?"
+  },
+  {
+   "id": "e2_dif_decepcion",
+   "text": "Decepcionarla no es lo mismo que faltar a mi palabra",
+   "distinction": "d04_decepcionar_faltar",
+   "test": "Si esa diferencia importa, romper la promesa estaría mal incluso si ella nunca se enterara. ¿Lo sostienes?"
+  },
+  {
+   "id": "e2_dif_liberar",
+   "text": "Si ella me libera, ya no la rompo",
+   "distinction": "d04_decepcionar_faltar",
+   "test": "Si esa diferencia importa, lo decisivo es su acuerdo, no el resultado. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e2_l_v1",
+     "text": "Una promesa crea una confianza que antes no existía",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e2_l_v2",
+     "text": "Una promesa que se rompe cuando conviene deja de ser una promesa",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e2_l_r1",
+     "text": "Ella organizó su día contando con tu palabra",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e2_l_r2",
+     "text": "Nadie más de la familia irá a verla",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e2_l_c",
+     "text": "Hay que cumplir y buscar otra salida para la deuda",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e2_l_resp1",
+     "text": "La deuda importa, pero hay otras formas de cubrirla. No hay otra forma de estar en su presentación.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e2_r_deuda"
+     ]
+    },
+    {
+     "id": "e2_l_resp2",
+     "text": "Pedirle a una niña de 12 años que te libere es ponerla en un aprieto, no darle una elección.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e2_r_liberar"
+     ]
+    },
+    {
+     "id": "e2_l_respg",
+     "text": "Una promesa también protege la confianza de quien espera.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e2_l_k1",
+     "text": "Solo quieren quedar bien",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No se trata de imagen: se trata de lo que la hermana espera.",
+     "slots": []
+    },
+    {
+     "id": "e2_l_k2",
+     "text": "Hay que cumplir aunque se hunda la familia",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No dicen que la familia no importe: dicen que hay que buscar otra salida.",
+     "slots": []
+    },
+    {
+     "id": "e2_l_k3",
+     "text": "Porque sí, porque lo prometiste",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen razones: la confianza y lo que la hermana organizó.",
+     "slots": []
+    },
+    {
+     "id": "e2_l_own",
+     "text": "Lo que importa es el mejor resultado",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e2_l_v1",
+     "descriptor": "Perspectiva de quien creció con promesas incumplidas",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Casi. Falta lo que más me importa.",
+      "reconocible": "Sí: yo recuerdo quién fue y quién no.",
+      "fuerte": "Muy fuerte: entendiste por qué no es solo un sábado."
+     }
+    },
+    {
+     "id": "e2_l_v2",
+     "descriptor": "Perspectiva de una madre",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta decir qué concluimos.",
+      "reconocible": "Así lo diría: ella contaba contigo.",
+      "fuerte": "Lo dijiste mejor que yo, y respondiste a la deuda."
+     }
+    },
+    {
+     "id": "e2_l_v3",
+     "descriptor": "Perspectiva de quien trabaja con niños",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Hay algo, pero falta por qué aplica aquí.",
+      "reconocible": "Sí, así lo diría: a esa edad una promesa pesa mucho.",
+      "fuerte": "Especialmente fuerte. Así es."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e2_r_v1",
+     "text": "Las promesas existen para servir a las personas",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e2_r_v2",
+     "text": "Un deber puede pesar y aun así ceder ante otro mayor",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e2_r_r1",
+     "text": "La deuda también la afecta a ella",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e2_r_r2",
+     "text": "Se puede explicar, pedir perdón y reparar",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e2_r_c",
+     "text": "Es legítimo romperla, explicándolo y reparando",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e2_r_resp1",
+     "text": "La palabra pesa, nadie lo niega. Pero pesar no es lo mismo que decidir: otras cosas también pesan.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e2_r_palabra"
+     ]
+    },
+    {
+     "id": "e2_r_resp2",
+     "text": "Ella cuenta contigo, sí; también cuenta con que la familia esté bien.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e2_r_hermana"
+     ]
+    },
+    {
+     "id": "e2_r_respg",
+     "text": "Una promesa rota se puede reparar; una deuda urgente, a veces no.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e2_r_k1",
+     "text": "Las promesas no valen nada",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "Sí valen: por eso hablan de explicar y reparar.",
+     "slots": []
+    },
+    {
+     "id": "e2_r_k2",
+     "text": "Si te conviene, rompe cualquier promesa",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No es cualquier conveniencia: es una necesidad de toda la familia.",
+     "slots": []
+    },
+    {
+     "id": "e2_r_k3",
+     "text": "Es solo una presentación de danza",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "No lo minimizan: reconocen que duele y proponen reparar.",
+     "slots": []
+    },
+    {
+     "id": "e2_r_own",
+     "text": "Una promesa se cumple aunque cueste",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e2_r_v1",
+     "descriptor": "Perspectiva de quien sostiene a su familia con dos trabajos",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí: a veces no hay otra salida.",
+      "fuerte": "Muy fuerte: entendiste que no es falta de cariño."
+     }
+    },
+    {
+     "id": "e2_r_v2",
+     "descriptor": "Perspectiva de quien pidió perdón y reparó",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta por qué aplica aquí.",
+      "reconocible": "Así lo diría: se explica y se repara.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e2_r_v3",
+     "descriptor": "Perspectiva de una hermana mayor",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí, así lo diría.",
+      "fuerte": "Especialmente fuerte: respondiste a lo que el otro lado diría."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "Una variante antes de volver a decidir.",
+  "probe": "e2_secreto"
+ },
+ "reflection": "¿Una promesa te obliga por lo que le pasa a la otra persona, o por lo que tú dijiste?",
+ "map": [
+  {
+   "axis": "ax_limites_resultado",
+   "source": "stance",
+   "polarity": 1
+  },
+  {
+   "axis": "ax_intencion_resultado",
+   "source": "probe",
+   "probe": "e2_secreto",
+   "key": "choice",
+   "values": {
+    "falle": -2,
+    "cambia": 2,
+    "nose": 0
+   }
+  }
+ ],
+ "deepDive": {
+  "problem": "¿Qué crea una promesa? Si solo importaran los resultados, romperla sería correcto cada vez que conviene. Si obligara siempre, nunca podría ceder ante una necesidad mayor.",
+  "positions": [
+   "La promesa crea una obligación propia, basada en la confianza de quien espera.",
+   "La promesa pesa, pero puede ceder ante deberes más urgentes si se explica y se repara."
+  ],
+  "traditions": "W. D. Ross habló de deberes que pesan de antemano y pueden ceder ante otros. Hume entendió las promesas como una convención social útil. T. M. Scanlon las explica por lo que le debemos a quien confió en nosotros.",
+  "objection": "Si una promesa puede ceder siempre que algo pese más, ¿qué queda de su fuerza especial?",
+  "references": [
+   "ref_ross_1930",
+   "ref_hume_tratado",
+   "ref_scanlon_1998",
+   "ref_sep_promises"
+  ]
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "disclosure": "Perspectiva sintetizada a partir de argumentos representativos de esta posición.",
+ "simulationNote": "Es una simulación pedagógica basada en perspectivas investigadas. No son testimonios de personas reales.",
+ "slots": [
+  {
+   "id": "S1",
+   "title": "Lo que les importa",
+   "hint": "El valor que está en juego para ellos.",
+   "missing": "Falta lo que más les importa."
+  },
+  {
+   "id": "S2",
+   "title": "Por qué aplica aquí",
+   "hint": "El hecho o la razón que conecta ese valor con el caso.",
+   "missing": "Falta por qué eso aplica a este caso."
+  },
+  {
+   "id": "S3",
+   "title": "Lo que concluyen",
+   "hint": "La postura a la que llegan.",
+   "missing": "Falta lo que concluyen."
+  },
+  {
+   "id": "S4",
+   "title": "Cómo responden a tu razón",
+   "hint": "Lo que dirían ante tu propia razón.",
+   "missing": "Falta cómo responderían a tu razón."
+  }
+ ],
+ "recognition": {
+  "noRepresenta": "No me representa",
+  "parcial": "Parcialmente",
+  "reconocible": "Sí, así lo diría",
+  "fuerte": "Reconstrucción especialmente fuerte"
+ },
+ "caricatureTypes": {
+  "malaIntencion": "Atribuye una mala intención",
+  "exageracion": "Exagera la postura hasta un extremo",
+  "versionDebil": "Elige la versión más débil"
+ }
+}

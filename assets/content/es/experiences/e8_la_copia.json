@@ -1,0 +1,592 @@
+{
+ "id": "e8_la_copia",
+ "order": 8,
+ "tramo": 3,
+ "title": "La copia",
+ "question": "¿Seguirías siendo tú si todos tus recuerdos fueran copiados?",
+ "sensitive": true,
+ "sensitiveNote": "Esta pregunta imagina un accidente grave y la muerte de una persona.",
+ "scenario": {
+  "layout": "single",
+  "paragraphs": [
+   "En el futuro, tras un accidente grave, un servicio médico puede crear una persona con todos tus recuerdos, tu carácter y tus proyectos, en un cuerpo sano.",
+   "Tu cuerpo original no sobrevive."
+  ]
+ },
+ "probes": [
+  {
+   "id": "e8_gradiente",
+   "type": "replacementGradient",
+   "placement": "elige",
+   "prompt": "Antes: si tu cuerpo se reemplazara poco a poco, conservando tus recuerdos, ¿en qué punto dejarías de ser tú?",
+   "config": {
+    "min": 10,
+    "max": 100,
+    "step": 10,
+    "never": "Nunca dejaría de ser yo"
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "La persona con tus recuerdos, ¿serías tú?",
+  "left": {
+   "label": "La copia no sería yo",
+   "short": "No sería yo"
+  },
+  "right": {
+   "label": "La copia sería yo",
+   "short": "Sería yo"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e8_r_cuerpo",
+   "text": "Soy también este cuerpo",
+   "tags": [
+    "p_continuidad_fisica"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e8_r_hilo",
+   "text": "Algo tiene que continuar sin corte",
+   "tags": [
+    "p_continuidad_fisica"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e8_r_memoria",
+   "text": "Soy mis recuerdos, mi carácter, mis proyectos",
+   "tags": [
+    "p_continuidad_psicologica"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e8_r_importa",
+   "text": "Da igual si soy yo: importa que siga lo que me importa",
+   "tags": [
+    "p_continuidad_psicologica"
+   ],
+   "aligns": "right"
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e8_t_mem_promesa",
+   "priority": 1,
+   "kind": "memory",
+   "question": "e8_q_mem_promesa",
+   "condition": {
+    "fact": "e2_promesa_sabado.status",
+    "op": "eq",
+    "value": "completed"
+   },
+   "memory": {
+    "source": "e2_promesa_sabado",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e8_t_mem_responsable",
+   "priority": 2,
+   "kind": "memory",
+   "question": "e8_q_mem_responsable",
+   "condition": {
+    "all": [
+     {
+      "fact": "e1_mismo_descuido.status",
+      "op": "eq",
+      "value": "completed"
+     },
+     {
+      "fact": "e2_promesa_sabado.status",
+      "op": "ne",
+      "value": "completed"
+     }
+    ]
+   },
+   "memory": {
+    "source": "e1_mismo_descuido",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e8_t_gradiente",
+   "priority": 5,
+   "kind": "internal",
+   "question": "e8_q_gradiente",
+   "condition": {
+    "all": [
+     {
+      "fact": "this.probe.e8_gradiente.stop",
+      "op": "lt",
+      "value": 100
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     }
+    ]
+   }
+  },
+  {
+   "id": "e8_t_corte",
+   "priority": 10,
+   "kind": "assumption",
+   "question": "e8_q_corte",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e8_t_todo",
+   "priority": 11,
+   "kind": "assumption",
+   "question": "e8_q_todo",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e8_t_centro",
+   "priority": 12,
+   "kind": "internal",
+   "question": "e8_q_centro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e8_q_mem_promesa",
+   "kind": "clarification",
+   "text": "En «{titulo}» elegiste «{postura}». Si tu copia recuerda esa promesa, ¿debería cumplirla?",
+   "answers": [
+    {
+     "id": "si",
+     "label": "Sí: es su promesa",
+     "next": "e8_q_promesa_a",
+     "nextCondition": {
+      "fact": "this.stance.initial",
+      "op": "lt",
+      "value": 0
+     }
+    },
+    {
+     "id": "no",
+     "label": "No: ella no la hizo",
+     "next": "e8_q_promesa_b",
+     "nextCondition": {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     }
+    },
+    {
+     "id": "nose",
+     "label": "No lo sé"
+    }
+   ]
+  },
+  {
+   "id": "e8_q_promesa_a",
+   "kind": "tension",
+   "text": "Dijiste que la copia no sería tú, pero que debería cumplir tu promesa. Hay algo interesante aquí.",
+   "implication": "Entonces, alguien que no es tú podría heredar tus promesas. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e8_q_promesa_b",
+   "kind": "tension",
+   "text": "Dijiste que la copia sería tú, pero que no debería cumplir tu promesa. Hay algo interesante aquí.",
+   "implication": "Entonces, ser la misma persona no basta para heredar lo prometido. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e8_q_mem_responsable",
+   "kind": "clarification",
+   "text": "En «{titulo}» elegiste «{postura}». Si tu copia recordara haber hecho algo así, ¿sería responsable de ello?",
+   "answers": [
+    {
+     "id": "si",
+     "label": "Sí: recuerda haberlo hecho"
+    },
+    {
+     "id": "no",
+     "label": "No: ella no lo hizo"
+    },
+    {
+     "id": "nose",
+     "label": "No lo sé"
+    }
+   ]
+  },
+  {
+   "id": "e8_q_gradiente",
+   "kind": "tension",
+   "text": "Dijiste que dejarías de ser tú al reemplazar el {fact:this.probe.e8_gradiente.stop} % de tu cuerpo, aunque conservaras tus recuerdos, pero que la copia sería tú. Hay algo interesante aquí.",
+   "implication": "Entonces, para ti el cuerpo importa poco a poco, pero no de golpe. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e8_q_corte",
+   "kind": "assumption",
+   "text": "Tu razón supone que algo tiene que continuar sin interrupción para que sigas siendo tú. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e8_q_todo",
+   "kind": "assumption",
+   "text": "Tu razón supone que tus recuerdos y tu carácter son todo lo que eres. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e8_q_centro",
+   "kind": "clarification",
+   "text": "¿Qué te haría inclinarte?",
+   "answers": [
+    {
+     "id": "amigos",
+     "label": "Saber si mis amigos la reconocerían"
+    },
+    {
+     "id": "sentir",
+     "label": "Saber si ella sentiría ser yo"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: no creo que tenga respuesta"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e8_dif_importa",
+   "text": "Quizás no importa si es yo, sino que siga lo que me importa",
+   "distinction": "d11_seguir_conservar",
+   "test": "Si esa diferencia importa, podrías aceptar la copia aunque no fuera exactamente tú. ¿Lo sostienes?"
+  },
+  {
+   "id": "e8_dif_recordar",
+   "text": "Recordar algo no es haberlo hecho",
+   "distinction": null,
+   "test": "Si esa diferencia importa, la copia recordaría tu vida sin haberla vivido. ¿Lo sostienes?"
+  },
+  {
+   "id": "e8_dif_dos",
+   "text": "Si hay dos, ninguno es solo yo",
+   "distinction": "d11_seguir_conservar",
+   "test": "Si esa diferencia importa, la identidad no puede duplicarse, aunque los recuerdos sí. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e8_l_v1",
+     "text": "Una persona no puede estar en dos lugares a la vez",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e8_l_v2",
+     "text": "Soy un organismo, no solo información",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e8_l_r1",
+     "text": "Si el original sobreviviera, habría dos personas",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e8_l_r2",
+     "text": "La copia empieza a existir el día que la crean",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e8_l_c",
+     "text": "La copia sería otra persona, muy parecida a mí",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e8_l_resp1",
+     "text": "Tus recuerdos estarían en ella, sí; pero recordar algo no es haberlo vivido.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e8_r_memoria"
+     ]
+    },
+    {
+     "id": "e8_l_resp2",
+     "text": "Que siga lo que te importa no significa que sigas tú.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e8_r_importa"
+     ]
+    },
+    {
+     "id": "e8_l_respg",
+     "text": "Una copia perfecta sigue siendo una copia.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e8_l_k1",
+     "text": "Tienen miedo a la tecnología",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No es miedo: es una pregunta sobre qué nos hace ser quienes somos.",
+     "slots": []
+    },
+    {
+     "id": "e8_l_k2",
+     "text": "Si te cambian una sola célula ya no eres tú",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No dicen eso: dicen que una copia nueva es otra persona.",
+     "slots": []
+    },
+    {
+     "id": "e8_l_k3",
+     "text": "Es una copia, se nota",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón: una persona no puede estar en dos lugares.",
+     "slots": []
+    },
+    {
+     "id": "e8_l_own",
+     "text": "Soy mis recuerdos",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e8_l_v1",
+     "descriptor": "Perspectiva de quien cree que somos nuestro cuerpo",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí: yo soy este cuerpo que vive.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e8_l_v2",
+     "descriptor": "Perspectiva de quien cuidó a una persona con pérdida de memoria",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta por qué aplica aquí.",
+      "reconocible": "Así lo diría: seguía siendo ella aunque no recordara.",
+      "fuerte": "Especialmente fuerte: respondiste a tu propia razón."
+     }
+    },
+    {
+     "id": "e8_l_v3",
+     "descriptor": "Perspectiva de quien estudia biología",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí, así lo diría.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e8_r_v1",
+     "text": "Lo que me hace ser yo es mi memoria, mi carácter y mis proyectos",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e8_r_v2",
+     "text": "Mi cuerpo cambia todo el tiempo y sigo siendo yo",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e8_r_r1",
+     "text": "La copia tendría todo eso, sin que le falte nada",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e8_r_r2",
+     "text": "Mis amigos la reconocerían",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e8_r_c",
+     "text": "La copia sería yo",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e8_r_resp1",
+     "text": "Tu cuerpo ya cambió muchísimo desde que eras niño, y sigues siendo tú.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e8_r_cuerpo"
+     ]
+    },
+    {
+     "id": "e8_r_resp2",
+     "text": "Cuando duermes profundamente también hay una pausa, y despiertas siendo tú.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e8_r_hilo"
+     ]
+    },
+    {
+     "id": "e8_r_respg",
+     "text": "Si nada de lo que te importa se pierde, lo que continúa eres tú.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e8_r_k1",
+     "text": "Quieren vender inmortalidad",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No venden nada: preguntan qué nos hace ser quienes somos.",
+     "slots": []
+    },
+    {
+     "id": "e8_r_k2",
+     "text": "Una foto tuya también eres tú",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No es una foto: es alguien con tus recuerdos y tu carácter.",
+     "slots": []
+    },
+    {
+     "id": "e8_r_k3",
+     "text": "Si se parece, es lo mismo",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "No es parecido: es continuidad de memoria y carácter.",
+     "slots": []
+    },
+    {
+     "id": "e8_r_own",
+     "text": "Soy también este cuerpo",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e8_r_v1",
+     "descriptor": "Perspectiva de quien se reinventó por completo",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Algo hay, pero falta lo que más me importa.",
+      "reconocible": "Sí: cambié todo y sigo siendo yo.",
+      "fuerte": "Especialmente fuerte. Así es."
+     }
+    },
+    {
+     "id": "e8_r_v2",
+     "descriptor": "Perspectiva de quien valora sus recuerdos por encima de todo",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta decir qué concluimos.",
+      "reconocible": "Así lo diría.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e8_r_v3",
+     "descriptor": "Perspectiva de quien trabaja con tecnología",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta por qué aplica aquí.",
+      "reconocible": "Sí: lo que importa es el patrón, no el material.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "Ahora imagina que tu cuerpo original también sobrevive. Hay dos personas con tus recuerdos. ¿Cambia algo?"
+ },
+ "reflection": "Si mañana no fueras exactamente quien eres hoy, ¿qué tendría que conservarse para que siguiera importándote?",
+ "map": [],
+ "openQuestion": true,
+ "deepDive": {
+  "problem": "¿Qué nos hace ser la misma persona a lo largo del tiempo: el cuerpo, la memoria, el carácter, o algo más?",
+  "positions": [
+   "La identidad personal depende de la continuidad psicológica: memoria, carácter y proyectos.",
+   "Somos organismos: una copia, por perfecta que sea, sería otra persona."
+  ],
+  "traditions": "John Locke ligó la identidad personal a la conciencia y la memoria, y llamó a la persona un término relacionado con la responsabilidad. Thomas Reid le objetó casos de memoria interrumpida. Bernard Williams mostró cómo cambian nuestras intuiciones según cómo se cuente el caso. Derek Parfit sostuvo que la identidad no es lo que importa. Eric Olson defendió que somos animales. En el Milindapañha, el carro de Nāgasena cuestiona que exista un yo aparte de sus partes.",
+  "objection": "Si la memoria define la identidad, la duplicación produciría dos personas que serían la misma, y eso parece imposible.",
+  "references": [
+   "ref_locke_ensayo",
+   "ref_reid_1785",
+   "ref_williams_1970",
+   "ref_parfit_1984",
+   "ref_olson_1997",
+   "ref_milindapanha"
+  ]
+ }
+}

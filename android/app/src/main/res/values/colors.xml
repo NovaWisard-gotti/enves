@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="enves_paper">#F5F0E6</color>
+    <color name="enves_reverse">#E4E7E1</color>
+    <color name="enves_ink">#1F2433</color>
+    <color name="enves_saffron">#A8700F</color>
+    <color name="ic_launcher_background">#F5F0E6</color>
+</resources>

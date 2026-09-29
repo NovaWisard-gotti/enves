@@ -1,0 +1,463 @@
+{
+ "references": [
+  {
+   "id": "ref_williams_1976",
+   "authors": "Bernard Williams",
+   "year": "1976",
+   "title": "Moral Luck",
+   "container": "Proceedings of the Aristotelian Society, vol. supl. 50; reimpreso en Moral Luck, Cambridge University Press, 1981",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_nagel_1976",
+   "authors": "Thomas Nagel",
+   "year": "1976",
+   "title": "Moral Luck",
+   "container": "Proceedings of the Aristotelian Society, vol. supl. 50; reimpreso en Mortal Questions, Cambridge University Press, 1979",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_waldron_1995",
+   "authors": "Jeremy Waldron",
+   "year": "1995",
+   "title": "Moments of Carelessness and Massive Loss",
+   "container": "en D. Owen (ed.), Philosophical Foundations of Tort Law, Oxford University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_kant_fundamentacion",
+   "authors": "Immanuel Kant",
+   "year": "1785",
+   "title": "Fundamentación de la metafísica de las costumbres",
+   "container": "",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_sep_moral_luck",
+   "authors": "Dana K. Nelkin",
+   "year": "",
+   "title": "Moral Luck",
+   "container": "Stanford Encyclopedia of Philosophy (entrada en línea)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_ross_1930",
+   "authors": "W. D. Ross",
+   "year": "1930",
+   "title": "The Right and the Good",
+   "container": "Oxford University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_hume_tratado",
+   "authors": "David Hume",
+   "year": "1739–1740",
+   "title": "Tratado de la naturaleza humana",
+   "container": "",
+   "locator": "libro 3, parte 2, sección 5",
+   "verified": true
+  },
+  {
+   "id": "ref_scanlon_1998",
+   "authors": "T. M. Scanlon",
+   "year": "1998",
+   "title": "What We Owe to Each Other",
+   "container": "Harvard University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_sep_promises",
+   "authors": "Allen Habib",
+   "year": "",
+   "title": "Promises",
+   "container": "Stanford Encyclopedia of Philosophy (entrada en línea)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_platon_eutifron",
+   "authors": "Platón",
+   "year": "",
+   "title": "Eutifrón",
+   "container": "",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_analectas",
+   "authors": "Tradición confuciana",
+   "year": "",
+   "title": "Analectas",
+   "container": "",
+   "locator": "13.18",
+   "verified": true
+  },
+  {
+   "id": "ref_mencio",
+   "authors": "Mencio",
+   "year": "",
+   "title": "Mencio",
+   "container": "",
+   "locator": "7A35",
+   "verified": true
+  },
+  {
+   "id": "ref_godwin_1793",
+   "authors": "William Godwin",
+   "year": "1793",
+   "title": "An Enquiry Concerning Political Justice",
+   "container": "",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_williams_pcm",
+   "authors": "Bernard Williams",
+   "year": "1976",
+   "title": "Persons, Character and Morality",
+   "container": "en A. O. Rorty (ed.), The Identities of Persons; reimpreso en Moral Luck, 1981",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_noddings_1984",
+   "authors": "Nel Noddings",
+   "year": "1984",
+   "title": "Caring: A Feminine Approach to Ethics and Moral Education",
+   "container": "University of California Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_agustin_mendacio",
+   "authors": "Agustín de Hipona",
+   "year": "c. 395",
+   "title": "Sobre la mentira (De mendacio)",
+   "container": "",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_kant_1797",
+   "authors": "Immanuel Kant",
+   "year": "1797",
+   "title": "Sobre un presunto derecho a mentir por filantropía",
+   "container": "respuesta a Benjamin Constant",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_korsgaard_1986",
+   "authors": "Christine M. Korsgaard",
+   "year": "1986",
+   "title": "The Right to Lie: Kant on Dealing with Evil",
+   "container": "Philosophy & Public Affairs 15(4)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_bok_1978",
+   "authors": "Sissela Bok",
+   "year": "1978",
+   "title": "Lying: Moral Choice in Public and Private Life",
+   "container": "Pantheon Books",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_williams_2002",
+   "authors": "Bernard Williams",
+   "year": "2002",
+   "title": "Truth and Truthfulness",
+   "container": "Princeton University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_saul_2012",
+   "authors": "Jennifer M. Saul",
+   "year": "2012",
+   "title": "Lying, Misleading, and What Is Said",
+   "container": "Oxford University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_sep_deontology",
+   "authors": "Larry Alexander y Michael Moore",
+   "year": "",
+   "title": "Deontological Ethics",
+   "container": "Stanford Encyclopedia of Philosophy (entrada en línea)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_kleinberg_2016",
+   "authors": "Jon Kleinberg, Sendhil Mullainathan y Manish Raghavan",
+   "year": "2016",
+   "title": "Inherent Trade-Offs in the Fair Determination of Risk Scores",
+   "container": "arXiv:1609.05807",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_chouldechova_2017",
+   "authors": "Alexandra Chouldechova",
+   "year": "2017",
+   "title": "Fair Prediction with Disparate Impact: A Study of Bias in Recidivism Prediction Instruments",
+   "container": "Big Data 5(2)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_angwin_2016",
+   "authors": "Julia Angwin, Jeff Larson, Surya Mattu y Lauren Kirchner",
+   "year": "2016",
+   "title": "Machine Bias",
+   "container": "ProPublica",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_dieterich_2016",
+   "authors": "William Dieterich, Christina Mendoza y Tim Brennan",
+   "year": "2016",
+   "title": "COMPAS Risk Scales: Demonstrating Accuracy Equity and Predictive Parity",
+   "container": "Northpointe",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_hellman_2020",
+   "authors": "Deborah Hellman",
+   "year": "2020",
+   "title": "Measuring Algorithmic Fairness",
+   "container": "Virginia Law Review 106",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_rawls_1971",
+   "authors": "John Rawls",
+   "year": "1971",
+   "title": "A Theory of Justice",
+   "container": "Harvard University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_rachels_1975",
+   "authors": "James Rachels",
+   "year": "1975",
+   "title": "Why Privacy Is Important",
+   "container": "Philosophy & Public Affairs 4(4)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_solove_2007",
+   "authors": "Daniel J. Solove",
+   "year": "2007",
+   "title": "'I've Got Nothing to Hide' and Other Misunderstandings of Privacy",
+   "container": "San Diego Law Review 44",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_nissenbaum_2004",
+   "authors": "Helen Nissenbaum",
+   "year": "2004",
+   "title": "Privacy as Contextual Integrity",
+   "container": "Washington Law Review 79",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_nissenbaum_2010",
+   "authors": "Helen Nissenbaum",
+   "year": "2010",
+   "title": "Privacy in Context",
+   "container": "Stanford University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_mill_1859",
+   "authors": "John Stuart Mill",
+   "year": "1859",
+   "title": "Sobre la libertad",
+   "container": "",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_feinberg_1986",
+   "authors": "Joel Feinberg",
+   "year": "1986",
+   "title": "Harm to Self",
+   "container": "Oxford University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_turing_1950",
+   "authors": "Alan M. Turing",
+   "year": "1950",
+   "title": "Computing Machinery and Intelligence",
+   "container": "Mind 59",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_searle_1980",
+   "authors": "John R. Searle",
+   "year": "1980",
+   "title": "Minds, Brains, and Programs",
+   "container": "Behavioral and Brain Sciences 3(3)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_dennett_1987",
+   "authors": "Daniel C. Dennett",
+   "year": "1987",
+   "title": "The Intentional Stance",
+   "container": "MIT Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_bender_koller_2020",
+   "authors": "Emily M. Bender y Alexander Koller",
+   "year": "2020",
+   "title": "Climbing towards NLU: On Meaning, Form, and Understanding in the Age of Data",
+   "container": "Proceedings of ACL 2020",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_sep_chinese_room",
+   "authors": "David Cole",
+   "year": "",
+   "title": "The Chinese Room Argument",
+   "container": "Stanford Encyclopedia of Philosophy (entrada en línea)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_locke_ensayo",
+   "authors": "John Locke",
+   "year": "1694",
+   "title": "Ensayo sobre el entendimiento humano (2.ª edición)",
+   "container": "",
+   "locator": "libro II, capítulo 27",
+   "verified": true
+  },
+  {
+   "id": "ref_reid_1785",
+   "authors": "Thomas Reid",
+   "year": "1785",
+   "title": "Essays on the Intellectual Powers of Man",
+   "container": "",
+   "locator": "ensayo III, capítulo 6",
+   "verified": true
+  },
+  {
+   "id": "ref_williams_1970",
+   "authors": "Bernard Williams",
+   "year": "1970",
+   "title": "The Self and the Future",
+   "container": "The Philosophical Review 79(2)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_parfit_1984",
+   "authors": "Derek Parfit",
+   "year": "1984",
+   "title": "Reasons and Persons",
+   "container": "Oxford University Press",
+   "locator": "parte III",
+   "verified": true
+  },
+  {
+   "id": "ref_olson_1997",
+   "authors": "Eric T. Olson",
+   "year": "1997",
+   "title": "The Human Animal: Personal Identity Without Psychology",
+   "container": "Oxford University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_milindapanha",
+   "authors": "Tradición budista",
+   "year": "",
+   "title": "Milindapañha (Las preguntas de Milinda)",
+   "container": "",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_nagel_1974",
+   "authors": "Thomas Nagel",
+   "year": "1974",
+   "title": "What Is It Like to Be a Bat?",
+   "container": "The Philosophical Review 83(4)",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_jackson_1982",
+   "authors": "Frank Jackson",
+   "year": "1982",
+   "title": "Epiphenomenal Qualia",
+   "container": "The Philosophical Quarterly 32",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_paul_2014",
+   "authors": "L. A. Paul",
+   "year": "2014",
+   "title": "Transformative Experience",
+   "container": "Oxford University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_fricker_2007",
+   "authors": "Miranda Fricker",
+   "year": "2007",
+   "title": "Epistemic Injustice: Power and the Ethics of Knowing",
+   "container": "Oxford University Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_nussbaum_1995",
+   "authors": "Martha C. Nussbaum",
+   "year": "1995",
+   "title": "Poetic Justice: The Literary Imagination and Public Life",
+   "container": "Beacon Press",
+   "locator": "",
+   "verified": true
+  },
+  {
+   "id": "ref_russell_1911",
+   "authors": "Bertrand Russell",
+   "year": "1910–1911",
+   "title": "Knowledge by Acquaintance and Knowledge by Description",
+   "container": "Proceedings of the Aristotelian Society 11",
+   "locator": "",
+   "verified": true
+  }
+ ]
+}

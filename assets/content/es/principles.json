@@ -1,0 +1,80 @@
+{
+ "principles": [
+  {
+   "id": "p_decision",
+   "label": "importa lo que cada uno decide"
+  },
+  {
+   "id": "p_resultado",
+   "label": "importa lo que ocurre"
+  },
+  {
+   "id": "p_riesgo",
+   "label": "importa el riesgo que se asume"
+  },
+  {
+   "id": "p_palabra",
+   "label": "la palabra dada obliga"
+  },
+  {
+   "id": "p_mejor_resultado",
+   "label": "buscar el mejor resultado"
+  },
+  {
+   "id": "p_cuidado",
+   "label": "cuidar a quien depende de mí"
+  },
+  {
+   "id": "p_cercanos",
+   "label": "los cercanos merecen un trato especial"
+  },
+  {
+   "id": "p_imparcial",
+   "label": "todos merecen el mismo trato"
+  },
+  {
+   "id": "p_verdad",
+   "label": "la verdad no se negocia"
+  },
+  {
+   "id": "p_autonomia",
+   "label": "cada quien decide sobre su vida"
+  },
+  {
+   "id": "p_proteccion",
+   "label": "proteger puede justificar límites"
+  },
+  {
+   "id": "p_mismo_criterio",
+   "label": "el mismo criterio para cada persona"
+  },
+  {
+   "id": "p_errores_repartidos",
+   "label": "repartir con justicia los errores"
+  },
+  {
+   "id": "p_interior",
+   "label": "comprender requiere algo interior"
+  },
+  {
+   "id": "p_conducta",
+   "label": "comprender se ve en lo que se hace"
+  },
+  {
+   "id": "p_continuidad_psicologica",
+   "label": "somos nuestra memoria y nuestro carácter"
+  },
+  {
+   "id": "p_continuidad_fisica",
+   "label": "somos también un cuerpo"
+  },
+  {
+   "id": "p_experiencia_vivida",
+   "label": "hay saberes que solo da la experiencia"
+  },
+  {
+   "id": "p_razones_compartibles",
+   "label": "las razones se pueden compartir"
+  }
+ ]
+}

@@ -1,0 +1,180 @@
+{
+ "distinctions": [
+  {
+   "id": "d01_reproche_reparacion",
+   "everydayName": "Culpa y reparación",
+   "shortExplanation": "No es lo mismo merecer reproche que tener que reparar un daño.",
+   "philosophicalRelation": "la suerte moral y la responsabilidad por los resultados",
+   "openingLine": "Esta diferencia se discute desde hace mucho.",
+   "debateAuthors": "El problema fue planteado por Bernard Williams y Thomas Nagel en 1976. Jeremy Waldron lo analizó al pensar cómo repartir las cargas cuando dos descuidos iguales tienen consecuencias muy distintas (1995).",
+   "mainObjection": "Si el reproche no depende del resultado, ¿por qué sentimos que quien causó un daño grave debe algo más que una disculpa?",
+   "referenceIds": [
+    "ref_waldron_1995",
+    "ref_williams_1976",
+    "ref_nagel_1976",
+    "ref_sep_moral_luck"
+   ]
+  },
+  {
+   "id": "d02_cargar_con_lo_hecho",
+   "everydayName": "Cargar con lo que hiciste",
+   "shortExplanation": "Se puede sentir el peso de lo ocurrido sin haber sido peor persona que otro.",
+   "philosophicalRelation": "el llamado arrepentimiento del agente",
+   "openingLine": "Otras personas también pensaron en esta diferencia.",
+   "debateAuthors": "Bernard Williams (1976) describió este sentimiento propio de quien causó algo, distinto de la culpa por una falta.",
+   "mainObjection": "¿Es razonable sentir un peso que no corresponde a ninguna falta propia?",
+   "referenceIds": [
+    "ref_williams_1976",
+    "ref_sep_moral_luck"
+   ]
+  },
+  {
+   "id": "d03_deber_que_pesa",
+   "everydayName": "Un deber que pesa y un deber que decide",
+   "shortExplanation": "Un deber puede tener peso real y aun así ceder ante otro más fuerte en un caso concreto.",
+   "philosophicalRelation": "los deberes prima facie",
+   "openingLine": "Esta diferencia se discute desde hace mucho.",
+   "debateAuthors": "W. D. Ross (1930) distinguió los deberes que pesan de antemano del deber que, considerado todo, decide en cada situación.",
+   "mainObjection": "Si todo deber puede ceder, ¿cómo saber cuál pesa más sin una regla para compararlos?",
+   "referenceIds": [
+    "ref_ross_1930"
+   ]
+  },
+  {
+   "id": "d04_decepcionar_faltar",
+   "everydayName": "Decepcionar y faltar a la palabra",
+   "shortExplanation": "Romper una promesa puede ser incorrecto aunque la otra persona nunca se entere.",
+   "philosophicalRelation": "la naturaleza de la obligación que crea una promesa",
+   "openingLine": "Otras personas también pensaron en esta diferencia.",
+   "debateAuthors": "David Hume vio las promesas como una convención social útil. T. M. Scanlon las explica por lo que le debemos a quien confió en nosotros.",
+   "mainObjection": "Si nadie resulta decepcionado, ¿dónde está exactamente el daño?",
+   "referenceIds": [
+    "ref_hume_tratado",
+    "ref_scanlon_1998",
+    "ref_sep_promises"
+   ]
+  },
+  {
+   "id": "d05_nuestros_todos",
+   "everydayName": "Lo que debemos a los nuestros y lo que debemos a todos",
+   "shortExplanation": "Hay deberes especiales con quienes queremos que no tenemos con todos.",
+   "philosophicalRelation": "el debate entre parcialidad e imparcialidad",
+   "openingLine": "Esta diferencia se discute desde hace siglos, en tradiciones muy distintas.",
+   "debateAuthors": "William Godwin defendió una imparcialidad estricta (1793). Bernard Williams criticó exigirla con quienes amamos. El Eutifrón de Platón, las Analectas (13.18) y el Mencio (7A35) muestran el mismo conflicto entre familia y justicia.",
+   "mainObjection": "Si los deberes especiales pesan tanto, ¿qué impide que la lealtad se vuelva injusticia con los demás?",
+   "referenceIds": [
+    "ref_godwin_1793",
+    "ref_williams_pcm",
+    "ref_platon_eutifron",
+    "ref_analectas",
+    "ref_mencio"
+   ]
+  },
+  {
+   "id": "d06_mentir_no_decir",
+   "everydayName": "Mentir y no decirlo todo",
+   "shortExplanation": "Decir algo falso no es lo mismo que callar o elegir con cuidado qué decir.",
+   "philosophicalRelation": "la distinción entre mentir e inducir a error sin mentir",
+   "openingLine": "Otras personas también pensaron en esta diferencia.",
+   "debateAuthors": "Jennifer Saul (2012) y Bernard Williams (2002) discuten si mentir es peor que engañar con palabras verdaderas. Sissela Bok (1978) estudió la mentira en la vida cotidiana.",
+   "mainObjection": "Si el efecto en la otra persona es el mismo, ¿importa que la frase haya sido literalmente verdadera?",
+   "referenceIds": [
+    "ref_saul_2012",
+    "ref_williams_2002",
+    "ref_bok_1978"
+   ]
+  },
+  {
+   "id": "d07_linea_fija_movil",
+   "everydayName": "Una línea fija o una línea que se mueve",
+   "shortExplanation": "Algunos límites no se cruzan nunca; otros ceden cuando lo que está en juego es muy grave.",
+   "philosophicalRelation": "la deontología absoluta y la deontología de umbral",
+   "openingLine": "Otras personas también pensaron en esta diferencia.",
+   "debateAuthors": "Kant sostuvo que no se debe mentir ni siquiera a quien busca hacer daño (1797). Christine Korsgaard reexaminó ese caso (1986). La idea de un umbral aparece en la discusión contemporánea sobre la ética deontológica.",
+   "mainObjection": "Si la línea se mueve, ¿qué la distingue de simplemente calcular consecuencias?",
+   "referenceIds": [
+    "ref_kant_1797",
+    "ref_korsgaard_1986",
+    "ref_sep_deontology"
+   ]
+  },
+  {
+   "id": "d08_puntaje_errores",
+   "everydayName": "Que una beca signifique lo mismo, o que los errores se repartan igual",
+   "shortExplanation": "Son dos ideas razonables de justicia y, cuando los grupos son distintos, no siempre pueden cumplirse a la vez.",
+   "philosophicalRelation": "los criterios de equidad en las decisiones automáticas",
+   "openingLine": "Esta diferencia se discute desde hace pocos años, y ya es central.",
+   "debateAuthors": "Alexandra Chouldechova (2017) y Kleinberg, Mullainathan y Raghavan (2016) mostraron que, si los grupos tienen tasas distintas y la predicción no es perfecta, no se pueden cumplir todos los criterios a la vez. El caso COMPAS enfrentó a ProPublica y Northpointe por esta razón. Deborah Hellman (2020) analizó qué criterio importa moralmente.",
+   "mainObjection": "Si ningún criterio puede cumplirse del todo, ¿quién decide cuál sacrificar y con qué legitimidad?",
+   "referenceIds": [
+    "ref_chouldechova_2017",
+    "ref_kleinberg_2016",
+    "ref_angwin_2016",
+    "ref_dieterich_2016",
+    "ref_hellman_2020"
+   ]
+  },
+  {
+   "id": "d09_ocultar_contexto",
+   "everydayName": "Ocultar algo o sacarlo de su lugar",
+   "shortExplanation": "La privacidad no protege solo secretos: protege que la información llegue a quien corresponde y para lo que corresponde.",
+   "philosophicalRelation": "la integridad contextual",
+   "openingLine": "Otras personas también pensaron en esta diferencia.",
+   "debateAuthors": "Helen Nissenbaum (2004, 2010) propuso juzgar cada flujo de información según las normas de su contexto. James Rachels (1975) vinculó la privacidad con la posibilidad de tener relaciones distintas con personas distintas. Daniel Solove (2007) analizó el argumento de no tener nada que ocultar.",
+   "mainObjection": "Si todo depende del contexto, ¿quién fija las normas de cada contexto?",
+   "referenceIds": [
+    "ref_nissenbaum_2004",
+    "ref_nissenbaum_2010",
+    "ref_rachels_1975",
+    "ref_solove_2007"
+   ]
+  },
+  {
+   "id": "d10_usar_entender",
+   "everydayName": "Usar bien las palabras y entenderlas",
+   "shortExplanation": "Manejar símbolos con acierto no es necesariamente saber lo que significan.",
+   "philosophicalRelation": "la diferencia entre sintaxis y semántica",
+   "openingLine": "Otras personas también pensaron en esta diferencia.",
+   "debateAuthors": "John Searle (1980) la defendió con el argumento de la habitación china. Alan Turing (1950) propuso juzgar la inteligencia por la conducta. Daniel Dennett (1987) defendió atribuir estados mentales cuando eso ayuda a entender y predecir.",
+   "mainObjection": "Si solo vemos la conducta de los demás, ¿con qué criterio negamos comprensión a una máquina y se la concedemos a una persona?",
+   "referenceIds": [
+    "ref_searle_1980",
+    "ref_turing_1950",
+    "ref_dennett_1987",
+    "ref_bender_koller_2020",
+    "ref_sep_chinese_room"
+   ]
+  },
+  {
+   "id": "d11_seguir_conservar",
+   "everydayName": "Seguir siendo tú o conservar lo que te importa",
+   "shortExplanation": "Quizás lo decisivo no es si hay identidad, sino si continúa lo que valoras.",
+   "philosophicalRelation": "el debate sobre la identidad personal",
+   "openingLine": "Esta diferencia se discute desde hace siglos.",
+   "debateAuthors": "Locke ligó la identidad personal a la conciencia y la memoria. Thomas Reid le objetó casos de memoria interrumpida. Derek Parfit (1984) sostuvo que la identidad no es lo que importa.",
+   "mainObjection": "Si la identidad no importa, ¿por qué nos preocupa tanto lo que le pasará a nuestro yo futuro?",
+   "referenceIds": [
+    "ref_locke_ensayo",
+    "ref_reid_1785",
+    "ref_parfit_1984",
+    "ref_williams_1970"
+   ]
+  },
+  {
+   "id": "d12_saber_vivido",
+   "everydayName": "Saber sobre algo y haberlo vivido",
+   "shortExplanation": "Se pueden comprender las razones de alguien sin saber cómo se siente vivirlas.",
+   "philosophicalRelation": "el conocimiento por familiaridad y el conocimiento por descripción",
+   "openingLine": "Otras personas también pensaron en esta diferencia.",
+   "debateAuthors": "Bertrand Russell (1910–1911) distinguió ambos tipos de conocimiento. Thomas Nagel (1974) y Frank Jackson (1982) defendieron que hay algo de la experiencia que no se capta desde fuera. L. A. Paul (2014) lo aplicó a las decisiones que nos transforman.",
+   "mainObjection": "Si nadie puede comprender lo que no vivió, ¿cómo podríamos resolver desacuerdos entre personas con vidas distintas?",
+   "referenceIds": [
+    "ref_russell_1911",
+    "ref_nagel_1974",
+    "ref_jackson_1982",
+    "ref_paul_2014",
+    "ref_fricker_2007"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,964 @@
+{
+ "schemaVersion": 1,
+ "contentVersion": "1.0.0",
+ "createdAt": "2026-09-01T18:00:00",
+ "onboarding": {
+  "stance": {
+   "value": 2,
+   "left": "No",
+   "right": "Sí",
+   "at": "2026-09-01T18:00:00"
+  },
+  "completedAt": "2026-09-01T18:00:00"
+ },
+ "experiences": {
+  "e1_mismo_descuido": {
+   "id": "e1_mismo_descuido",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-01T18:00:00",
+   "completedAt": "2026-09-01T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e1_gemelos": {
+     "ana": 2,
+     "beto": 3,
+     "diff": 1
+    }
+   },
+   "initialStance": {
+    "value": -2,
+    "left": "Merecen el mismo reproche",
+    "right": "Beto merece más reproche",
+    "at": "2026-09-01T18:02:00"
+   },
+   "reason": {
+    "id": "e1_r_decision",
+    "text": "Importa lo que cada uno decidió hacer",
+    "tags": [
+     "p_decision"
+    ],
+    "other": null,
+    "at": "2026-09-01T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e1_t_impresion",
+     "question": "e1_q_impresion",
+     "kind": "clarification",
+     "text": "En tu primera impresión, Beto merecía más reproche que Ana. En tu postura, no. ¿Qué cambió?",
+     "refs": [],
+     "answer": "pense",
+     "answerLabel": "Lo pensé mejor",
+     "followUp": false,
+     "at": "2026-09-01T18:04:00"
+    }
+   ],
+   "active": null,
+   "tension": null,
+   "pendingDifference": null,
+   "cruza": {
+    "target": "right",
+    "chosen": false,
+    "table": [
+     "e1_r_c",
+     "e1_r_r1",
+     "e1_r_respg",
+     "e1_r_v1"
+    ],
+    "placement": {
+     "S1": "e1_r_v1",
+     "S2": "e1_r_r1",
+     "S3": "e1_r_c",
+     "S4": "e1_r_respg"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e1_r_v1",
+       "S2": "e1_r_r1",
+       "S3": "e1_r_c",
+       "S4": "e1_r_respg"
+      },
+      "state": "fuerte",
+      "missing": [],
+      "at": "2026-09-01T18:10:00"
+     }
+    ],
+    "final": "fuerte",
+    "strength": 4,
+    "agreement": 2,
+    "completedAt": "2026-09-01T18:10:00"
+   },
+   "finalStance": {
+    "value": -1,
+    "left": "Merecen el mismo reproche",
+    "right": "Beto merece más reproche",
+    "at": "2026-09-01T18:13:00"
+   }
+  },
+  "e2_promesa_sabado": {
+   "id": "e2_promesa_sabado",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-02T18:00:00",
+   "completedAt": "2026-09-02T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e2_secreto": {
+     "choice": "falle"
+    }
+   },
+   "initialStance": {
+    "value": 1,
+    "left": "Cumplir la promesa",
+    "right": "Romperla, explicándolo",
+    "at": "2026-09-02T18:02:00"
+   },
+   "reason": {
+    "id": "e2_r_hermana",
+    "text": "Ella cuenta conmigo y nadie más irá",
+    "tags": [
+     "p_cuidado"
+    ],
+    "other": null,
+    "at": "2026-09-02T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e2_t_mem_decision",
+     "question": "e2_q_mem_decision",
+     "kind": "tension",
+     "text": "En «El mismo descuido» elegiste «Importa lo que cada uno decidió hacer». Aquí romperías la promesa por una buena razón. ¿Alcanza la buena intención si ella igual se queda esperando?",
+     "refs": [
+      {
+       "exp": "e1_mismo_descuido",
+       "field": "reason",
+       "at": "2026-09-01T18:03:00",
+       "quote": "Importa lo que cada uno decidió hacer"
+      }
+     ],
+     "answer": "mantener",
+     "answerLabel": "Mantener",
+     "followUp": false,
+     "at": "2026-09-02T18:04:00"
+    },
+    {
+     "trigger": "e2_t_mem_decision",
+     "question": "implication",
+     "kind": "implication",
+     "text": "Entonces, lo que decidiste importa más que lo que ella vive ese sábado. ¿Lo aceptas?",
+     "refs": [],
+     "answer": "acepto",
+     "answerLabel": "Sí, lo acepto",
+     "followUp": true,
+     "at": "2026-09-02T18:05:00"
+    }
+   ],
+   "active": null,
+   "tension": {
+    "outcome": "mantener",
+    "difference": null,
+    "differenceText": null,
+    "firmness": null,
+    "notebookEntry": null,
+    "revisionTarget": null,
+    "noAplicaText": null,
+    "at": "2026-09-02T18:05:00"
+   },
+   "pendingDifference": null,
+   "cruza": {
+    "target": "left",
+    "chosen": false,
+    "table": [
+     "e2_l_c",
+     "e2_l_r1",
+     "e2_l_v1"
+    ],
+    "placement": {
+     "S1": "e2_l_v1",
+     "S2": "e2_l_r1",
+     "S3": "e2_l_c"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e2_l_v1",
+       "S2": "e2_l_r1",
+       "S3": "e2_l_c"
+      },
+      "state": "reconocible",
+      "missing": [
+       "S4"
+      ],
+      "at": "2026-09-02T18:10:00"
+     }
+    ],
+    "final": "reconocible",
+    "strength": 3,
+    "agreement": 2,
+    "completedAt": "2026-09-02T18:10:00"
+   },
+   "finalStance": {
+    "value": 1,
+    "left": "Cumplir la promesa",
+    "right": "Romperla, explicándolo",
+    "at": "2026-09-02T18:13:00"
+   }
+  },
+  "e3_lo_que_viste": {
+   "id": "e3_lo_que_viste",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-03T18:00:00",
+   "completedAt": "2026-09-03T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e3_anillos": {
+     "companero": -1,
+     "desconocido": 1
+    }
+   },
+   "initialStance": {
+    "value": 1,
+    "left": "Callar y exigirle que repare",
+    "right": "Contarle al dueño lo que vi",
+    "at": "2026-09-03T18:02:00"
+   },
+   "reason": {
+    "id": "e3_r_mismo_trato",
+    "text": "El dueño tiene los mismos derechos que mi hermano",
+    "tags": [
+     "p_imparcial"
+    ],
+    "other": null,
+    "at": "2026-09-03T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e3_t_madre",
+     "question": "e3_q_madre",
+     "kind": "clarification",
+     "text": "Si hubiera sido tu madre, ¿también se lo contarías al dueño?",
+     "refs": [],
+     "answer": "si",
+     "answerLabel": "Sí, también",
+     "followUp": false,
+     "at": "2026-09-03T18:04:00"
+    }
+   ],
+   "active": null,
+   "tension": null,
+   "pendingDifference": null,
+   "cruza": {
+    "target": "left",
+    "chosen": false,
+    "table": [
+     "e3_l_c",
+     "e3_l_r1",
+     "e3_l_respg",
+     "e3_l_v1"
+    ],
+    "placement": {
+     "S1": "e3_l_v1",
+     "S2": "e3_l_r1",
+     "S3": "e3_l_c",
+     "S4": "e3_l_respg"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e3_l_v1",
+       "S2": "e3_l_r1",
+       "S3": "e3_l_c",
+       "S4": "e3_l_respg"
+      },
+      "state": "fuerte",
+      "missing": [],
+      "at": "2026-09-03T18:10:00"
+     }
+    ],
+    "final": "fuerte",
+    "strength": 5,
+    "agreement": 2,
+    "completedAt": "2026-09-03T18:10:00"
+   },
+   "finalStance": {
+    "value": -1,
+    "left": "Callar y exigirle que repare",
+    "right": "Contarle al dueño lo que vi",
+    "at": "2026-09-03T18:13:00"
+   }
+  },
+  "e4_verdad_incomoda": {
+   "id": "e4_verdad_incomoda",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-04T18:00:00",
+   "completedAt": "2026-09-04T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e4_escalera": {
+     "line": 3
+    }
+   },
+   "initialStance": {
+    "value": -3,
+    "left": "Decirle la verdad, con cuidado",
+    "right": "Suavizarla hasta no decirla",
+    "at": "2026-09-04T18:02:00"
+   },
+   "reason": {
+    "id": "e4_r_derecho",
+    "text": "Ella tiene derecho a decidir con toda la información",
+    "tags": [
+     "p_autonomia"
+    ],
+    "other": null,
+    "at": "2026-09-04T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e4_t_mem_callar",
+     "question": "e4_q_mem_callar",
+     "kind": "tension",
+     "text": "En «Lo que viste» elegiste «Callar y exigirle que repare». Aquí eliges decir la verdad. Hay algo interesante aquí.",
+     "refs": [
+      {
+       "exp": "e3_lo_que_viste",
+       "field": "stance.final",
+       "at": "2026-09-03T18:13:00",
+       "quote": "Callar y exigirle que repare"
+      }
+     ],
+     "answer": "matizar",
+     "answerLabel": "Matizar",
+     "followUp": false,
+     "at": "2026-09-04T18:04:00"
+    },
+    {
+     "trigger": "e4_t_mem_callar",
+     "question": "test:e4_dif_no_decir",
+     "kind": "test",
+     "text": "Si esa diferencia importa, podrías callar parte de lo que piensas sin decir nada falso. ¿Lo sostienes?",
+     "refs": [],
+     "answer": "sostengo",
+     "answerLabel": "Sí, lo sostengo",
+     "followUp": true,
+     "at": "2026-09-04T18:06:00"
+    }
+   ],
+   "active": null,
+   "tension": {
+    "outcome": "matizar",
+    "difference": "e4_dif_no_decir",
+    "differenceText": "No decirlo todo no es lo mismo que mentir",
+    "firmness": "sostenida",
+    "notebookEntry": "demo_n1",
+    "revisionTarget": null,
+    "noAplicaText": null,
+    "at": "2026-09-04T18:06:00"
+   },
+   "pendingDifference": null,
+   "cruza": {
+    "target": "right",
+    "chosen": false,
+    "table": [
+     "e4_r_c",
+     "e4_r_v1"
+    ],
+    "placement": {
+     "S1": "e4_r_v1",
+     "S3": "e4_r_c"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e4_r_v1",
+       "S3": "e4_r_c"
+      },
+      "state": "parcial",
+      "missing": [
+       "S2",
+       "S4"
+      ],
+      "at": "2026-09-04T18:10:00"
+     }
+    ],
+    "final": "parcial",
+    "strength": 2,
+    "agreement": 1,
+    "completedAt": "2026-09-04T18:10:00"
+   },
+   "finalStance": {
+    "value": -3,
+    "left": "Decirle la verdad, con cuidado",
+    "right": "Suavizarla hasta no decirla",
+    "at": "2026-09-04T18:13:00"
+   }
+  },
+  "e5_cien_becas": {
+   "id": "e5_cien_becas",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-05T18:00:00",
+   "completedAt": "2026-09-05T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e5_simulador": {
+     "attempts": 7,
+     "north": 55,
+     "south": 45,
+     "reachedI1": true,
+     "reachedI2": true,
+     "bothEver": false
+    }
+   },
+   "initialStance": {
+    "value": 1,
+    "left": "Que una beca signifique lo mismo en ambos barrios",
+    "right": "Que los errores se repartan igual",
+    "at": "2026-09-05T18:02:00"
+   },
+   "reason": {
+    "id": "e5_r_costo",
+    "text": "Lo que importa es quién paga los errores",
+    "tags": [
+     "p_errores_repartidos"
+    ],
+    "other": null,
+    "at": "2026-09-05T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e5_t_mem_decision",
+     "question": "e5_q_mem_decision",
+     "kind": "clarification",
+     "text": "En «El mismo descuido» elegiste «Importa lo que cada uno decidió hacer». Este sistema no decide ni quiere nada, y sus resultados son desiguales. ¿Puede ser injusto?",
+     "refs": [
+      {
+       "exp": "e1_mismo_descuido",
+       "field": "reason",
+       "at": "2026-09-01T18:03:00",
+       "quote": "Importa lo que cada uno decidió hacer"
+      }
+     ],
+     "answer": "intencion",
+     "answerLabel": "No: sin intención no hay injusticia",
+     "followUp": false,
+     "at": "2026-09-05T18:04:00"
+    }
+   ],
+   "active": null,
+   "tension": null,
+   "pendingDifference": null,
+   "cruza": {
+    "target": "left",
+    "chosen": false,
+    "table": [
+     "e5_l_c",
+     "e5_l_r1",
+     "e5_l_v1"
+    ],
+    "placement": {
+     "S1": "e5_l_v1",
+     "S2": "e5_l_r1",
+     "S3": "e5_l_c"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e5_l_v1",
+       "S2": "e5_l_r1",
+       "S3": "e5_l_c"
+      },
+      "state": "reconocible",
+      "missing": [
+       "S4"
+      ],
+      "at": "2026-09-05T18:10:00"
+     }
+    ],
+    "final": "reconocible",
+    "strength": 4,
+    "agreement": 2,
+    "completedAt": "2026-09-05T18:10:00"
+   },
+   "finalStance": {
+    "value": 1,
+    "left": "Que una beca signifique lo mismo en ambos barrios",
+    "right": "Que los errores se repartan igual",
+    "at": "2026-09-05T18:13:00"
+   }
+  },
+  "e6_donde_estas": {
+   "id": "e6_donde_estas",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-06T18:00:00",
+   "completedAt": "2026-09-06T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e6_flujos": {
+     "accepted": 4,
+     "total": 12,
+     "contextual": true,
+     "level": -1,
+     "cells": [
+      "0:2",
+      "1:2",
+      "2:2",
+      "3:2"
+     ]
+    }
+   },
+   "initialStance": {
+    "value": 1,
+    "left": "Que ella decida cuándo compartirla",
+    "right": "Compartirla siempre, por seguridad",
+    "at": "2026-09-06T18:02:00"
+   },
+   "reason": {
+    "id": "e6_r_seguridad",
+    "text": "Si pasa algo, hay que saber dónde está",
+    "tags": [
+     "p_proteccion"
+    ],
+    "other": null,
+    "at": "2026-09-06T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e6_t_mem_derecho",
+     "question": "e6_q_mem_derecho",
+     "kind": "tension",
+     "text": "En «La verdad incómoda» elegiste «Ella tiene derecho a decidir con toda la información». Aquí, ¿quién decide sobre la ubicación de tu hermana?",
+     "refs": [
+      {
+       "exp": "e4_verdad_incomoda",
+       "field": "reason",
+       "at": "2026-09-04T18:03:00",
+       "quote": "Ella tiene derecho a decidir con toda la información"
+      }
+     ],
+     "answer": "mantener",
+     "answerLabel": "Mantener",
+     "followUp": false,
+     "at": "2026-09-06T18:04:00"
+    },
+    {
+     "trigger": "e6_t_mem_derecho",
+     "question": "implication",
+     "kind": "implication",
+     "text": "Entonces, el derecho a decidir de tu amiga pesa más que el de tu hermana. ¿Lo aceptas?",
+     "refs": [],
+     "answer": "noDelTodo",
+     "answerLabel": "No del todo",
+     "followUp": true,
+     "at": "2026-09-06T18:05:00"
+    }
+   ],
+   "active": null,
+   "tension": {
+    "outcome": "matizar",
+    "difference": "e6_dif_contexto",
+    "differenceText": "Importa quién ve y para qué, no si es secreto",
+    "firmness": "dudosa",
+    "notebookEntry": "demo_n2",
+    "revisionTarget": null,
+    "noAplicaText": null,
+    "at": "2026-09-06T18:06:00"
+   },
+   "pendingDifference": null,
+   "cruza": {
+    "target": "left",
+    "chosen": false,
+    "table": [
+     "e6_l_c",
+     "e6_l_r1",
+     "e6_l_respg",
+     "e6_l_v1"
+    ],
+    "placement": {
+     "S1": "e6_l_v1",
+     "S2": "e6_l_r1",
+     "S3": "e6_l_c",
+     "S4": "e6_l_respg"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e6_l_v1",
+       "S2": "e6_l_r1",
+       "S3": "e6_l_c",
+       "S4": "e6_l_respg"
+      },
+      "state": "fuerte",
+      "missing": [],
+      "at": "2026-09-06T18:10:00"
+     }
+    ],
+    "final": "fuerte",
+    "strength": 4,
+    "agreement": 3,
+    "completedAt": "2026-09-06T18:10:00"
+   },
+   "finalStance": {
+    "value": 1,
+    "left": "Que ella decida cuándo compartirla",
+    "right": "Compartirla siempre, por seguridad",
+    "at": "2026-09-06T18:13:00"
+   }
+  },
+  "e7_la_carta": {
+   "id": "e7_la_carta",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-07T18:00:00",
+   "completedAt": "2026-09-07T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e7_carta": {
+     "marked": 3,
+     "revealed": true
+    }
+   },
+   "initialStance": {
+    "value": 0,
+    "left": "No comprendía: usó bien las palabras",
+    "right": "Comprendía, a su manera",
+    "at": "2026-09-07T18:02:00"
+   },
+   "reason": {
+    "id": "e7_r_efecto",
+    "text": "Consoló de verdad, y eso cuenta",
+    "tags": [
+     "p_conducta"
+    ],
+    "other": null,
+    "at": "2026-09-07T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e7_t_mem_piezas",
+     "question": "e7_q_mem_piezas",
+     "kind": "clarification",
+     "text": "Hasta ahora reconstruiste 6 posiciones con piezas. ¿Las comprendiste, o acomodaste bien las piezas?",
+     "refs": [
+      {
+       "exp": "e1_mismo_descuido",
+       "field": "cruza",
+       "at": "2026-09-01T18:10:00",
+       "quote": "El mismo descuido, La promesa del sábado, Lo que viste, La verdad incómoda, Cien becas, ¿Dónde estás?"
+      }
+     ],
+     "answer": "acomode",
+     "answerLabel": "Acomodé bien las piezas",
+     "followUp": false,
+     "at": "2026-09-07T18:04:00"
+    }
+   ],
+   "active": null,
+   "tension": null,
+   "pendingDifference": null,
+   "cruza": {
+    "target": "right",
+    "chosen": true,
+    "table": [
+     "e7_r_c",
+     "e7_r_r1",
+     "e7_r_v1"
+    ],
+    "placement": {
+     "S1": "e7_r_v1",
+     "S2": "e7_r_r1",
+     "S3": "e7_r_c"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e7_r_v1",
+       "S2": "e7_r_r1",
+       "S3": "e7_r_c"
+      },
+      "state": "reconocible",
+      "missing": [
+       "S4"
+      ],
+      "at": "2026-09-07T18:10:00"
+     }
+    ],
+    "final": "reconocible",
+    "strength": 3,
+    "agreement": 3,
+    "completedAt": "2026-09-07T18:10:00"
+   },
+   "finalStance": {
+    "value": 1,
+    "left": "No comprendía: usó bien las palabras",
+    "right": "Comprendía, a su manera",
+    "at": "2026-09-07T18:13:00"
+   }
+  },
+  "e8_la_copia": {
+   "id": "e8_la_copia",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-08T18:00:00",
+   "completedAt": "2026-09-08T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e8_gradiente": {
+     "stop": 60
+    }
+   },
+   "initialStance": {
+    "value": 1,
+    "left": "La copia no sería yo",
+    "right": "La copia sería yo",
+    "at": "2026-09-08T18:02:00"
+   },
+   "reason": {
+    "id": "e8_r_memoria",
+    "text": "Soy mis recuerdos, mi carácter, mis proyectos",
+    "tags": [
+     "p_continuidad_psicologica"
+    ],
+    "other": null,
+    "at": "2026-09-08T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e8_t_mem_promesa",
+     "question": "e8_q_mem_promesa",
+     "kind": "clarification",
+     "text": "En «La promesa del sábado» elegiste «Romperla, explicándolo». Si tu copia recuerda esa promesa, ¿debería cumplirla?",
+     "refs": [
+      {
+       "exp": "e2_promesa_sabado",
+       "field": "stance.final",
+       "at": "2026-09-02T18:13:00",
+       "quote": "Romperla, explicándolo"
+      }
+     ],
+     "answer": "si",
+     "answerLabel": "Sí: es su promesa",
+     "followUp": false,
+     "at": "2026-09-08T18:04:00"
+    }
+   ],
+   "active": null,
+   "tension": null,
+   "pendingDifference": null,
+   "cruza": {
+    "target": "left",
+    "chosen": false,
+    "table": [
+     "e8_l_c",
+     "e8_l_r1",
+     "e8_l_respg",
+     "e8_l_v1"
+    ],
+    "placement": {
+     "S1": "e8_l_v1",
+     "S2": "e8_l_r1",
+     "S3": "e8_l_c",
+     "S4": "e8_l_respg"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e8_l_v1",
+       "S3": "e8_l_c"
+      },
+      "state": "parcial",
+      "missing": [
+       "S2",
+       "S4"
+      ],
+      "at": "2026-09-08T18:10:00"
+     },
+     {
+      "placement": {
+       "S1": "e8_l_v1",
+       "S2": "e8_l_r1",
+       "S3": "e8_l_c",
+       "S4": "e8_l_respg"
+      },
+      "state": "fuerte",
+      "missing": [],
+      "at": "2026-09-08T18:10:00"
+     }
+    ],
+    "final": "fuerte",
+    "strength": 4,
+    "agreement": 2,
+    "completedAt": "2026-09-08T18:10:00"
+   },
+   "finalStance": {
+    "value": 1,
+    "left": "La copia no sería yo",
+    "right": "La copia sería yo",
+    "at": "2026-09-08T18:13:00"
+   }
+  },
+  "e9_sin_haberlo_vivido": {
+   "id": "e9_sin_haberlo_vivido",
+   "status": "completed",
+   "stage": "done",
+   "startedAt": "2026-09-09T18:00:00",
+   "completedAt": "2026-09-09T18:14:00",
+   "contentVersion": "1.0.0",
+   "probes": {
+    "e9_formas": {
+     "items": 9,
+     "que": 3,
+     "porque": 5,
+     "siente": 1
+    }
+   },
+   "initialStance": {
+    "value": 1,
+    "left": "No puedo entenderlo sin haberlo vivido",
+    "right": "Puedo entender sus razones sin haberlo vivido",
+    "at": "2026-09-09T18:02:00"
+   },
+   "reason": {
+    "id": "e9_r_razones",
+    "text": "Las razones se pueden compartir",
+    "tags": [
+     "p_razones_compartibles"
+    ],
+    "other": null,
+    "at": "2026-09-09T18:03:00"
+   },
+   "socratic": [
+    {
+     "trigger": "e9_t_mem_hollow",
+     "question": "e9_q_mem_hollow",
+     "kind": "clarification",
+     "text": "En este recorrido reconstruiste 8 posiciones, y 7 fueron reconocidas como justas. ¿Eso es comprender?",
+     "refs": [
+      {
+       "exp": "e1_mismo_descuido",
+       "field": "cruza",
+       "at": "2026-09-01T18:10:00",
+       "quote": "El mismo descuido, La promesa del sábado, Lo que viste, La verdad incómoda, Cien becas, ¿Dónde estás?, La carta, La copia"
+      }
+     ],
+     "answer": "si",
+     "answerLabel": "Sí, es una forma de comprender",
+     "followUp": false,
+     "at": "2026-09-09T18:04:00"
+    }
+   ],
+   "active": null,
+   "tension": null,
+   "pendingDifference": null,
+   "cruza": {
+    "target": "left",
+    "chosen": false,
+    "table": [
+     "e9_l_c",
+     "e9_l_r1",
+     "e9_l_respg",
+     "e9_l_v1"
+    ],
+    "placement": {
+     "S1": "e9_l_v1",
+     "S2": "e9_l_r1",
+     "S3": "e9_l_c",
+     "S4": "e9_l_respg"
+    },
+    "discarded": [],
+    "events": [],
+    "note": null,
+    "attempts": [
+     {
+      "placement": {
+       "S1": "e9_l_v1",
+       "S2": "e9_l_r1",
+       "S3": "e9_l_c",
+       "S4": "e9_l_respg"
+      },
+      "state": "fuerte",
+      "missing": [],
+      "at": "2026-09-09T18:10:00"
+     }
+    ],
+    "final": "fuerte",
+    "strength": 4,
+    "agreement": 2,
+    "completedAt": "2026-09-09T18:10:00"
+   },
+   "finalStance": {
+    "value": 1,
+    "left": "No puedo entenderlo sin haberlo vivido",
+    "right": "Puedo entender sus razones sin haberlo vivido",
+    "at": "2026-09-09T18:13:00"
+   }
+  }
+ },
+ "notebook": [
+  {
+   "id": "demo_n1",
+   "distinctionId": "d06_mentir_no_decir",
+   "experienceId": "e4_verdad_incomoda",
+   "userWords": "No decirlo todo no es lo mismo que mentir",
+   "everydayName": "Mentir y no decirlo todo",
+   "shortExplanation": "Decir algo falso no es lo mismo que callar o elegir con cuidado qué decir.",
+   "philosophicalRelation": "la distinción entre mentir e inducir a error sin mentir",
+   "referenceIds": [
+    "ref_saul_2012",
+    "ref_williams_2002",
+    "ref_bok_1978"
+   ],
+   "firmness": "sostenida",
+   "at": "2026-09-04T18:06:00"
+  },
+  {
+   "id": "demo_n2",
+   "distinctionId": "d09_ocultar_contexto",
+   "experienceId": "e6_donde_estas",
+   "userWords": "Importa quién ve y para qué, no si es secreto",
+   "everydayName": "Ocultar algo o sacarlo de su lugar",
+   "shortExplanation": "La privacidad no protege solo secretos: protege que la información llegue a quien corresponde y para lo que corresponde.",
+   "philosophicalRelation": "la integridad contextual",
+   "referenceIds": [
+    "ref_nissenbaum_2004",
+    "ref_nissenbaum_2010",
+    "ref_rachels_1975",
+    "ref_solove_2007"
+   ],
+   "firmness": "dudosa",
+   "at": "2026-09-06T18:06:00"
+  }
+ ],
+ "notes": {
+  "axis:ax_intencion_resultado": "Me sorprende: en los tres casos pesó más la decisión que el resultado."
+ }
+}

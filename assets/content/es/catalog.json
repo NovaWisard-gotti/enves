@@ -1,0 +1,82 @@
+{
+ "contentVersion": "1.0.0",
+ "tramos": [
+  {
+   "id": 1,
+   "title": "Lo que hacemos"
+  },
+  {
+   "id": 2,
+   "title": "Lo que decidimos por otros"
+  },
+  {
+   "id": 3,
+   "title": "Quién comprende"
+  }
+ ],
+ "experiences": [
+  {
+   "id": "e1_mismo_descuido",
+   "title": "El mismo descuido",
+   "question": "¿Importa más lo que decidiste hacer o lo que ocurrió?",
+   "tramo": 1,
+   "order": 1
+  },
+  {
+   "id": "e2_promesa_sabado",
+   "title": "La promesa del sábado",
+   "question": "¿Cuándo es legítimo romper una promesa?",
+   "tramo": 1,
+   "order": 2
+  },
+  {
+   "id": "e3_lo_que_viste",
+   "title": "Lo que viste",
+   "question": "¿Debemos tratar siempre a todos de la misma manera?",
+   "tramo": 1,
+   "order": 3
+  },
+  {
+   "id": "e4_verdad_incomoda",
+   "title": "La verdad incómoda",
+   "question": "¿Mentir puede ser lo correcto?",
+   "tramo": 2,
+   "order": 4
+  },
+  {
+   "id": "e5_cien_becas",
+   "title": "Cien becas",
+   "question": "¿Qué hace justa una decisión automática?",
+   "tramo": 2,
+   "order": 5
+  },
+  {
+   "id": "e6_donde_estas",
+   "title": "¿Dónde estás?",
+   "question": "Si no tienes nada que ocultar, ¿importa la privacidad?",
+   "tramo": 2,
+   "order": 6
+  },
+  {
+   "id": "e7_la_carta",
+   "title": "La carta",
+   "question": "¿Comprender es solo responder bien?",
+   "tramo": 3,
+   "order": 7
+  },
+  {
+   "id": "e8_la_copia",
+   "title": "La copia",
+   "question": "¿Seguirías siendo tú si todos tus recuerdos fueran copiados?",
+   "tramo": 3,
+   "order": 8
+  },
+  {
+   "id": "e9_sin_haberlo_vivido",
+   "title": "Sin haberlo vivido",
+   "question": "¿Puedes comprender una posición sin haberla vivido?",
+   "tramo": 3,
+   "order": 9
+  }
+ ]
+}

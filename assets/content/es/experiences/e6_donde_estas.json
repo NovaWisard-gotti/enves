@@ -1,0 +1,575 @@
+{
+ "id": "e6_donde_estas",
+ "order": 6,
+ "tramo": 2,
+ "title": "¿Dónde estás?",
+ "question": "Si no tienes nada que ocultar, ¿importa la privacidad?",
+ "sensitive": false,
+ "scenario": {
+  "layout": "single",
+  "paragraphs": [
+   "Tu familia propone que todos compartan su ubicación en tiempo real, siempre, «por seguridad».",
+   "Tu hermana de 17 años no quiere. Tus padres le dicen: «Si no haces nada malo, ¿qué problema hay?»."
+  ]
+ },
+ "probes": [
+  {
+   "id": "e6_flujos",
+   "type": "flowMatrix",
+   "placement": "elige",
+   "prompt": "¿Quién debería poder ver la ubicación de tu hermana, y cuándo? Marca lo que te parece aceptable.",
+   "config": {
+    "rows": [
+     "Sus padres",
+     "Sus hermanos",
+     "Sus amigos",
+     "La empresa de la app"
+    ],
+    "columns": [
+     "Siempre",
+     "Solo de noche",
+     "Solo en emergencias"
+    ]
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "¿Qué te parece más justo?",
+  "left": {
+   "label": "Que ella decida cuándo compartirla",
+   "short": "Ella decide"
+  },
+  "right": {
+   "label": "Compartirla siempre, por seguridad",
+   "short": "Siempre"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e6_r_espacio",
+   "text": "A los 17 necesita un espacio propio",
+   "tags": [
+    "p_autonomia"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e6_r_confiar",
+   "text": "Confiar es no vigilarlo todo",
+   "tags": [
+    "p_autonomia"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e6_r_seguridad",
+   "text": "Si pasa algo, hay que saber dónde está",
+   "tags": [
+    "p_proteccion"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e6_r_sin_secretos",
+   "text": "En una familia no debería haber secretos",
+   "tags": [
+    "p_cercanos"
+   ],
+   "aligns": "right",
+   "map": {
+    "axis": "ax_mios_todos",
+    "value": -1
+   }
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e6_t_mem_derecho",
+   "priority": 1,
+   "kind": "memory",
+   "question": "e6_q_mem_derecho",
+   "condition": {
+    "all": [
+     {
+      "fact": "e4_verdad_incomoda.reason.id",
+      "op": "eq",
+      "value": "e4_r_derecho"
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     }
+    ]
+   },
+   "memory": {
+    "source": "e4_verdad_incomoda",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e6_t_contexto",
+   "priority": 5,
+   "kind": "internal",
+   "question": "e6_q_contexto",
+   "condition": {
+    "fact": "this.probe.e6_flujos.contextual",
+    "op": "eq",
+    "value": true
+   }
+  },
+  {
+   "id": "e6_t_mem_familia",
+   "priority": 6,
+   "kind": "memory",
+   "question": "e6_q_mem_familia",
+   "condition": {
+    "fact": "e3_lo_que_viste.reason.id",
+    "op": "eq",
+    "value": "e3_r_familia"
+   },
+   "memory": {
+    "source": "e3_lo_que_viste",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e6_t_protege",
+   "priority": 10,
+   "kind": "assumption",
+   "question": "e6_q_protege",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e6_t_espacio",
+   "priority": 11,
+   "kind": "assumption",
+   "question": "e6_q_espacio",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e6_t_centro",
+   "priority": 12,
+   "kind": "internal",
+   "question": "e6_q_centro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e6_q_mem_derecho",
+   "kind": "tension",
+   "text": "En «{titulo}» elegiste «{razon}». Aquí, ¿quién decide sobre la ubicación de tu hermana?",
+   "implication": "Entonces, el derecho a decidir de tu amiga pesa más que el de tu hermana. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e6_q_contexto",
+   "kind": "tension",
+   "text": "Tus padres dicen «si no haces nada malo, ¿qué problema hay?». Tus elecciones en el cuadro no dependen de si algo es malo. Hay algo interesante aquí.",
+   "implication": "Entonces, lo que importa es si se hace algo malo, no quién mira ni para qué. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e6_q_mem_familia",
+   "kind": "clarification",
+   "text": "En «{titulo}» elegiste «{razon}». ¿También vale eso para vigilar a tu hermana?",
+   "answers": [
+    {
+     "id": "si",
+     "label": "Sí: con la familia hay más derecho a saber",
+     "map": {
+      "axis": "ax_decidir_proteger",
+      "value": 1
+     }
+    },
+    {
+     "id": "no",
+     "label": "No: la familia también debe respetar su espacio",
+     "map": {
+      "axis": "ax_decidir_proteger",
+      "value": -1
+     }
+    },
+    {
+     "id": "distinto",
+     "label": "Son cosas distintas"
+    }
+   ]
+  },
+  {
+   "id": "e6_q_protege",
+   "kind": "assumption",
+   "text": "Tu razón supone que saber dónde está la protege. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e6_q_espacio",
+   "kind": "assumption",
+   "text": "Tu razón supone que compartir la ubicación le quitaría espacio propio. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e6_q_centro",
+   "kind": "clarification",
+   "text": "¿Qué te haría inclinarte?",
+   "answers": [
+    {
+     "id": "reciproco",
+     "label": "Que todos compartieran por igual"
+    },
+    {
+     "id": "edad",
+     "label": "Que ella fuera mayor de edad"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: las dos cosas pesan igual"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e6_dif_contexto",
+   "text": "Importa quién ve y para qué, no si es secreto",
+   "distinction": "d09_ocultar_contexto",
+   "test": "Si esa diferencia importa, compartir con sus padres en una emergencia y con una empresa siempre no son lo mismo. ¿Lo sostienes?"
+  },
+  {
+   "id": "e6_dif_edad",
+   "text": "A los 17 no es lo mismo que a los 10",
+   "distinction": null,
+   "test": "Si esa diferencia importa, la misma regla podría ser justa para una niña y no para ella. ¿Lo sostienes?"
+  },
+  {
+   "id": "e6_dif_reciproco",
+   "text": "Si todos se ven entre todos, es distinto",
+   "distinction": null,
+   "test": "Si esa diferencia importa, el problema no es mirar, sino que solo uno sea mirado. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e6_l_v1",
+     "text": "La privacidad no sirve para esconder: permite ser uno mismo",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e6_l_v2",
+     "text": "Confiar en alguien implica no verificarlo todo",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e6_l_r1",
+     "text": "A los 17 está aprendiendo a decidir sola",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e6_l_r2",
+     "text": "Sentirse observado cambia cómo actuamos",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e6_l_c",
+     "text": "Que ella decida cuándo compartirla",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e6_l_resp1",
+     "text": "La seguridad importa: puede compartirla cuando sale de noche, sin estar vigilada siempre.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e6_r_seguridad"
+     ]
+    },
+    {
+     "id": "e6_l_resp2",
+     "text": "Tener un espacio propio no es tener secretos contra la familia.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e6_r_sin_secretos"
+     ]
+    },
+    {
+     "id": "e6_l_respg",
+     "text": "Cuidar no exige saberlo todo en todo momento.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e6_l_k1",
+     "text": "Quieren esconder algo",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No se trata de esconder: se trata de tener un espacio propio.",
+     "slots": []
+    },
+    {
+     "id": "e6_l_k2",
+     "text": "Los padres no deberían saber nada de sus hijos",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No dicen nada: dicen que ella decida cuándo.",
+     "slots": []
+    },
+    {
+     "id": "e6_l_k3",
+     "text": "Es su vida y ya",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen razones: aprender a decidir y la confianza.",
+     "slots": []
+    },
+    {
+     "id": "e6_l_own",
+     "text": "Si pasa algo, hay que saber dónde está",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e6_l_v1",
+     "descriptor": "Perspectiva de quien creció muy vigilado",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí: yo no sabía quién era cuando nadie miraba.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e6_l_v2",
+     "descriptor": "Perspectiva de alguien de 17 años",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta por qué aplica aquí.",
+      "reconocible": "Así lo diría.",
+      "fuerte": "Especialmente fuerte: respondiste a tu propia razón."
+     }
+    },
+    {
+     "id": "e6_l_v3",
+     "descriptor": "Perspectiva de quien trabaja con adolescentes",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí: la confianza se aprende dándola.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e6_r_v1",
+     "text": "Cuidar a alguien a veces exige información",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e6_r_v2",
+     "text": "En una familia, la información circula para protegerse",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e6_r_r1",
+     "text": "Todavía es menor de edad",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e6_r_r2",
+     "text": "Las emergencias ocurren sin aviso",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e6_r_c",
+     "text": "Compartirla siempre, por seguridad",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e6_r_resp1",
+     "text": "Puede tener su espacio: la ubicación no revela lo que piensa ni con quién habla.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e6_r_espacio"
+     ]
+    },
+    {
+     "id": "e6_r_resp2",
+     "text": "Si es recíproco, no es vigilancia: es cuidado mutuo.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e6_r_confiar"
+     ]
+    },
+    {
+     "id": "e6_r_respg",
+     "text": "Saber dónde está no es desconfiar: es poder llegar a tiempo.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e6_r_k1",
+     "text": "Quieren controlarla",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No es control: es poder ayudar en una emergencia.",
+     "slots": []
+    },
+    {
+     "id": "e6_r_k2",
+     "text": "Hay que saberlo todo de los hijos siempre",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No es todo: es solo la ubicación.",
+     "slots": []
+    },
+    {
+     "id": "e6_r_k3",
+     "text": "Por si acaso",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón concreta: que es menor y las emergencias no avisan.",
+     "slots": []
+    },
+    {
+     "id": "e6_r_own",
+     "text": "Confiar es no vigilarlo todo",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e6_r_v1",
+     "descriptor": "Perspectiva de una madre que vivió un susto",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Algo hay, pero falta lo que más me importa.",
+      "reconocible": "Sí: esa noche no sabía dónde estaba.",
+      "fuerte": "Especialmente fuerte. Así es."
+     }
+    },
+    {
+     "id": "e6_r_v2",
+     "descriptor": "Perspectiva de quien comparte su ubicación con su pareja",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta decir qué concluimos.",
+      "reconocible": "Así lo diría: es cuidado, no control.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e6_r_v3",
+     "descriptor": "Perspectiva de quien trabaja en rescate",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta por qué aplica aquí.",
+      "reconocible": "Sí: los minutos cuentan.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "Tu hermana propone compartirla solo cuando sale de noche, y que tus padres también compartan la suya. ¿Cambia algo?"
+ },
+ "reflection": "¿La privacidad protege lo que escondemos, o lo que somos cuando nadie mira?",
+ "map": [
+  {
+   "axis": "ax_decidir_proteger",
+   "source": "stance",
+   "polarity": 1
+  },
+  {
+   "axis": "ax_decidir_proteger",
+   "source": "probe",
+   "probe": "e6_flujos",
+   "key": "level",
+   "direct": true
+  }
+ ],
+ "deepDive": {
+  "problem": "Si no tenemos nada que ocultar, ¿por qué importaría la privacidad? La pregunta supone que la privacidad solo sirve para esconder faltas.",
+  "positions": [
+   "La privacidad permite tener relaciones distintas y formarse como persona.",
+   "Cuidar a alguien vulnerable puede justificar compartir información."
+  ],
+  "traditions": "James Rachels vinculó la privacidad con la posibilidad de tener relaciones distintas. Daniel Solove analizó el argumento de no tener nada que ocultar. Helen Nissenbaum propuso juzgar cada flujo de información según su contexto. John Stuart Mill y Joel Feinberg discutieron los límites del paternalismo.",
+  "objection": "Si todo depende del contexto, alguien tiene que fijar las normas de cada contexto, y en una familia no siempre están de acuerdo.",
+  "references": [
+   "ref_rachels_1975",
+   "ref_solove_2007",
+   "ref_nissenbaum_2004",
+   "ref_nissenbaum_2010",
+   "ref_mill_1859",
+   "ref_feinberg_1986"
+  ]
+ }
+}

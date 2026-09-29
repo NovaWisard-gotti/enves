@@ -1,0 +1,798 @@
+{
+ "id": "e5_cien_becas",
+ "order": 5,
+ "tramo": 2,
+ "title": "Cien becas",
+ "question": "¿Qué hace justa una decisión automática?",
+ "sensitive": false,
+ "scenario": {
+  "layout": "single",
+  "paragraphs": [
+   "Tu municipio repartirá unas cien becas con un sistema que predice quién terminará sus estudios.",
+   "En el barrio Norte, históricamente termina sus estudios más gente que en el barrio Sur. Te piden ajustar el sistema."
+  ]
+ },
+ "probes": [
+  {
+   "id": "e5_simulador",
+   "type": "fairnessSimulator",
+   "placement": "elige",
+   "prompt": "Ajusta el puntaje mínimo para recibir beca en cada barrio.",
+   "config": {
+    "groups": [
+     {
+      "id": "norte",
+      "label": "Barrio Norte",
+      "bins": [
+       {
+        "score": 5,
+        "n": 6,
+        "pos": 0
+       },
+       {
+        "score": 15,
+        "n": 13,
+        "pos": 2
+       },
+       {
+        "score": 25,
+        "n": 14,
+        "pos": 4
+       },
+       {
+        "score": 35,
+        "n": 18,
+        "pos": 6
+       },
+       {
+        "score": 45,
+        "n": 20,
+        "pos": 9
+       },
+       {
+        "score": 55,
+        "n": 22,
+        "pos": 12
+       },
+       {
+        "score": 65,
+        "n": 23,
+        "pos": 15
+       },
+       {
+        "score": 75,
+        "n": 24,
+        "pos": 18
+       },
+       {
+        "score": 85,
+        "n": 32,
+        "pos": 27
+       },
+       {
+        "score": 95,
+        "n": 39,
+        "pos": 37
+       }
+      ]
+     },
+     {
+      "id": "sur",
+      "label": "Barrio Sur",
+      "bins": [
+       {
+        "score": 5,
+        "n": 39,
+        "pos": 2
+       },
+       {
+        "score": 15,
+        "n": 29,
+        "pos": 4
+       },
+       {
+        "score": 25,
+        "n": 28,
+        "pos": 7
+       },
+       {
+        "score": 35,
+        "n": 24,
+        "pos": 8
+       },
+       {
+        "score": 45,
+        "n": 24,
+        "pos": 11
+       },
+       {
+        "score": 55,
+        "n": 18,
+        "pos": 10
+       },
+       {
+        "score": 65,
+        "n": 17,
+        "pos": 11
+       },
+       {
+        "score": 75,
+        "n": 13,
+        "pos": 10
+       },
+       {
+        "score": 85,
+        "n": 13,
+        "pos": 11
+       },
+       {
+        "score": 95,
+        "n": 6,
+        "pos": 6
+       }
+      ]
+     }
+    ],
+    "tolerance": 0.03,
+    "indicator1": "Una beca predice lo mismo en ambos barrios",
+    "indicator1Help": "Entre quienes reciben beca, la proporción que termina sus estudios es casi igual en los dos barrios.",
+    "indicator2": "Los errores se reparten igual",
+    "indicator2Help": "Las becas negadas por error y las dadas por error ocurren en proporciones casi iguales en los dos barrios.",
+    "reveal": "No es un fallo del diseño. Se ha demostrado matemáticamente que, cuando los grupos tienen tasas distintas y la predicción no es perfecta, estos dos criterios no se pueden cumplir a la vez."
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "¿Qué debería importar más?",
+  "left": {
+   "label": "Que una beca signifique lo mismo en ambos barrios",
+   "short": "Mismo significado"
+  },
+  "right": {
+   "label": "Que los errores se repartan igual",
+   "short": "Errores parejos"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e5_r_individuo",
+   "text": "Cada persona debe medirse con el mismo criterio",
+   "tags": [
+    "p_mismo_criterio"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e5_r_confiable",
+   "text": "Si el puntaje cambia de sentido, nadie puede confiar en él",
+   "tags": [
+    "p_mismo_criterio"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e5_r_historia",
+   "text": "Los errores no deben caer más sobre quien ya tenía desventaja",
+   "tags": [
+    "p_errores_repartidos"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e5_r_costo",
+   "text": "Lo que importa es quién paga los errores",
+   "tags": [
+    "p_errores_repartidos"
+   ],
+   "aligns": "right"
+  },
+  {
+   "id": "e5_r_reglas",
+   "text": "Ninguna: cambiaría las reglas del sistema",
+   "tags": [],
+   "aligns": "both"
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e5_t_mem_decision",
+   "priority": 1,
+   "kind": "memory",
+   "question": "e5_q_mem_decision",
+   "condition": {
+    "fact": "e1_mismo_descuido.reason.id",
+    "op": "eq",
+    "value": "e1_r_decision"
+   },
+   "memory": {
+    "source": "e1_mismo_descuido",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e5_t_mem_resultado",
+   "priority": 2,
+   "kind": "memory",
+   "question": "e5_q_mem_resultado",
+   "condition": {
+    "fact": "e1_mismo_descuido.reason.id",
+    "op": "in",
+    "value": [
+     "e1_r_resultado",
+     "e1_r_victima"
+    ]
+   },
+   "memory": {
+    "source": "e1_mismo_descuido",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e5_t_mem_riesgo",
+   "priority": 3,
+   "kind": "memory",
+   "question": "e5_q_mem_riesgo",
+   "condition": {
+    "fact": "e1_mismo_descuido.reason.id",
+    "op": "eq",
+    "value": "e1_r_riesgo"
+   },
+   "memory": {
+    "source": "e1_mismo_descuido",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e5_t_mem_postura",
+   "priority": 4,
+   "kind": "memory",
+   "question": "e5_q_mem_postura",
+   "condition": {
+    "fact": "e1_mismo_descuido.status",
+    "op": "eq",
+    "value": "completed"
+   },
+   "memory": {
+    "source": "e1_mismo_descuido",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e5_t_mismo",
+   "priority": 10,
+   "kind": "twin",
+   "question": "e5_q_mismo",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e5_t_ajuste",
+   "priority": 11,
+   "kind": "twin",
+   "question": "e5_q_ajuste",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e5_t_centro",
+   "priority": 12,
+   "kind": "internal",
+   "question": "e5_q_centro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e5_q_mem_decision",
+   "kind": "clarification",
+   "text": "En «{titulo}» elegiste «{razon}». Este sistema no decide ni quiere nada, y sus resultados son desiguales. ¿Puede ser injusto?",
+   "answers": [
+    {
+     "id": "resultados",
+     "label": "Sí: aquí importan los resultados",
+     "next": "e5_q_mem_tension",
+     "nextCondition": {
+      "fact": "e1_mismo_descuido.reason.id",
+      "op": "in",
+      "value": [
+       "e1_r_decision",
+       "e1_r_riesgo"
+      ]
+     },
+     "map": {
+      "axis": "ax_intencion_resultado",
+      "value": 2
+     }
+    },
+    {
+     "id": "intencion",
+     "label": "No: sin intención no hay injusticia",
+     "next": "e5_q_mem_tension",
+     "nextCondition": {
+      "fact": "e1_mismo_descuido.reason.id",
+      "op": "in",
+      "value": [
+       "e1_r_resultado",
+       "e1_r_victima"
+      ]
+     },
+     "map": {
+      "axis": "ax_intencion_resultado",
+      "value": -2
+     }
+    },
+    {
+     "id": "diseno",
+     "label": "La responsabilidad es de quien lo diseñó"
+    }
+   ]
+  },
+  {
+   "id": "e5_q_mem_resultado",
+   "kind": "clarification",
+   "text": "En «{titulo}» elegiste «{razon}». Aquí los resultados son desiguales entre barrios. ¿Eso basta para decir que el sistema es injusto?",
+   "answers": [
+    {
+     "id": "resultados",
+     "label": "Sí: aquí importan los resultados",
+     "next": "e5_q_mem_tension",
+     "nextCondition": {
+      "fact": "e1_mismo_descuido.reason.id",
+      "op": "in",
+      "value": [
+       "e1_r_decision",
+       "e1_r_riesgo"
+      ]
+     },
+     "map": {
+      "axis": "ax_intencion_resultado",
+      "value": 2
+     }
+    },
+    {
+     "id": "intencion",
+     "label": "No: sin intención no hay injusticia",
+     "next": "e5_q_mem_tension",
+     "nextCondition": {
+      "fact": "e1_mismo_descuido.reason.id",
+      "op": "in",
+      "value": [
+       "e1_r_resultado",
+       "e1_r_victima"
+      ]
+     },
+     "map": {
+      "axis": "ax_intencion_resultado",
+      "value": -2
+     }
+    },
+    {
+     "id": "diseno",
+     "label": "La responsabilidad es de quien lo diseñó"
+    }
+   ]
+  },
+  {
+   "id": "e5_q_mem_riesgo",
+   "kind": "clarification",
+   "text": "En «{titulo}» elegiste «{razon}». Aquí, ¿quién asume el riesgo de los errores del sistema?",
+   "answers": [
+    {
+     "id": "postulantes",
+     "label": "Quienes quedan fuera por error",
+     "map": {
+      "axis": "ax_intencion_resultado",
+      "value": 1
+     }
+    },
+    {
+     "id": "nadie",
+     "label": "Nadie en particular: es un sistema",
+     "map": {
+      "axis": "ax_intencion_resultado",
+      "value": -1
+     }
+    },
+    {
+     "id": "quien",
+     "label": "Quien decidió usarlo"
+    }
+   ]
+  },
+  {
+   "id": "e5_q_mem_postura",
+   "kind": "clarification",
+   "text": "En «{titulo}» elegiste «{postura}» ({seguridad}). Este sistema no tiene intenciones, pero sus resultados no son iguales. ¿Cómo lo ves?",
+   "answers": [
+    {
+     "id": "resultados",
+     "label": "Aquí importan los resultados",
+     "map": {
+      "axis": "ax_intencion_resultado",
+      "value": 2
+     }
+    },
+    {
+     "id": "intencion",
+     "label": "Sin intención no hay injusticia",
+     "map": {
+      "axis": "ax_intencion_resultado",
+      "value": -2
+     }
+    },
+    {
+     "id": "diseno",
+     "label": "La responsabilidad es de quien lo diseñó"
+    }
+   ]
+  },
+  {
+   "id": "e5_q_mem_tension",
+   "kind": "tension",
+   "text": "En «{titulo}» elegiste «{razon}». Aquí respondiste «{respuesta}». Hay algo interesante aquí.",
+   "implication": "Entonces, juzgar a una persona y evaluar un sistema siguen reglas distintas. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e5_q_mismo",
+   "kind": "tension",
+   "text": "Con el mismo significado del puntaje, en el barrio Sur quedan sin beca más personas que sí habrían terminado. ¿Cómo lo ves?",
+   "implication": "Entonces, un criterio igual para cada persona puede producir cargas desiguales entre barrios. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e5_q_ajuste",
+   "kind": "tension",
+   "text": "Si ajustas el umbral por barrio, una misma beca significará cosas distintas según dónde vivas. ¿Cómo lo ves?",
+   "implication": "Entonces, tratar distinto a cada barrio puede ser la forma de ser justo. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e5_q_centro",
+   "kind": "clarification",
+   "text": "¿Qué te haría inclinarte?",
+   "answers": [
+    {
+     "id": "historia",
+     "label": "Saber de dónde vienen las diferencias entre barrios"
+    },
+    {
+     "id": "personas",
+     "label": "Conocer a quienes quedan fuera"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: los dos criterios pesan igual"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e5_dif_puntaje_errores",
+   "text": "Que la beca signifique lo mismo y que los errores se repartan igual son cosas distintas",
+   "distinction": "d08_puntaje_errores",
+   "test": "Si esa diferencia importa, alguien tiene que decidir cuál sacrificar, porque no se pueden tener ambas. ¿Lo sostienes?"
+  },
+  {
+   "id": "e5_dif_personas_sistemas",
+   "text": "Juzgar a una persona no es lo mismo que evaluar un sistema",
+   "distinction": null,
+   "test": "Si esa diferencia importa, un sistema puede ser injusto aunque nadie haya querido hacer daño. ¿Lo sostienes?"
+  },
+  {
+   "id": "e5_dif_reglas",
+   "text": "El problema no es el umbral, sino las reglas del sistema",
+   "distinction": null,
+   "test": "Si esa diferencia importa, ajustar números no basta: habría que cambiar cómo se reparten las becas. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e5_l_v1",
+     "text": "Ser justo es aplicar el mismo criterio a cada persona",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e5_l_v2",
+     "text": "Una puntuación debe significar lo mismo para todos",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e5_l_r1",
+     "text": "Con umbrales distintos, dos personas iguales reciben trato distinto por su barrio",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e5_l_r2",
+     "text": "Si el puntaje cambia de sentido, nadie puede confiar en él",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e5_l_c",
+     "text": "Mantener el mismo significado del puntaje en ambos barrios",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e5_l_resp1",
+     "text": "La desventaja es real, y se corrige mejor con apoyo antes de postular que torciendo la medida.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e5_r_historia"
+     ]
+    },
+    {
+     "id": "e5_l_resp2",
+     "text": "Un criterio que cambia según el barrio también tiene un costo, y lo paga la confianza.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e5_r_costo"
+     ]
+    },
+    {
+     "id": "e5_l_respg",
+     "text": "Medir igual a todos no resuelve todo, pero evita que el lugar decida por la persona.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e5_l_k1",
+     "text": "No les importa el barrio Sur",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "Les importa: proponen apoyo antes de postular.",
+     "slots": []
+    },
+    {
+     "id": "e5_l_k2",
+     "text": "Las matemáticas nunca se equivocan",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No dicen que el sistema sea perfecto: dicen que el criterio debe ser el mismo.",
+     "slots": []
+    },
+    {
+     "id": "e5_l_k3",
+     "text": "Los números son los números",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón: un mismo criterio para cada persona.",
+     "slots": []
+    },
+    {
+     "id": "e5_l_own",
+     "text": "Los errores deben repartirse igual",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e5_l_v1",
+     "descriptor": "Perspectiva de quien diseña sistemas de evaluación",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí: un puntaje tiene que significar lo mismo.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e5_l_v2",
+     "descriptor": "Perspectiva de quien estudió de noche en el barrio Norte",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta por qué aplica aquí.",
+      "reconocible": "Así lo diría: no quiero que mi barrio decida por mí.",
+      "fuerte": "Especialmente fuerte: respondiste a tu propia razón."
+     }
+    },
+    {
+     "id": "e5_l_v3",
+     "descriptor": "Perspectiva de quien confía en las reglas claras",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí, así lo diría.",
+      "fuerte": "Muy fuerte."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e5_r_v1",
+     "text": "Nadie debe cargar más con los errores por el lugar donde vive",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e5_r_v2",
+     "text": "Un sistema también responde por sus efectos",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e5_r_r1",
+     "text": "En el barrio Sur quedan fuera más personas que sí habrían terminado",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e5_r_r2",
+     "text": "La diferencia entre barrios viene de desventajas pasadas",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e5_r_c",
+     "text": "Ajustar el sistema para que los errores se repartan igual",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e5_r_resp1",
+     "text": "Medir con el mismo criterio suena justo, pero si el criterio arrastra el pasado, repite la desventaja.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e5_r_individuo"
+     ]
+    },
+    {
+     "id": "e5_r_resp2",
+     "text": "La confianza también se pierde si un barrio siempre sale perdiendo.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e5_r_confiable"
+     ]
+    },
+    {
+     "id": "e5_r_respg",
+     "text": "Un sistema justo no es el que mide igual, sino el que no reparte peor los errores.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e5_r_k1",
+     "text": "Quieren quitarle becas al Norte",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No es quitar: es no repartir peor los errores.",
+     "slots": []
+    },
+    {
+     "id": "e5_r_k2",
+     "text": "Hay que ignorar el mérito",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No ignoran el mérito: dicen que medirlo tiene errores y que esos errores no deben caer siempre en el mismo lugar.",
+     "slots": []
+    },
+    {
+     "id": "e5_r_k3",
+     "text": "Que sea parejo y ya",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen una razón precisa: quién carga con los errores.",
+     "slots": []
+    },
+    {
+     "id": "e5_r_own",
+     "text": "Cada persona debe medirse con el mismo criterio",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e5_r_v1",
+     "descriptor": "Perspectiva de quien vive en el barrio Sur",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Algo hay, pero falta lo que más me importa.",
+      "reconocible": "Sí: los errores siempre caen de este lado.",
+      "fuerte": "Especialmente fuerte. Así es."
+     }
+    },
+    {
+     "id": "e5_r_v2",
+     "descriptor": "Perspectiva de quien trabajó en programas de becas",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta decir qué concluimos.",
+      "reconocible": "Así lo diría.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e5_r_v3",
+     "descriptor": "Perspectiva de quien se quedó fuera por un error",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta por qué aplica aquí.",
+      "reconocible": "Sí: detrás de cada error hay una persona.",
+      "fuerte": "Muy fuerte: entendiste a quién le toca perder."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "Imagina que no sabes en qué barrio vivirás. ¿Qué regla elegirías?"
+ },
+ "reflection": "Si dos ideas razonables de justicia no pueden cumplirse a la vez, ¿quién debería decidir cuál tiene prioridad?",
+ "map": [],
+ "deepDive": {
+  "problem": "¿Qué hace justa una decisión automática? Cuando los grupos tienen tasas distintas y la predicción no es perfecta, criterios razonables de justicia entran en conflicto.",
+  "positions": [
+   "Ser justo es medir a cada persona con el mismo criterio: una puntuación debe significar lo mismo para todos.",
+   "Ser justo es que los errores del sistema no recaigan más sobre un grupo."
+  ],
+  "traditions": "Alexandra Chouldechova (2017) y Kleinberg, Mullainathan y Raghavan (2016) mostraron que no se pueden cumplir todos los criterios a la vez. En el caso COMPAS, ProPublica y Northpointe defendieron criterios distintos. Deborah Hellman analizó cuál de ellos importa moralmente. John Rawls propuso elegir reglas sin saber qué lugar ocuparemos.",
+  "objection": "Si ningún criterio puede cumplirse del todo, elegir uno es una decisión política que un número no puede tomar por nosotros.",
+  "references": [
+   "ref_chouldechova_2017",
+   "ref_kleinberg_2016",
+   "ref_angwin_2016",
+   "ref_dieterich_2016",
+   "ref_hellman_2020",
+   "ref_rawls_1971"
+  ]
+ }
+}

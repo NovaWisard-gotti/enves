@@ -1,0 +1,567 @@
+{
+ "id": "e4_verdad_incomoda",
+ "order": 4,
+ "tramo": 2,
+ "title": "La verdad incómoda",
+ "question": "¿Mentir puede ser lo correcto?",
+ "sensitive": true,
+ "sensitiveNote": "Una de las variantes menciona a alguien que busca hacerle daño a otra persona.",
+ "scenario": {
+  "layout": "single",
+  "paragraphs": [
+   "Tu mejor amiga invirtió sus ahorros en un pequeño negocio de comida. Está ilusionada y pasa por un momento difícil.",
+   "Antes de firmar un préstamo para ampliarlo, te pide tu opinión sincera. Tienes buenas razones para creer que el negocio va a fracasar."
+  ]
+ },
+ "probes": [
+  {
+   "id": "e4_escalera",
+   "type": "ladder",
+   "placement": "vuelve",
+   "prompt": "¿Desde qué peldaño mentir te parecería aceptable?",
+   "config": {
+    "rungs": [
+     "Opinar sobre un regalo que no te gustó",
+     "El negocio de tu amiga",
+     "Tu jefe pregunta si un compañero llegó tarde, y decirlo le costaría el puesto",
+     "Alguien llega a tu puerta buscando a tu amigo para hacerle daño"
+    ],
+    "never": "Nunca: no mentiría en ninguno"
+   }
+  }
+ ],
+ "judgment": {
+  "prompt": "¿Qué le dirías?",
+  "left": {
+   "label": "Decirle la verdad, con cuidado",
+   "short": "La verdad"
+  },
+  "right": {
+   "label": "Suavizarla hasta no decirla",
+   "short": "Suavizarla"
+  }
+ },
+ "reasons": [
+  {
+   "id": "e4_r_derecho",
+   "text": "Ella tiene derecho a decidir con toda la información",
+   "tags": [
+    "p_autonomia"
+   ],
+   "aligns": "left",
+   "map": {
+    "axis": "ax_decidir_proteger",
+    "value": -1
+   }
+  },
+  {
+   "id": "e4_r_confianza",
+   "text": "Si le miento, ¿para qué me pregunta?",
+   "tags": [
+    "p_verdad"
+   ],
+   "aligns": "left"
+  },
+  {
+   "id": "e4_r_proteger",
+   "text": "Ahora necesita ánimo, no un golpe",
+   "tags": [
+    "p_proteccion"
+   ],
+   "aligns": "right",
+   "map": {
+    "axis": "ax_decidir_proteger",
+    "value": 1
+   }
+  },
+  {
+   "id": "e4_r_amiga",
+   "text": "Una amiga merece que la cuide",
+   "tags": [
+    "p_cercanos"
+   ],
+   "aligns": "right",
+   "map": {
+    "axis": "ax_mios_todos",
+    "value": -1
+   }
+  }
+ ],
+ "triggers": [
+  {
+   "id": "e4_t_mem_palabra",
+   "priority": 1,
+   "kind": "memory",
+   "question": "e4_q_mem_palabra",
+   "condition": {
+    "all": [
+     {
+      "fact": "e2_promesa_sabado.reason.id",
+      "op": "eq",
+      "value": "e2_r_palabra"
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "gt",
+      "value": 0
+     }
+    ]
+   },
+   "memory": {
+    "source": "e2_promesa_sabado",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e4_t_mem_callar",
+   "priority": 2,
+   "kind": "memory",
+   "question": "e4_q_mem_callar",
+   "condition": {
+    "all": [
+     {
+      "fact": "e3_lo_que_viste.stance.final",
+      "op": "lt",
+      "value": 0
+     },
+     {
+      "fact": "this.stance.initial",
+      "op": "lt",
+      "value": 0
+     }
+    ]
+   },
+   "memory": {
+    "source": "e3_lo_que_viste",
+    "excludeIfRevised": true
+   }
+  },
+  {
+   "id": "e4_t_dano",
+   "priority": 10,
+   "kind": "assumption",
+   "question": "e4_q_dano",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "gt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e4_t_cuidado",
+   "priority": 11,
+   "kind": "assumption",
+   "question": "e4_q_cuidado",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "lt",
+    "value": 0
+   }
+  },
+  {
+   "id": "e4_t_centro",
+   "priority": 12,
+   "kind": "internal",
+   "question": "e4_q_centro",
+   "condition": {
+    "fact": "this.stance.initial",
+    "op": "eq",
+    "value": 0
+   }
+  }
+ ],
+ "questions": [
+  {
+   "id": "e4_q_mem_palabra",
+   "kind": "tension",
+   "text": "En «{titulo}» elegiste «{razon}». Aquí suavizarías la verdad. ¿Tu palabra es un límite y la verdad no?",
+   "implication": "Entonces, cumplir tu palabra y decir la verdad pesan distinto para ti. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e4_q_mem_callar",
+   "kind": "tension",
+   "text": "En «{titulo}» elegiste «{postura}». Aquí eliges decir la verdad. Hay algo interesante aquí.",
+   "implication": "Entonces, callar ante un desconocido y hablar con una amiga pueden ser coherentes. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e4_q_dano",
+   "kind": "assumption",
+   "text": "Tu razón supone que la verdad le haría más daño que el fracaso del negocio. ¿Lo crees?",
+   "answers": [],
+   "followUp": "e4_q_dano_b"
+  },
+  {
+   "id": "e4_q_dano_b",
+   "kind": "tension",
+   "text": "Si el fracaso le haría más daño que la verdad, suavizarla podría dejarla sola ante ese fracaso. ¿Cómo lo ves?",
+   "implication": "Entonces, protegerla hoy puede costarle más mañana. ¿Lo aceptas?",
+   "answers": []
+  },
+  {
+   "id": "e4_q_cuidado",
+   "kind": "assumption",
+   "text": "Tu razón supone que siempre hay una forma cuidadosa de decir la verdad. ¿Lo crees?",
+   "answers": []
+  },
+  {
+   "id": "e4_q_centro",
+   "kind": "clarification",
+   "text": "¿Qué te haría inclinarte?",
+   "answers": [
+    {
+     "id": "seguridad",
+     "label": "Estar más seguro de que fracasará"
+    },
+    {
+     "id": "momento",
+     "label": "Que ella estuviera en un mejor momento"
+    },
+    {
+     "id": "nada",
+     "label": "Nada: las dos cosas pesan igual"
+    }
+   ]
+  }
+ ],
+ "differences": [
+  {
+   "id": "e4_dif_no_decir",
+   "text": "No decirlo todo no es lo mismo que mentir",
+   "distinction": "d06_mentir_no_decir",
+   "test": "Si esa diferencia importa, podrías callar parte de lo que piensas sin decir nada falso. ¿Lo sostienes?"
+  },
+  {
+   "id": "e4_dif_umbral",
+   "text": "Depende de cuánto esté en juego",
+   "distinction": "d07_linea_fija_movil",
+   "test": "Si esa diferencia importa, con un riesgo más grave tu respuesta podría cambiar. ¿Lo sostienes?"
+  },
+  {
+   "id": "e4_dif_amistad",
+   "text": "Con una amiga, el deber es cuidarla",
+   "distinction": "d05_nuestros_todos",
+   "test": "Si esa diferencia importa, a un desconocido le dirías la verdad sin suavizarla. ¿Lo sostienes?"
+  }
+ ],
+ "cruza": {
+  "left": {
+   "pieces": [
+    {
+     "id": "e4_l_v1",
+     "text": "Mentir es decidir por el otro qué puede saber",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e4_l_v2",
+     "text": "La confianza entre amigas depende de no mentirse",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e4_l_r1",
+     "text": "Va a firmar un préstamo: la decisión es suya y es grande",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e4_l_r2",
+     "text": "Hay formas cuidadosas de decir la verdad",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e4_l_c",
+     "text": "Decirle lo que piensas, con cuidado",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e4_l_resp1",
+     "text": "Necesita ánimo, sí: también para decidir bien antes de firmar.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e4_r_proteger"
+     ]
+    },
+    {
+     "id": "e4_l_resp2",
+     "text": "Cuidarla incluye no dejarla firmar a ciegas.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e4_r_amiga"
+     ]
+    },
+    {
+     "id": "e4_l_respg",
+     "text": "La verdad dicha con cuidado también es una forma de cariño.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e4_l_k1",
+     "text": "Les gusta tener razón",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No se trata de tener razón: se trata de su decisión.",
+     "slots": []
+    },
+    {
+     "id": "e4_l_k2",
+     "text": "La verdad siempre, aunque destruya a alguien",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "Proponen decirla con cuidado, no con crueldad.",
+     "slots": []
+    },
+    {
+     "id": "e4_l_k3",
+     "text": "Mentir está mal y punto",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Tienen razones: su derecho a decidir y la confianza.",
+     "slots": []
+    },
+    {
+     "id": "e4_l_own",
+     "text": "Protegerla ahora es lo más importante",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e4_l_v1",
+     "descriptor": "Perspectiva de quien perdió dinero sin que nadie le advirtiera",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso: esa idea es del otro lado.",
+      "parcial": "Vas bien, pero falta lo que más me importa.",
+      "reconocible": "Sí: yo habría querido saberlo.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e4_l_v2",
+     "descriptor": "Perspectiva de quien emprendió",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta por qué aplica aquí.",
+      "reconocible": "Así lo diría: la decisión era mía.",
+      "fuerte": "Especialmente fuerte: respondiste a tu propia razón."
+     }
+    },
+    {
+     "id": "e4_l_v3",
+     "descriptor": "Perspectiva de quien valora la franqueza",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta decir qué concluimos.",
+      "reconocible": "Sí, así lo diría.",
+      "fuerte": "Muy fuerte, y dicho con cuidado."
+     }
+    }
+   ]
+  },
+  "right": {
+   "pieces": [
+    {
+     "id": "e4_r_v1",
+     "text": "La verdad es un valor entre otros, no el único",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e4_r_v2",
+     "text": "La amistad también incluye cuidar",
+     "kind": "valid",
+     "slots": [
+      "S1"
+     ]
+    },
+    {
+     "id": "e4_r_r1",
+     "text": "Pasa por un momento difícil",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e4_r_r2",
+     "text": "Tu opinión también puede estar equivocada",
+     "kind": "valid",
+     "slots": [
+      "S2"
+     ]
+    },
+    {
+     "id": "e4_r_c",
+     "text": "Suavizar tu opinión y acompañarla",
+     "kind": "valid",
+     "slots": [
+      "S3"
+     ]
+    },
+    {
+     "id": "e4_r_resp1",
+     "text": "Decidirá igual: tu opinión es una opinión, no un dato.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e4_r_derecho"
+     ]
+    },
+    {
+     "id": "e4_r_resp2",
+     "text": "Te pregunta para sentirse acompañada, no para recibir un veredicto.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "respondsTo": [
+      "e4_r_confianza"
+     ]
+    },
+    {
+     "id": "e4_r_respg",
+     "text": "A veces lo que alguien necesita no es un pronóstico, sino compañía.",
+     "kind": "valid",
+     "slots": [
+      "S4"
+     ],
+     "generic": true
+    },
+    {
+     "id": "e4_r_k1",
+     "text": "Prefieren quedar bien que ser honestos",
+     "kind": "caricature",
+     "caricatureType": "malaIntencion",
+     "crack": "No buscan quedar bien: buscan no dañarla en un mal momento.",
+     "slots": []
+    },
+    {
+     "id": "e4_r_k2",
+     "text": "Mentir está bien si alguien se siente mejor",
+     "kind": "caricature",
+     "caricatureType": "exageracion",
+     "crack": "No es cualquier mentira: es este momento y esta amiga.",
+     "slots": []
+    },
+    {
+     "id": "e4_r_k3",
+     "text": "Una mentirita no hace daño",
+     "kind": "caricature",
+     "caricatureType": "versionDebil",
+     "crack": "Reconocen que pesa: por eso hablan de acompañarla.",
+     "slots": []
+    },
+    {
+     "id": "e4_r_own",
+     "text": "Ella tiene derecho a decidir con toda la información",
+     "kind": "ownSide",
+     "slots": []
+    }
+   ],
+   "voices": [
+    {
+     "id": "e4_r_v1",
+     "descriptor": "Perspectiva de quien emprendió y fracasó",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Algo hay, pero falta lo que más me importa.",
+      "reconocible": "Sí: en ese momento necesitaba ánimo.",
+      "fuerte": "Especialmente fuerte. Así es."
+     }
+    },
+    {
+     "id": "e4_r_v2",
+     "descriptor": "Perspectiva de quien acompañó a una amiga en crisis",
+     "reactions": {
+      "noRepresenta": "No me representa.",
+      "parcial": "Parcialmente. Falta decir qué concluimos.",
+      "reconocible": "Así lo diría.",
+      "fuerte": "Lo dijiste mejor que yo."
+     }
+    },
+    {
+     "id": "e4_r_v3",
+     "descriptor": "Perspectiva de quien cuida a otros en momentos difíciles",
+     "reactions": {
+      "noRepresenta": "Eso no es lo que pienso.",
+      "parcial": "Casi. Falta por qué aplica aquí.",
+      "reconocible": "Sí: primero se sostiene a la persona.",
+      "fuerte": "Muy fuerte: entendiste que no es falta de respeto."
+     }
+    }
+   ]
+  }
+ },
+ "twist": {
+  "text": "Antes de volver a decidir, mira otros casos.",
+  "probe": "e4_escalera"
+ },
+ "reflection": "¿Hay una línea que no cruzarías, o tu línea se mueve según lo que está en juego?",
+ "map": [
+  {
+   "axis": "ax_limites_resultado",
+   "source": "stance",
+   "polarity": 1
+  },
+  {
+   "axis": "ax_limites_resultado",
+   "source": "probe",
+   "probe": "e4_escalera",
+   "key": "line",
+   "values": {
+    "0": -3,
+    "4": -1,
+    "3": 0,
+    "2": 1,
+    "1": 2
+   }
+  }
+ ],
+ "deepDive": {
+  "problem": "¿La prohibición de mentir es absoluta, depende de un umbral o depende de las consecuencias?",
+  "positions": [
+   "Mentir decide por el otro qué puede saber y daña la confianza de todas las palabras.",
+   "La verdad es un valor importante, pero no el único: a veces cuidar pesa más."
+  ],
+  "traditions": "Agustín de Hipona rechazó toda mentira. Kant sostuvo que no se debe mentir ni siquiera a quien busca hacer daño, en su respuesta a Benjamin Constant. Christine Korsgaard reexaminó ese caso. Sissela Bok, Bernard Williams y Jennifer Saul estudiaron la mentira y el engaño en la vida cotidiana.",
+  "objection": "Si la línea contra la mentira se mueve con lo que está en juego, cuesta distinguirla de un simple cálculo de consecuencias.",
+  "references": [
+   "ref_agustin_mendacio",
+   "ref_kant_1797",
+   "ref_korsgaard_1986",
+   "ref_bok_1978",
+   "ref_williams_2002",
+   "ref_saul_2012",
+   "ref_sep_deontology"
+  ]
+ }
+}
