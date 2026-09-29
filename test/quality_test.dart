@@ -24,6 +24,8 @@ void main() {
       if (!f.path.endsWith('palette.dart')) {
         expect(src.contains('Color(0x'), isFalse, reason: f.path);
       }
+      // El validador de contenido nombra esos marcadores porque los detecta.
+      if (f.path.endsWith('content_validator.dart')) continue;
       expect(RegExp(r'\b(TODO|FIXME|UnimplementedError)\b').hasMatch(src), isFalse, reason: f.path);
     }
   });
