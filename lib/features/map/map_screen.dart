@@ -31,7 +31,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       model = ref.watch(mapModelProvider);
     }
     final notes = widget.demo ? const <String, String>{} : (ref.watch(userStateProvider).valueOrNull?.notes ?? const {});
-    final back = () => context.canPop() ? context.pop() : context.go('/');
+    void back() => context.canPop() ? context.pop() : context.go('/');
 
     if (content == null || model == null) {
       return PaperPage(title: 'Tu mapa', onBack: back, child: const SizedBox.shrink());

@@ -73,7 +73,7 @@ class NotebookEntryScreen extends ConsumerWidget {
     for (final n in _entries(ref, demo)) {
       if (n.id == entryId) entry = n;
     }
-    final back = () => context.canPop() ? context.pop() : context.go('/cuaderno');
+    void back() => context.canPop() ? context.pop() : context.go('/cuaderno');
     if (entry == null || content == null) {
       return PaperPage(
         title: 'Cuaderno',

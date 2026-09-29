@@ -121,7 +121,7 @@ class PrefsController extends AsyncNotifier<Prefs> {
     return PrefsStore(dir).load();
   }
 
-  Future<void> update(Prefs Function(Prefs) change) async {
+  Future<void> updatePrefs(Prefs Function(Prefs) change) async {
     final current = state.valueOrNull ?? const Prefs();
     final next = change(current);
     state = AsyncData(next);
