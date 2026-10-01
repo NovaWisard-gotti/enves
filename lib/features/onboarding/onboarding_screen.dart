@@ -6,7 +6,7 @@ import '../../app/providers.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/motion.dart';
 import '../../widgets/balanza.dart';
-import '../../widgets/ink_marks.dart';
+import '../../widgets/hilo_vivo.dart';
 import '../../widgets/paper.dart';
 
 const kOnboardingQuestion = '¿Se puede entender a alguien sin darle la razón?';
@@ -46,10 +46,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         body = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Gap(64),
-            const CrossGlyph(),
+            const Gap(56),
+            const HiloFirma(width: 240, height: 52, tocable: true),
             const Gap(40),
             Semantics(header: true, child: Text(kOnboardingQuestion, style: context.text.displaySmall)),
+            const Gap(20),
+            Text(
+              'Envés es un cuaderno para pensar. Aquí tus ideas se marcan, se cruzan y se recuerdan.',
+              style: context.text.bodyLarge,
+            ),
           ],
         );
         bottom = FilledButton(onPressed: () => setState(() => _step = 1), child: const Text('Seguir'));
@@ -72,8 +77,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               }),
             ),
             const Gap(24),
-            if (_confirmed)
+            if (_confirmed) ...[
               MarginNote('Así funciona: hacia dónde vas es tu postura; qué tan lejos, tu seguridad.'),
+              const Gap(12),
+              Text(
+                'Más adelante vas a cruzar al otro lado del eje. Tu punto se queda anclado aquí: no lo pierdes.',
+                style: context.text.bodySmall,
+              ),
+            ],
           ],
         );
         bottom = _confirmed
@@ -87,6 +98,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(48),
+            const HiloFirma(width: 180, height: 40, hueco: false),
+            const Gap(24),
             Text(
               'Aquí nadie va a intentar convencerte.',
               style: context.text.displaySmall,

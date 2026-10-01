@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../domain/records/records.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/ink_marks.dart';
+import '../../widgets/hilo_vivo.dart';
 import '../../widgets/paper.dart';
 import '../deep_dive/deep_dive_sheet.dart';
 
@@ -52,7 +52,7 @@ class NotebookScreen extends ConsumerWidget {
                 if (content != null) content.titleOf(n.experienceId),
                 if (n.firmness == 'dudosa') 'en duda',
               ].where((s) => s.isNotEmpty).join('. '),
-              leading: InkDot(style: n.firmness == 'dudosa' ? DotStyle.half : DotStyle.filled, size: 12),
+              leading: TrazoMuestra(semilla: n.id, dudosa: n.firmness == 'dudosa'),
               onTap: () => context.push('/cuaderno/${n.id}${demo ? '?demo=1' : ''}'),
             ),
         ],
@@ -91,6 +91,8 @@ class NotebookEntryScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          TrazoMuestra(semilla: n.id, dudosa: n.firmness == 'dudosa', width: 120, height: 40, animar: true),
+          const Gap(16),
           Text('Tus palabras', style: context.text.labelMedium),
           const Gap(6),
           Text('«${n.userWords}»', style: context.text.headlineSmall),

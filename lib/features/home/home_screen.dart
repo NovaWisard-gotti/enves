@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
+import '../../domain/records/records.dart';
+import '../../engine/map/map_builder.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/hilo_vivo.dart';
+import '../../widgets/ilustraciones.dart';
 import '../../widgets/ink_marks.dart';
 import '../../widgets/paper.dart';
 
@@ -23,6 +27,43 @@ class HomeScreen extends ConsumerWidget {
     final completed = progress.completedCount(user);
     final recovered = ref.watch(recoveryNoticeProvider);
     final saveError = ref.watch(saveErrorProvider);
+
+    final ordered = [...content.experiences]..sort((a, b) => a.order.compareTo(b.order));
+    final index = {for (var i = 0; i < ordered.length; i++) ordered[i].id: i};
+    NodoEstado estadoDe(String id) {
+      switch (user.experiences[id]?.status) {
+        case ExpStatus.completed:
+          return NodoEstado.completa;
+        case ExpStatus.inProgress:
+          return NodoEstado.enCurso;
+        case ExpStatus.skipped:
+          return NodoEstado.omitida;
+        default:
+          return NodoEstado.pendiente;
+      }
+    }
+
+    final nodos = [
+      for (final e in ordered)
+        RecorridoNodo(
+          id: e.id,
+          title: e.title,
+          estado: estadoDe(e.id),
+          hueco: user.experiences[e.id]?.status == ExpStatus.completed &&
+              Recognition.isRecognized(user.experiences[e.id]?.cruza?.finalRecognition),
+          siguiente: !suggestion.allDone && suggestion.experience?.id == e.id,
+        ),
+    ];
+    final hilos = [
+      for (final t in map?.threads ?? const <ThreadView>[])
+        if (index.containsKey(t.from) && index.containsKey(t.to))
+          RecorridoHilo(
+            from: index[t.from]!,
+            to: index[t.to]!,
+            memoria: t.kind == 'memoria',
+            consolidado: t.kind == 'memoria' || completed >= MapBuilder.minForPattern,
+          ),
+    ];
 
     final String eyebrow;
     final String headline;
@@ -66,10 +107,9 @@ class HomeScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const CrossGlyph(),
+              const HiloFirma(width: 64, height: 22, animar: false),
               const SizedBox(width: 10),
-              Text('Envés', style: context.text.titleMedium),
-              const Spacer(),
+              Expanded(child: Text('Envés', style: context.text.titleMedium)),
               IconButton(
                 tooltip: 'Ajustes',
                 icon: const Icon(Icons.tune),
@@ -77,7 +117,11 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const Gap(40),
+          const Gap(28),
+          if (!suggestion.allDone && ilustracionCabe(context, hasta: 1.3)) ...[
+            Vineta(suggestion.experience!.id),
+            const Gap(16),
+          ],
           Text(eyebrow, style: context.text.labelMedium),
           const Gap(10),
           Semantics(header: true, child: Text(headline, style: context.text.displaySmall)),
@@ -86,13 +130,24 @@ class HomeScreen extends ConsumerWidget {
             width: double.infinity,
             child: FilledButton(key: const ValueKey('home_primary'), onPressed: onAction, child: Text(action)),
           ),
-          const Gap(36),
+          const Gap(32),
+          RecorridoHiloVivo(nodos: nodos, hilos: hilos),
+          const Gap(12),
           const Divider(),
           if (echo != null) ...[
             const Gap(16),
-            Text('La última vez', style: context.text.labelMedium),
-            const Gap(6),
-            Text(echo, style: context.text.bodyLarge?.copyWith(fontStyle: FontStyle.italic)),
+            Container(
+              padding: const EdgeInsets.only(left: 14),
+              decoration: BoxDecoration(border: Border(left: BorderSide(color: context.enves.saffron, width: 2))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('La última vez', style: context.text.labelMedium),
+                  const Gap(4),
+                  Text(echo, style: context.marginNote.copyWith(fontSize: 19, height: 1.35)),
+                ],
+              ),
+            ),
             const Gap(16),
             const Divider(),
           ],

@@ -8,15 +8,20 @@ import '../../../engine/experience/experience_engine.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/motion.dart';
 import '../../../widgets/balanza.dart';
+import '../../../widgets/ilustraciones.dart';
 import '../../../widgets/paper.dart';
 import '../experience_actions.dart';
+import '../probes/escenas.dart';
 import '../probes/probes.dart';
 import '../widgets/stage_frame.dart';
 
 /// Situación del caso, simple o en dos columnas gemelas.
 class ScenarioView extends StatelessWidget {
-  const ScenarioView(this.scenario, {super.key});
+  const ScenarioView(this.scenario, {super.key, this.experienceId});
   final ScenarioDef scenario;
+
+  /// Si se indica, la escena lleva su ilustración propia.
+  final String? experienceId;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +30,21 @@ class ScenarioView extends StatelessWidget {
         Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(p, style: context.text.bodyLarge)),
     ];
     if (!scenario.isTwin) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: paragraphs);
+      final id = experienceId;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (id != null && !id.startsWith('e2') && ilustracionCabe(context)) ...[
+            Vineta(id, width: 180, height: 110),
+            const Gap(12),
+          ],
+          ...paragraphs,
+          if (id != null && id.startsWith('e2')) ...[
+            const HilosPromesa(),
+            const Gap(16),
+          ],
+        ],
+      );
     }
     final scale = MediaQuery.textScalerOf(context).scale(16) / 16;
     Widget column(TwinColumn c) => Semantics(
@@ -97,6 +116,10 @@ class IntroStage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Gap(24),
+          if (ilustracionCabe(context, hasta: 1.3)) ...[
+            Vineta(exp.id, width: 220, height: 132),
+            const Gap(24),
+          ],
           Semantics(header: true, child: Text(exp.question, style: context.text.displaySmall)),
           const Gap(24),
           if (exp.sensitive && exp.sensitiveNote.isNotEmpty) ...[
@@ -191,7 +214,7 @@ class _JudgmentStageState extends ConsumerState<JudgmentStage> {
             Text(exp.twist.text, style: context.text.bodyLarge),
             const Gap(20),
           ] else if (exp.eligeProbe == null) ...[
-            ScenarioView(exp.scenario),
+            ScenarioView(exp.scenario, experienceId: exp.id),
             const Gap(8),
           ],
           Semantics(header: true, child: Text(exp.judgment.prompt, style: context.text.headlineSmall)),

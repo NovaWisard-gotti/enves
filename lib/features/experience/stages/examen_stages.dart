@@ -8,10 +8,13 @@ import '../../../domain/records/records.dart';
 import '../../../engine/experience/experience_engine.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/motion.dart';
+import '../../../widgets/hilo_vivo.dart';
+import '../../../widgets/margen_vivo.dart';
 import '../../../widgets/paper.dart';
 import '../../../widgets/tension_widgets.dart';
 import '../../deep_dive/deep_dive_sheet.dart';
 import '../experience_actions.dart';
+import '../widgets/memoria_regresa.dart';
 import '../widgets/stage_frame.dart';
 
 /// Hoja «¿Por qué me preguntas esto?»: muestra el origen real del recuerdo.
@@ -105,7 +108,7 @@ class QuestionStage extends ConsumerWidget {
         children: [
           const Gap(8),
           if (q.refs.isNotEmpty)
-            MarginNote(q.text)
+            MemoriaRegresa(key: ValueKey('memoria_${q.questionId}'), pregunta: q.text, refs: q.refs)
           else
             Semantics(liveRegion: true, child: Text(q.text, style: context.text.titleLarge)),
           if (q.refs.isNotEmpty)
@@ -448,6 +451,16 @@ class _DiscoveryStageState extends ConsumerState<DiscoveryStage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (entry != null) ...[
+              Row(
+                children: [
+                  TrazoMuestra(semilla: entry.id, dudosa: entry.firmness == 'dudosa', width: 96, height: 32, animar: true),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text('Una distinción, anotada al margen.', style: context.text.labelMedium)),
+                ],
+              ),
+              const Gap(14),
+            ],
             DiscoveryNote(
               userWords: entry?.userWords ?? '',
               openingLine: distinction?.openingLine ?? '',
@@ -459,6 +472,13 @@ class _DiscoveryStageState extends ConsumerState<DiscoveryStage> {
             ),
             const Gap(16),
             Text('Guardado en tu cuaderno.', style: context.text.bodySmall),
+            if (entry != null && content != null && content.visibleReferences(entry.referenceIds).isNotEmpty) ...[
+              const Gap(8),
+              MargenVivo(
+                marca: 'Dónde se discute esta distinción',
+                texto: content.visibleReferences(entry.referenceIds).map((r) => r.formatted).join('\n\n'),
+              ),
+            ],
           ],
         ),
       ),

@@ -5,14 +5,21 @@ import '../../../app/providers.dart';
 import '../../../core/json.dart';
 import '../../../domain/content/content_models.dart';
 import '../../../domain/records/records.dart';
-import '../../../engine/fairness/fairness_model.dart';
 import '../../../theme/app_theme.dart';
+import '../../../theme/motion.dart';
+import '../../../widgets/hilo_vivo.dart';
+import '../../../widgets/ilustraciones.dart';
 import '../../../widgets/ink_marks.dart';
 import '../../../widgets/paper.dart';
+import 'becas_probe.dart';
+import 'escenas.dart';
+
+export 'becas_probe.dart' show FairnessSimulatorProbe;
 
 typedef ProbeDone = void Function(Json result);
 
-/// Despacha cada tipo de mecánica a su widget.
+/// Despacha cada tipo de mecánica a su widget. Cada experiencia tiene su
+/// propia interacción; todas devuelven los mismos datos que el motor espera.
 class ProbeView extends StatelessWidget {
   const ProbeView({super.key, required this.experienceId, required this.probe, required this.onDone});
   final String experienceId;
@@ -27,9 +34,9 @@ class ProbeView extends StatelessWidget {
       case 'twinCases':
         body = TwinCasesProbe(config: c, onDone: onDone);
       case 'choiceVariant':
-        body = ChoiceVariantProbe(config: c, onDone: onDone);
+        body = ChoiceVariantProbe(experienceId: experienceId, config: c, onDone: onDone);
       case 'proximityRings':
-        body = ProximityRingsProbe(config: c, onDone: onDone);
+        body = ProximityRingsProbe(experienceId: experienceId, config: c, onDone: onDone);
       case 'ladder':
         body = LadderProbe(config: c, onDone: onDone);
       case 'fairnessSimulator':
@@ -58,8 +65,8 @@ class ProbeView extends StatelessWidget {
   }
 }
 
-class _DoneButton extends StatelessWidget {
-  const _DoneButton({required this.onPressed, this.label = 'Listo'});
+class ProbeDoneButton extends StatelessWidget {
+  const ProbeDoneButton({super.key, required this.onPressed, this.label = 'Listo'});
   final VoidCallback? onPressed;
   final String label;
 
@@ -70,41 +77,128 @@ class _DoneButton extends StatelessWidget {
       );
 }
 
-// ------------------------------------------------------------- casos gemelos
-class TwinCasesProbe extends StatefulWidget {
+// ------------------------------------------------------- E1: casos gemelos
+/// Ana y Beto: la misma escena. Un control horizontal compara antes y
+/// después; solo cambia lo que ocurre afuera. Luego, marcas de tinta para el
+/// reproche de cada uno.
+class TwinCasesProbe extends ConsumerStatefulWidget {
   const TwinCasesProbe({super.key, required this.config, required this.onDone});
   final Json config;
   final ProbeDone onDone;
 
   @override
-  State<TwinCasesProbe> createState() => _TwinCasesProbeState();
+  ConsumerState<TwinCasesProbe> createState() => _TwinCasesProbeState();
 }
 
-class _TwinCasesProbeState extends State<TwinCasesProbe> {
+class _TwinCasesProbeState extends ConsumerState<TwinCasesProbe> with SingleTickerProviderStateMixin {
   final Map<String, int> _values = {};
+  late final AnimationController _cmp = AnimationController(vsync: this, duration: Motion.long, value: 0);
+  bool _sawBoth = false;
+
+  @override
+  void dispose() {
+    _cmp.dispose();
+    super.dispose();
+  }
+
+  void _goTo(double v) {
+    ref.read(feedbackProvider).selection();
+    if (reducedMotionNow(context, ref)) {
+      _cmp.value = v;
+    } else {
+      _cmp.animateTo(v, curve: Motion.turn);
+    }
+    if (v >= 1) setState(() => _sawBoth = true);
+  }
 
   @override
   Widget build(BuildContext context) {
     final subjects = asJsonList(widget.config['subjects']);
     final scale = asStringList(widget.config['scale']);
     final ready = subjects.isNotEmpty && subjects.every((s) => _values.containsKey(asString(s['id'])));
+    final names = subjects.map((s) => asString(s['label'])).toList();
+    final a = names.isNotEmpty ? names.first : 'Ana';
+    final b = names.length > 1 ? names[1] : 'Beto';
+    final showScene = ilustracionCabe(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final s in subjects) ...[
-          Text(asString(s['label']), style: context.text.titleMedium),
-          const Gap(4),
-          FiveStepSelector(
-            value: _values[asString(s['id'])] == null ? null : _values[asString(s['id'])]! + 1,
-            lowLabel: scale.isNotEmpty ? scale.first : '',
-            highLabel: scale.isNotEmpty ? scale.last : '',
-            stepLabels: scale.length == 5 ? scale : null,
-            semanticsLabel: 'Reproche a ${asString(s['label'])}',
-            onChanged: (v) => setState(() => _values[asString(s['id'])] = v - 1),
+        AnimatedBuilder(
+          animation: _cmp,
+          builder: (context, _) {
+            final t = _cmp.value;
+            final beto = t >= 0.5;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (showScene) EscenaDescuido(t: t, height: 132),
+                Row(
+                  children: [
+                    _NombreEscena(nombre: a, activo: !beto, onTap: () => _goTo(0)),
+                    const Spacer(),
+                    _NombreEscena(nombre: b, activo: beto, onTap: () => _goTo(1)),
+                  ],
+                ),
+                Slider(
+                  value: t,
+                  onChanged: (v) {
+                    _cmp.value = v;
+                    if (v >= 0.95 && !_sawBoth) setState(() => _sawBoth = true);
+                  },
+                  semanticFormatterCallback: (v) => v < 0.5 ? '$a: no pasa nada' : '$b: un niño cruza',
+                ),
+                Semantics(
+                  liveRegion: true,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('La conducta es la misma.', style: context.text.titleMedium),
+                      Text(
+                        beto ? 'Solo cambia lo que ocurre: un niño cruza.' : 'No pasa nada.',
+                        style: context.text.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        if (!_sawBoth)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text('Desliza de $a a $b: mira qué se queda quieto y qué cambia.', style: context.text.bodySmall),
           ),
-          const Gap(16),
-        ],
-        _DoneButton(
+        const Gap(24),
+        LayoutBuilder(builder: (context, c) {
+          final narrow = c.maxWidth < 456 || !showScene;
+          final columns = [
+            for (final s in subjects)
+              MarcasReproche(
+                nombre: asString(s['label']),
+                escala: scale,
+                valor: _values[asString(s['id'])],
+                semillaFigura: asString(s['id']) == subjects.last['id'] ? 1 : 0,
+                onChanged: (v) {
+                  ref.read(feedbackProvider).selection();
+                  setState(() => _values[asString(s['id'])] = v);
+                },
+              ),
+          ];
+          if (narrow) {
+            return Column(children: [for (final w in columns) Padding(padding: const EdgeInsets.only(bottom: 16), child: w)]);
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < columns.length; i++) ...[
+                if (i > 0) const SizedBox(width: 16),
+                Expanded(child: columns[i]),
+              ],
+            ],
+          );
+        }),
+        ProbeDoneButton(
           onPressed: !ready
               ? null
               : () {
@@ -119,17 +213,175 @@ class _TwinCasesProbeState extends State<TwinCasesProbe> {
   }
 }
 
-// ------------------------------------------------------------ variante simple
-class ChoiceVariantProbe extends StatefulWidget {
-  const ChoiceVariantProbe({super.key, required this.config, required this.onDone});
+class _NombreEscena extends StatelessWidget {
+  const _NombreEscena({required this.nombre, required this.activo, required this.onTap});
+  final String nombre;
+  final bool activo;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: activo,
+      label: 'Ver la escena de $nombre',
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48, minWidth: 64),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            child: Text(
+              nombre,
+              style: context.text.titleMedium?.copyWith(
+                color: activo ? context.enves.ink : context.enves.inkSecondary,
+                decoration: activo ? TextDecoration.underline : null,
+                decorationColor: context.enves.saffron,
+                decorationThickness: 2,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Reproche como marcas de tinta debajo de cada figura: trazos, no barras.
+class MarcasReproche extends StatelessWidget {
+  const MarcasReproche({
+    super.key,
+    required this.nombre,
+    required this.escala,
+    required this.valor,
+    required this.onChanged,
+    this.semillaFigura = 0,
+  });
+  final String nombre;
+  final List<String> escala;
+  final int? valor;
+  final ValueChanged<int> onChanged;
+  final int semillaFigura;
+
+  String _label(int i) => escala.length == 5 ? escala[i] : '${i + 1} de 5';
+
+  @override
+  Widget build(BuildContext context) {
+    final e = context.enves;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            ExcludeSemantics(
+              child: CustomPaint(
+                size: const Size(26, 40),
+                painter: _MiniFiguraPainter(e.ink, semillaFigura),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(child: Text(nombre, style: context.text.titleMedium)),
+          ],
+        ),
+        const Gap(4),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < 5; i++)
+              Semantics(
+                button: true,
+                selected: valor == i,
+                label: 'Reproche a $nombre: ${_label(i)}',
+                excludeSemantics: true,
+                child: InkResponse(
+                  onTap: () => onChanged(i),
+                  radius: 26,
+                  child: SizedBox(
+                    width: 44,
+                    height: 52,
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: valor != null && i <= valor! ? 1 : 0),
+                      duration: Duration(milliseconds: 160 + i * 50),
+                      builder: (context, t, _) => CustomPaint(
+                        painter: _MarcaPainter(index: i, t: t, ink: e.ink, graphite: e.graphite),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        Text(valor == null ? 'Sin marcar' : _label(valor!), style: context.text.labelMedium),
+      ],
+    );
+  }
+}
+
+class _MarcaPainter extends CustomPainter {
+  _MarcaPainter({required this.index, required this.t, required this.ink, required this.graphite});
+  final int index;
+  final double t;
+  final Color ink;
+  final Color graphite;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final h = 14.0 + index * 6.0;
+    final x = size.width / 2;
+    final bottom = size.height - 6;
+    final a = Offset(x - 5, bottom);
+    final b = Offset(x + 5, bottom - h);
+    // La marca vacía, apenas en grafito.
+    canvas.drawPath(
+      dashedPath(inkPath(a, b, seed: index), dash: 2, gap: 3),
+      Paint()
+        ..color = graphite
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2,
+    );
+    if (t > 0) {
+      canvas.drawPath(
+        partialPath(inkPath(a, b, seed: index), t),
+        Paint()
+          ..color = ink
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3.2
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _MarcaPainter old) => old.t != t || old.ink != ink;
+}
+
+class _MiniFiguraPainter extends CustomPainter {
+  _MiniFiguraPainter(this.ink, this.seed);
+  final Color ink;
+  final int seed;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    figura(canvas, Offset(size.width / 2, size.height - 1), size.height - 2, tinta(ink, 1.4), seed: seed);
+  }
+
+  @override
+  bool shouldRepaint(covariant _MiniFiguraPainter old) => old.ink != ink;
+}
+
+// ------------------------------------------------------- E2: variante simple
+class ChoiceVariantProbe extends ConsumerStatefulWidget {
+  const ChoiceVariantProbe({super.key, required this.experienceId, required this.config, required this.onDone});
+  final String experienceId;
   final Json config;
   final ProbeDone onDone;
 
   @override
-  State<ChoiceVariantProbe> createState() => _ChoiceVariantProbeState();
+  ConsumerState<ChoiceVariantProbe> createState() => _ChoiceVariantProbeState();
 }
 
-class _ChoiceVariantProbeState extends State<ChoiceVariantProbe> {
+class _ChoiceVariantProbeState extends ConsumerState<ChoiceVariantProbe> {
   String? _choice;
 
   @override
@@ -138,352 +390,553 @@ class _ChoiceVariantProbeState extends State<ChoiceVariantProbe> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.experienceId.startsWith('e2')) ...[
+          const HilosPromesa(secreto: true),
+          const Gap(16),
+        ],
         for (final o in options)
           RuledOption(
             label: asString(o['label']),
             serif: true,
             selected: _choice == asString(o['id']),
-            onTap: () => setState(() => _choice = asString(o['id'])),
+            onTap: () {
+              ref.read(feedbackProvider).selection();
+              setState(() => _choice = asString(o['id']));
+            },
           ),
-        _DoneButton(onPressed: _choice == null ? null : () => widget.onDone({'choice': _choice})),
+        ProbeDoneButton(onPressed: _choice == null ? null : () => widget.onDone({'choice': _choice})),
       ],
     );
   }
 }
 
-// ------------------------------------------------------- círculo de cercanía
-class ProximityRingsProbe extends StatefulWidget {
-  const ProximityRingsProbe({super.key, required this.config, required this.onDone});
+// ---------------------------------------------------- E3: círculos de cercanía
+/// La misma situación, movida entre círculos de cercanía. La decisión que
+/// tomaste con tu hermano queda como sombra en el primer círculo.
+class ProximityRingsProbe extends ConsumerStatefulWidget {
+  const ProximityRingsProbe({super.key, required this.experienceId, required this.config, required this.onDone});
+  final String experienceId;
   final Json config;
   final ProbeDone onDone;
 
   @override
-  State<ProximityRingsProbe> createState() => _ProximityRingsProbeState();
+  ConsumerState<ProximityRingsProbe> createState() => _ProximityRingsProbeState();
 }
 
-class _ProximityRingsProbeState extends State<ProximityRingsProbe> {
+class _ProximityRingsProbeState extends ConsumerState<ProximityRingsProbe> {
   final Map<String, int> _values = {};
+  int _active = 0;
+
+  void _setActive(int i, int count) {
+    final v = i.clamp(0, count - 1).toInt();
+    if (v == _active) return;
+    ref.read(feedbackProvider).selection();
+    setState(() => _active = v);
+  }
 
   @override
   Widget build(BuildContext context) {
     final rings = asJsonList(widget.config['rings']);
     final choices = asJsonList(widget.config['choices']);
+    if (rings.isEmpty) return ProbeDoneButton(onPressed: () => widget.onDone(const {}));
     final ready = rings.every((r) => _values.containsKey(asString(r['id'])));
+    final user = ref.watch(userStateProvider).valueOrNull;
+    final stance = user?.progress(widget.experienceId).initialStance;
+    final int? sombra = stance?.value.sign;
+    final e = context.enves;
+    final activeId = asString(rings[_active]['id']);
+    final activeLabel = asString(rings[_active]['label']);
+
+    String choiceLabel(int? v) {
+      for (final c in choices) {
+        if (asInt(c['value']) == v) return asString(c['label']);
+      }
+      return 'sin decidir';
+    }
+
+    // Círculo 1: el hermano (la decisión original). Desde el 2: las variantes.
+    final marks = <int, int?>{for (var i = 0; i < rings.length; i++) i + 2: _values[asString(rings[i]['id'])]};
+    final resumen = [
+      if (sombra != null) 'Con tu hermano: ${stance!.label.toLowerCase()}',
+      for (var i = 0; i < rings.length; i++)
+        if (_values.containsKey(asString(rings[i]['id'])))
+          '${asString(rings[i]['label'])}: ${choiceLabel(_values[asString(rings[i]['id'])]).toLowerCase()}',
+    ].join('. ');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (var i = 0; i < rings.length; i++) ...[
-          Row(
-            children: [
-              ExcludeSemantics(child: _Rings(level: i + 2)),
-              const SizedBox(width: 10),
-              Expanded(child: Text(asString(rings[i]['label']), style: context.text.titleMedium)),
-            ],
+        if (ilustracionCabe(context))
+          LayoutBuilder(builder: (context, c) {
+            final size = c.maxWidth.clamp(0.0, 340.0);
+            return Center(
+              child: Semantics(
+                label: 'Círculos de cercanía. En el centro, tú. $resumen',
+                excludeSemantics: true,
+                child: GestureDetector(
+                  onTapUp: (d) {
+                    final center = Offset(size / 2, size / 2);
+                    final dist = (d.localPosition - center).distance / (size / 2);
+                    // Círculo 1: hermano (fijo). 2 y 3: las variantes.
+                    if (dist > 0.45) _setActive(dist > 0.78 ? rings.length - 1 : 0, rings.length);
+                  },
+                  onPanUpdate: (d) {
+                    final center = Offset(size / 2, size / 2);
+                    final dist = (d.localPosition - center).distance / (size / 2);
+                    if (dist > 0.45) _setActive(dist > 0.78 ? rings.length - 1 : 0, rings.length);
+                  },
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(end: _active.toDouble()),
+                    duration: reducedMotion(context, ref) ? Duration.zero : Motion.medium,
+                    curve: Motion.settle,
+                    builder: (context, ringPos, _) => CustomPaint(
+                      size: Size(size, size),
+                      painter: CirculosPainter(
+                        activo: ringPos + 2,
+                        marcas: marks,
+                        sombra: sombra,
+                        ink: e.ink,
+                        graphite: e.graphite,
+                        saffron: e.saffron,
+                        paper: e.paper,
+                        etiquetas: ['Tú', 'Hermano', for (final r in rings) asString(r['label'])],
+                        estilo: context.text.bodySmall!,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        const Gap(12),
+        Text('Mueve la situación a otro círculo: toca un círculo o elige aquí.', style: context.text.bodySmall),
+        const Gap(8),
+        SegmentedButton<int>(
+          segments: [
+            for (var i = 0; i < rings.length; i++) ButtonSegment(value: i, label: Text(asString(rings[i]['label']))),
+          ],
+          selected: {_active},
+          showSelectedIcon: false,
+          onSelectionChanged: (s) => _setActive(s.first, rings.length),
+        ),
+        const Gap(12),
+        Text('Si hubiera sido ${activeLabel.toLowerCase()}:', style: context.text.titleMedium),
+        for (final c in choices)
+          RuledOption(
+            label: asString(c['label']),
+            selected: _values[activeId] == asInt(c['value']),
+            onTap: () {
+              ref.read(feedbackProvider).selection();
+              setState(() {
+                _values[activeId] = asInt(c['value']);
+                if (_active < rings.length - 1 && !_values.containsKey(asString(rings[_active + 1]['id']))) {
+                  _active++;
+                }
+              });
+            },
           ),
-          for (final c in choices)
-            RuledOption(
-              label: asString(c['label']),
-              selected: _values[asString(rings[i]['id'])] == asInt(c['value']),
-              onTap: () => setState(() => _values[asString(rings[i]['id'])] = asInt(c['value'])),
-            ),
-          const Gap(16),
+        if (resumen.isNotEmpty) ...[
+          const Gap(12),
+          Semantics(liveRegion: true, child: MarginNote(resumen)),
         ],
-        _DoneButton(onPressed: ready ? () => widget.onDone(Map<String, dynamic>.from(_values)) : null),
+        ProbeDoneButton(onPressed: ready ? () => widget.onDone(Map<String, dynamic>.from(_values)) : null),
       ],
     );
   }
 }
 
-class _Rings extends StatelessWidget {
-  const _Rings({required this.level});
-  final int level;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-        width: 32,
-        height: 32,
-        child: CustomPaint(painter: _RingsPainter(level, context.enves.ink, context.enves.graphite)),
-      );
-}
-
-class _RingsPainter extends CustomPainter {
-  _RingsPainter(this.level, this.ink, this.graphite);
-  final int level;
-  final Color ink;
-  final Color graphite;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = size.center(Offset.zero);
-    for (var i = 1; i <= 3; i++) {
-      canvas.drawCircle(
-        c,
-        size.width / 2 * i / 3,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = i == level ? 2.5 : 1
-          ..color = i == level ? ink : graphite,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _RingsPainter old) => old.level != level || old.ink != ink;
-}
-
-// ----------------------------------------------------------------- escalera
-class LadderProbe extends StatefulWidget {
+// ------------------------------------------------------- E4: escalera
+/// Escalera de gravedad: una línea que se arrastra entre peldaños. Por encima,
+/// tinta sólida; por debajo, grafito. Nunca verde ni rojo.
+class LadderProbe extends ConsumerStatefulWidget {
   const LadderProbe({super.key, required this.config, required this.onDone});
   final Json config;
   final ProbeDone onDone;
 
   @override
-  State<LadderProbe> createState() => _LadderProbeState();
+  ConsumerState<LadderProbe> createState() => _LadderProbeState();
 }
 
-class _LadderProbeState extends State<LadderProbe> {
+class _LadderProbeState extends ConsumerState<LadderProbe> {
   int? _line;
+  double _dragAcc = 0;
+
+  /// La línea tras moverla [delta] peldaños. Orden de abajo hacia arriba:
+  /// 1, 2, …, n, 0 (nunca).
+  int _after(int delta, int n) {
+    final order = [for (var i = 1; i <= n; i++) i, 0];
+    final idx = order.indexOf(_line ?? 1);
+    return order[(idx + delta).clamp(0, order.length - 1)];
+  }
+
+  /// Sube la línea (más estricto). 4 → 0 (nunca).
+  void _move(int delta, int n) {
+    final next = _after(delta, n);
+    if (next != _line) {
+      ref.read(feedbackProvider).selection();
+      setState(() => _line = next);
+    }
+  }
+
+  String _lineText(int? line, List<String> rungs, String never) {
+    if (line == null) return 'Sin línea todavía';
+    if (line == 0) return never;
+    return 'Desde el peldaño $line: «${rungs[line - 1]}»';
+  }
 
   @override
   Widget build(BuildContext context) {
     final rungs = asStringList(widget.config['rungs']);
     final never = asString(widget.config['never'], 'Nunca');
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('De menos a más grave. Elige el primer peldaño en el que mentir te parecería aceptable.',
-            style: context.text.bodySmall),
-        const Gap(8),
-        for (var i = 0; i < rungs.length; i++)
-          RuledOption(
-            label: rungs[i],
-            detail: 'Peldaño ${i + 1}',
-            serif: true,
-            selected: _line == i + 1,
-            leading: InkDot(
-              style: _line != null && _line != 0 && i + 1 >= _line! ? DotStyle.filled : DotStyle.hollow,
-              size: 12.0 + i * 3,
-            ),
-            onTap: () => setState(() => _line = i + 1),
-          ),
-        RuledOption(label: never, selected: _line == 0, onTap: () => setState(() => _line = 0)),
-        _DoneButton(onPressed: _line == null ? null : () => widget.onDone({'line': _line})),
-      ],
-    );
-  }
-}
+    final n = rungs.length;
+    final e = context.enves;
+    final reduced = reducedMotion(context, ref);
 
-// --------------------------------------------------------- simulador becas
-class FairnessSimulatorProbe extends StatefulWidget {
-  const FairnessSimulatorProbe({super.key, required this.config, required this.onDone});
-  final Json config;
-  final ProbeDone onDone;
-
-  @override
-  State<FairnessSimulatorProbe> createState() => _FairnessSimulatorProbeState();
-}
-
-class _FairnessSimulatorProbeState extends State<FairnessSimulatorProbe> {
-  late final FairnessModel _model = FairnessModel.fromConfig(widget.config);
-  int _north = 5;
-  int _south = 5;
-  bool _same = true;
-  int _moves = 0;
-  bool _reached1 = false;
-  bool _reached2 = false;
-  bool _revealed = false;
-
-  List<int> get _thresholds => _model.thresholds;
-
-  void _change({int? north, int? south}) {
-    setState(() {
-      if (north != null) {
-        _north = north;
-        if (_same) _south = north;
-      }
-      if (south != null) {
-        _south = south;
-        if (_same) _north = south;
-      }
-      _moves++;
-      final r = _model.evaluate(_thresholds[_north], _thresholds[_south]);
-      _reached1 = _reached1 || r.indicator1;
-      _reached2 = _reached2 || r.indicator2;
-      if ((_moves >= 3 && (_reached1 || _reached2)) || _moves >= 8) _revealed = true;
-    });
-  }
-
-  String _pct(double? v) => v == null ? 'sin becas' : '${(v * 100).round()} %';
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_model.isValid) {
-      return _DoneButton(onPressed: () => widget.onDone({'attempts': 0}), label: 'Seguir');
-    }
-    final g = _model.groups;
-    final t = _thresholds;
-    _north = _north.clamp(0, t.length - 1).toInt();
-    _south = _south.clamp(0, t.length - 1).toInt();
-    final r = _model.evaluate(t[_north], t[_south]);
-    final i1Help = asString(widget.config['indicator1Help']);
-    final i2Help = asString(widget.config['indicator2Help']);
-
-    Widget slider(String label, int value, ValueChanged<int> onChanged) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('$label: puntaje mínimo ${t[value]}', style: context.text.titleMedium),
-            Slider(
-              value: value.toDouble(),
-              min: 0,
-              max: (t.length - 1).toDouble(),
-              divisions: t.length - 1,
-              label: '${t[value]}',
-              semanticFormatterCallback: (v) => 'Puntaje mínimo ${t[v.round()]}',
-              onChanged: (v) {
-                if (v.round() != value) onChanged(v.round());
-              },
-            ),
-          ],
+    Widget marker(bool visible) => AnimatedSize(
+          duration: reduced ? Duration.zero : Motion.medium,
+          curve: Motion.settle,
+          child: !visible
+              ? const SizedBox(width: double.infinity)
+              : Semantics(
+                  slider: true,
+                  label: 'Aquí trazaría mi línea',
+                  value: _lineText(_line, rungs, never),
+                  increasedValue: _lineText(_after(1, n), rungs, never),
+                  decreasedValue: _lineText(_after(-1, n), rungs, never),
+                  onIncrease: () => _move(1, n),
+                  onDecrease: () => _move(-1, n),
+                  child: GestureDetector(
+                    onVerticalDragUpdate: (d) {
+                      _dragAcc += d.delta.dy;
+                      if (_dragAcc < -36) {
+                        _dragAcc = 0;
+                        _move(1, n);
+                      } else if (_dragAcc > 36) {
+                        _dragAcc = 0;
+                        _move(-1, n);
+                      }
+                    },
+                    onVerticalDragEnd: (_) => _dragAcc = 0,
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 48),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Icon(Icons.drag_handle, color: e.saffronText, size: 22),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: CustomPaint(
+                              size: const Size(double.infinity, 6),
+                              painter: _LineaPainter(e.saffron),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            flex: 2,
+                            child: Text('Aquí trazaría mi línea', style: context.text.labelMedium?.copyWith(color: e.saffronText)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
         );
 
-    Widget groupLine(FairnessGroup group, GroupMetrics m) => Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            '${group.label}: ${m.awarded} becas, de las que terminarían ${m.truePositives}. '
-            'Quedan fuera ${m.falseNegatives} que sí habrían terminado.',
-            style: context.text.bodySmall,
-          ),
-        );
-
-    Widget indicator(String title, String help, bool met, String detail) => Semantics(
-          liveRegion: true,
-          label: '$title: ${met ? 'se cumple' : 'no se cumple'}. $detail',
-          excludeSemantics: true,
-          child: Padding(
+    Widget rung(int i) {
+      final level = i + 1;
+      final accepted = _line != null && _line != 0 && level >= _line!;
+      return Semantics(
+        button: true,
+        selected: _line == level,
+        label: 'Peldaño $level: ${rungs[i]}. ${accepted ? 'Mentir sería aceptable' : 'No mentirías'}',
+        excludeSemantics: true,
+        child: InkWell(
+          onTap: () {
+            ref.read(feedbackProvider).selection();
+            setState(() => _line = level);
+          },
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 60),
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 3, right: 12),
-                  child: InkDot(style: met ? DotStyle.filled : DotStyle.hollow, size: 18),
+                TweenAnimationBuilder<double>(
+                  tween: Tween(end: accepted ? 1 : 0),
+                  duration: reduced ? Duration.zero : Motion.medium,
+                  builder: (context, t, _) => CustomPaint(
+                    size: const Size(76, 40),
+                    painter: _PeldanoPainter(nivel: level, total: n, t: t, ink: e.ink, graphite: e.graphite),
+                  ),
                 ),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: context.text.titleMedium),
-                      Text(met ? 'Se cumple' : 'No se cumple', style: context.text.labelMedium),
-                      Text(detail, style: context.text.bodySmall),
-                      if (help.isNotEmpty) Text(help, style: context.text.bodySmall),
-                    ],
+                  child: AnimatedDefaultTextStyle(
+                    duration: reduced ? Duration.zero : Motion.medium,
+                    style: context.text.bodyLarge!.copyWith(color: accepted ? e.ink : e.inkSecondary),
+                    child: Text(rungs[i]),
                   ),
                 ),
               ],
             ),
           ),
-        );
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text('Mismo puntaje mínimo en ambos barrios', style: context.text.bodyMedium),
-          value: _same,
-          onChanged: (v) => setState(() {
-            _same = v;
-            if (v) _south = _north;
-          }),
+        Text(
+          'Arriba, lo más grave. Traza tu línea: desde ahí hacia arriba, mentir te parecería aceptable.',
+          style: context.text.bodySmall,
         ),
-        slider(g[0].label, _north, (v) => _change(north: v)),
-        slider(g[1].label, _south, (v) => _change(south: v)),
         const Gap(8),
-        groupLine(g[0], r.north),
-        groupLine(g[1], r.south),
-        const Divider(),
-        indicator(
-          asString(widget.config['indicator1']),
-          i1Help,
-          r.indicator1,
-          '${g[0].label}: ${_pct(r.north.predictive)}. ${g[1].label}: ${_pct(r.south.predictive)}.',
+        marker(_line == 0),
+        for (var i = n - 1; i >= 0; i--) ...[
+          rung(i),
+          marker(_line == i + 1),
+        ],
+        RuledOption(
+          label: never,
+          selected: _line == 0,
+          onTap: () {
+            ref.read(feedbackProvider).selection();
+            setState(() => _line = 0);
+          },
         ),
-        indicator(
-          asString(widget.config['indicator2']),
-          i2Help,
-          r.indicator2,
-          'Negadas por error: ${_pct(r.north.deniedByError)} y ${_pct(r.south.deniedByError)}. '
-              'Dadas por error: ${_pct(r.north.grantedByError)} y ${_pct(r.south.grantedByError)}.',
-        ),
-        if (!_revealed)
+        if (_line == null)
           Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: Text('Intenta que se cumplan los dos criterios.', style: context.text.bodySmall),
+            child: Text('Toca un peldaño para trazar la línea; después puedes arrastrarla.', style: context.text.bodySmall),
           ),
-        if (_revealed) ...[
-          const Gap(12),
-          MarginNote(asString(widget.config['reveal'])),
-        ],
-        _DoneButton(
-          label: 'Seguir',
-          onPressed: !_revealed
-              ? null
-              : () => widget.onDone({
-                    'attempts': _moves,
-                    'north': t[_north],
-                    'south': t[_south],
-                    'reachedI1': _reached1,
-                    'reachedI2': _reached2,
-                    'bothEver': false,
-                  }),
-        ),
+        ProbeDoneButton(onPressed: _line == null ? null : () => widget.onDone({'line': _line})),
       ],
     );
   }
 }
 
-// ------------------------------------------------------------ mapa de flujos
-class FlowMatrixProbe extends StatefulWidget {
+class _LineaPainter extends CustomPainter {
+  _LineaPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    paintHilo(canvas, from: Offset(0, size.height / 2), to: Offset(size.width, size.height / 2), color: color, width: 2.4, seed: 7);
+  }
+
+  @override
+  bool shouldRepaint(covariant _LineaPainter old) => old.color != color;
+}
+
+class _PeldanoPainter extends CustomPainter {
+  _PeldanoPainter({required this.nivel, required this.total, required this.t, required this.ink, required this.graphite});
+  final int nivel;
+  final int total;
+  final double t;
+  final Color ink;
+  final Color graphite;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width * (0.3 + 0.7 * nivel / total);
+    final rect = Rect.fromLTWH(0, size.height * 0.35, w, size.height * 0.5);
+    final outline = dashedPath(Path()..addRect(rect), dash: 3, gap: 3);
+    canvas.drawPath(outline, Paint()
+      ..color = graphite
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2);
+    if (t > 0) {
+      canvas.drawRect(
+        Rect.fromLTWH(rect.left, rect.top, rect.width * t, rect.height),
+        Paint()..color = ink,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _PeldanoPainter old) => old.t != t || old.ink != ink;
+}
+
+// ------------------------------------------------------- E6: red de información
+/// La ubicación en el centro; alrededor, quienes podrían verla. Cada modo
+/// (siempre, de noche, en emergencias) dibuja un tipo de línea distinto.
+class FlowMatrixProbe extends ConsumerStatefulWidget {
   const FlowMatrixProbe({super.key, required this.config, required this.onDone});
   final Json config;
   final ProbeDone onDone;
 
   @override
-  State<FlowMatrixProbe> createState() => _FlowMatrixProbeState();
+  ConsumerState<FlowMatrixProbe> createState() => _FlowMatrixProbeState();
 }
 
-class _FlowMatrixProbeState extends State<FlowMatrixProbe> {
+class _FlowMatrixProbeState extends ConsumerState<FlowMatrixProbe> with SingleTickerProviderStateMixin {
   final Set<String> _accepted = {};
+  int _col = 0;
+  String? _last;
+  late final AnimationController _anim = AnimationController(vsync: this, duration: Motion.long, value: 1);
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  void _toggle(int r) {
+    final key = '$r:$_col';
+    final adding = !_accepted.contains(key);
+    ref.read(feedbackProvider).selection();
+    setState(() {
+      _last = key;
+      if (adding) _accepted.add(key);
+    });
+    if (reducedMotionNow(context, ref)) {
+      if (!adding) setState(() => _accepted.remove(key));
+      return;
+    }
+    if (adding) {
+      _anim.forward(from: 0);
+    } else {
+      _anim.reverse(from: 1).whenComplete(() {
+        if (mounted) setState(() => _accepted.remove(key));
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final rows = asStringList(widget.config['rows']);
     final cols = asStringList(widget.config['columns']);
     final total = rows.length * cols.length;
+    final e = context.enves;
+    const positions = [Offset(0.16, 0.3), Offset(0.84, 0.3), Offset(0.16, 0.74), Offset(0.84, 0.74)];
+
+    String rowState(int r) {
+      final on = [for (var c = 0; c < cols.length; c++) if (_accepted.contains('$r:$c')) cols[c].toLowerCase()];
+      return on.isEmpty ? 'sin acceso' : on.join(', ');
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (var r = 0; r < rows.length; r++) ...[
-          Text(rows[r], style: context.text.titleMedium),
-          Wrap(
-            spacing: 8,
-            children: [
-              for (var c = 0; c < cols.length; c++)
-                _ToggleBox(
-                  label: cols[c],
-                  semantics: '${rows[r]}, ${cols[c]}',
-                  checked: _accepted.contains('$r:$c'),
-                  onTap: () => setState(() {
-                    final key = '$r:$c';
-                    if (!_accepted.remove(key)) _accepted.add(key);
-                  }),
+        Text('Primero elige cuándo; luego toca a quién conectas con su ubicación.', style: context.text.bodySmall),
+        const Gap(10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (var c = 0; c < cols.length; c++)
+              Semantics(
+                button: true,
+                selected: _col == c,
+                label: 'Modo: ${cols[c]}',
+                excludeSemantics: true,
+                child: InkWell(
+                  onTap: () {
+                    ref.read(feedbackProvider).selection();
+                    setState(() => _col = c);
+                  },
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: _col == c ? e.ink : e.divider, width: _col == c ? 2.5 : 1)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomPaint(size: const Size(28, 10), painter: _ModoMuestraPainter(c, e.ink)),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text(cols[c], style: _col == c ? context.text.labelLarge : context.text.bodyMedium)),
+                      ],
+                    ),
+                  ),
                 ),
-            ],
-          ),
-          const Gap(12),
-        ],
-        Text('Marcaste ${_accepted.length} de $total.', style: context.text.bodySmall),
-        _DoneButton(
+              ),
+          ],
+        ),
+        const Gap(12),
+        LayoutBuilder(builder: (context, c) {
+          final w = c.maxWidth;
+          final h = (w * 0.9).clamp(280.0, 360.0);
+          return SizedBox(
+            width: w,
+            height: h,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ExcludeSemantics(
+                    child: AnimatedBuilder(
+                      animation: _anim,
+                      builder: (context, _) => CustomPaint(
+                        painter: RedPainter(
+                          rows: rows.length,
+                          cols: cols.length,
+                          accepted: _accepted,
+                          active: _col,
+                          last: _last,
+                          lastT: _anim.value,
+                          positions: positions,
+                          ink: e.ink,
+                          graphite: e.graphite,
+                          saffron: e.saffron,
+                          paper: e.paper,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: w / 2 - 60,
+                  top: h / 2 + 20,
+                  width: 120,
+                  child: ExcludeSemantics(
+                    child: Center(
+                      child: Container(
+                        color: e.paper,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text('Su ubicación', textAlign: TextAlign.center, style: context.text.labelMedium),
+                      ),
+                    ),
+                  ),
+                ),
+                for (var r = 0; r < rows.length && r < positions.length; r++)
+                  // El punto lo dibuja la red; aquí van la etiqueta (hacia afuera) y el área táctil.
+                  Positioned(
+                    left: (positions[r].dx * w - 66).clamp(0.0, w - 132),
+                    width: 132,
+                    top: positions[r].dy < 0.5 ? null : positions[r].dy * h - 24,
+                    bottom: positions[r].dy < 0.5 ? h - positions[r].dy * h - 24 : null,
+                    child: Semantics(
+                      button: true,
+                      checked: _accepted.contains('$r:$_col'),
+                      label: '${rows[r]}, ${cols[_col]}',
+                      hint: 'Ahora: ${rowState(r)}',
+                      excludeSemantics: true,
+                      child: InkWell(
+                        onTap: () => _toggle(r),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          verticalDirection: positions[r].dy < 0.5 ? VerticalDirection.up : VerticalDirection.down,
+                          children: [
+                            const SizedBox(height: 48),
+                            Text(rows[r], textAlign: TextAlign.center, style: context.text.labelMedium?.copyWith(color: e.ink)),
+                            const SizedBox(height: 4),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }),
+        const Gap(8),
+        Semantics(
+          liveRegion: true,
+          child: Text('Marcaste ${_accepted.length} de $total conexiones.', style: context.text.bodySmall),
+        ),
+        ProbeDoneButton(
           onPressed: () {
             final accepted = _accepted.length;
             final level = total == 0 ? 0 : ((accepted / total) * 4 - 2).round();
@@ -501,56 +954,164 @@ class _FlowMatrixProbeState extends State<FlowMatrixProbe> {
   }
 }
 
-class _ToggleBox extends StatelessWidget {
-  const _ToggleBox({required this.label, required this.semantics, required this.checked, required this.onTap});
-  final String label;
-  final String semantics;
-  final bool checked;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      checked: checked,
-      label: semantics,
-      button: true,
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            border: Border.all(color: checked ? context.enves.ink : context.enves.graphite, width: checked ? 2 : 1),
-            borderRadius: BorderRadius.circular(2),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              InkDot(style: checked ? DotStyle.filled : DotStyle.hollow, size: 12),
-              const SizedBox(width: 8),
-              Text(label, style: context.text.bodyMedium),
-            ],
-          ),
-        ),
-      ),
-    );
+/// Muestra del trazo de cada modo: continuo, discontinuo, punteado.
+Path modoPath(Path base, int mode) {
+  switch (mode) {
+    case 0:
+      return base;
+    case 1:
+      return dashedPath(base, dash: 8, gap: 5);
+    default:
+      return dashedPath(base, dash: 1.5, gap: 5);
   }
 }
 
-// ----------------------------------------------------------- carta anotada
-class AnnotatedLetterProbe extends StatefulWidget {
+class _ModoMuestraPainter extends CustomPainter {
+  _ModoMuestraPainter(this.mode, this.ink);
+  final int mode;
+  final Color ink;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final base = Path()
+      ..moveTo(0, size.height / 2)
+      ..lineTo(size.width, size.height / 2);
+    canvas.drawPath(modoPath(base, mode), Paint()
+      ..color = ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = mode == 0 ? 2.6 : 2.2
+      ..strokeCap = StrokeCap.round);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ModoMuestraPainter old) => old.mode != mode || old.ink != ink;
+}
+
+class RedPainter extends CustomPainter {
+  RedPainter({
+    required this.rows,
+    required this.cols,
+    required this.accepted,
+    required this.active,
+    required this.last,
+    required this.lastT,
+    required this.positions,
+    required this.ink,
+    required this.graphite,
+    required this.saffron,
+    required this.paper,
+  });
+  final int rows;
+  final int cols;
+  final Set<String> accepted;
+  final int active;
+  final String? last;
+  final double lastT;
+  final List<Offset> positions;
+  final Color ink;
+  final Color graphite;
+  final Color saffron;
+  final Color paper;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    for (var r = 0; r < rows && r < positions.length; r++) {
+      final node = Offset(positions[r].dx * size.width, positions[r].dy * size.height);
+      final d = node - center;
+      final len = d.distance;
+      final n = len == 0 ? Offset.zero : Offset(-d.dy / len, d.dx / len);
+      for (var c = 0; c < cols; c++) {
+        final key = '$r:$c';
+        if (!accepted.contains(key)) continue;
+        final off = n * ((c - (cols - 1) / 2) * 6);
+        final from = center + off + d / len * 30;
+        final to = node + off - d / len * 12;
+        final t = key == last ? lastT : 1.0;
+        final base = partialPath(inkPath(from, to, seed: r * 3 + c, wobble: 0.8), t);
+        canvas.drawPath(
+          modoPath(base, c),
+          Paint()
+            ..color = c == active ? ink : graphite
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = c == active ? 2.6 : 1.6
+            ..strokeCap = StrokeCap.round,
+        );
+      }
+    }
+    // Los nodos: llenos si están conectados en el modo activo.
+    for (var r = 0; r < rows && r < positions.length; r++) {
+      final node = Offset(positions[r].dx * size.width, positions[r].dy * size.height);
+      final on = accepted.contains('$r:$active');
+      canvas.drawCircle(node, 9, Paint()..color = paper);
+      if (on) {
+        canvas.drawCircle(node, 8, Paint()..color = ink);
+      } else {
+        canvas.drawCircle(node, 7, Paint()
+          ..color = ink
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2);
+      }
+    }
+    // El punto de ubicación.
+    final pin = Path()
+      ..moveTo(center.dx, center.dy + 14)
+      ..quadraticBezierTo(center.dx - 12, center.dy - 2, center.dx, center.dy - 12)
+      ..quadraticBezierTo(center.dx + 12, center.dy - 2, center.dx, center.dy + 14);
+    canvas.drawPath(pin, Paint()..color = paper);
+    canvas.drawPath(pin, Paint()
+      ..color = saffron
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4);
+    canvas.drawCircle(center + const Offset(0, -2), 3, Paint()..color = saffron);
+  }
+
+  @override
+  bool shouldRepaint(covariant RedPainter old) => true;
+}
+
+// ------------------------------------------------------------ E7: la carta
+/// Una carta normal. Las frases que suenan a comprensión reciben una marca de
+/// tinta. Al revelar quién la escribió, las líneas se alinean como patrones,
+/// sin cambiar a una estética tecnológica.
+class AnnotatedLetterProbe extends ConsumerStatefulWidget {
   const AnnotatedLetterProbe({super.key, required this.config, required this.onDone});
   final Json config;
   final ProbeDone onDone;
 
   @override
-  State<AnnotatedLetterProbe> createState() => _AnnotatedLetterProbeState();
+  ConsumerState<AnnotatedLetterProbe> createState() => _AnnotatedLetterProbeState();
 }
 
-class _AnnotatedLetterProbeState extends State<AnnotatedLetterProbe> {
+class _AnnotatedLetterProbeState extends ConsumerState<AnnotatedLetterProbe> with SingleTickerProviderStateMixin {
   final Set<int> _marked = {};
   bool _revealed = false;
+  int? _asking;
+  late final AnimationController _align = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400));
+
+  @override
+  void dispose() {
+    _align.dispose();
+    super.dispose();
+  }
+
+  static String _patron(String phrase) {
+    final p = phrase.toLowerCase();
+    if (p.contains('luna')) return 'dato: el nombre';
+    if (p.contains('años')) return 'dato: los años';
+    if (p.contains('me acuerdo') || p.contains('recuerdo')) return 'dato: un recuerdo';
+    return 'fórmula';
+  }
+
+  void _reveal() {
+    ref.read(feedbackProvider).discovery();
+    setState(() => _revealed = true);
+    if (reducedMotionNow(context, ref)) {
+      _align.value = 1;
+    } else {
+      _align.forward();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -559,62 +1120,238 @@ class _AnnotatedLetterProbeState extends State<AnnotatedLetterProbe> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (var i = 0; i < phrases.length; i++)
-          Semantics(
-            button: true,
-            selected: _marked.contains(i),
-            label: phrases[i],
-            hint: 'Marcar como frase que suena a comprensión',
-            excludeSemantics: true,
-            child: InkWell(
-              onTap: _revealed
-                  ? null
-                  : () => setState(() {
-                        if (!_marked.remove(i)) _marked.add(i);
-                      }),
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 48),
-                padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(color: _marked.contains(i) ? e.saffron : e.divider, width: 3)),
-                ),
-                child: Text(
-                  phrases[i],
-                  style: context.text.bodyLarge?.copyWith(
-                    decoration: _marked.contains(i) ? TextDecoration.underline : null,
-                    decorationColor: e.saffron,
-                  ),
-                ),
+        AnimatedBuilder(
+          animation: _align,
+          builder: (context, _) {
+            final a = Motion.settle.transform(_align.value);
+            return Container(
+              padding: const EdgeInsets.fromLTRB(16, 18, 12, 18),
+              decoration: BoxDecoration(
+                color: e.paper,
+                border: Border.all(color: e.divider),
+                boxShadow: [BoxShadow(color: e.divider, offset: const Offset(3, 3))],
               ),
-            ),
-          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < phrases.length; i++)
+                    _LineaCarta(
+                      texto: phrases[i],
+                      marcada: _marked.contains(i),
+                      alineado: a,
+                      jitter: ((i * 37) % 11 - 5) / 5.0,
+                      patron: _patron(phrases[i]),
+                      preguntando: _asking == i,
+                      revealed: _revealed,
+                      onTap: () {
+                        ref.read(feedbackProvider).selection();
+                        setState(() {
+                          if (!_revealed) {
+                            if (!_marked.remove(i)) _marked.add(i);
+                          } else if (_marked.contains(i)) {
+                            _asking = _asking == i ? null : i;
+                          }
+                        });
+                      },
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
+        const Gap(8),
+        Text(
+          _revealed
+              ? 'Toca de nuevo una frase que marcaste.'
+              : 'Marcaste ${_marked.length} ${_marked.length == 1 ? 'frase' : 'frases'}.',
+          style: context.text.bodySmall,
+        ),
         const Gap(12),
-        if (_revealed) MarginNote(asString(widget.config['reveal'])),
-        _DoneButton(
+        if (_revealed)
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: reducedMotion(context, ref) ? 1 : 0, end: 1),
+            duration: Motion.long,
+            builder: (context, t, child) => Opacity(opacity: t, child: child),
+            child: Semantics(liveRegion: true, child: MarginNote(asString(widget.config['reveal']))),
+          ),
+        ProbeDoneButton(
           label: _revealed ? 'Seguir' : 'Ya la leí',
-          onPressed: _revealed
-              ? () => widget.onDone({'marked': _marked.length, 'revealed': true})
-              : () => setState(() => _revealed = true),
+          onPressed: _revealed ? () => widget.onDone({'marked': _marked.length, 'revealed': true}) : _reveal,
         ),
       ],
     );
   }
 }
 
-// ---------------------------------------------------- gradiente de reemplazo
-class ReplacementGradientProbe extends StatefulWidget {
+class _LineaCarta extends StatelessWidget {
+  const _LineaCarta({
+    required this.texto,
+    required this.marcada,
+    required this.alineado,
+    required this.jitter,
+    required this.patron,
+    required this.preguntando,
+    required this.revealed,
+    required this.onTap,
+  });
+  final String texto;
+  final bool marcada;
+  final double alineado;
+  final double jitter;
+  final String patron;
+  final bool preguntando;
+  final bool revealed;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final e = context.enves;
+    final free = 1 - alineado;
+    return Semantics(
+      button: true,
+      selected: marcada,
+      label: texto,
+      hint: revealed
+          ? (marcada ? 'Volver a mirar esta frase' : null)
+          : 'Marcar como frase que suena a comprensión',
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      child: AnimatedOpacity(
+                        opacity: marcada ? 1 : 0,
+                        duration: Motion.short,
+                        child: CustomPaint(size: const Size(14, 14), painter: _TildePainter(e.ink)),
+                      ),
+                    ),
+                    Expanded(
+                      child: Transform.translate(
+                        offset: Offset(jitter * 6 * free, 0),
+                        child: Transform.rotate(
+                          angle: jitter * 0.012 * free,
+                          alignment: Alignment.centerLeft,
+                          child: TweenAnimationBuilder<double>(
+                            tween: Tween(end: marcada ? 1 : 0),
+                            duration: Motion.medium,
+                            builder: (context, t, child) => CustomPaint(
+                              foregroundPainter: _SubrayadoPainter(t, e.saffron),
+                              child: child,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 6, top: 4),
+                              child: Text(
+                                texto,
+                                style: context.text.bodyLarge?.copyWith(
+                                  fontStyle: alineado < 0.5 ? FontStyle.italic : FontStyle.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (alineado > 0)
+                      Opacity(
+                        opacity: alineado,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 96),
+                            child: Text('[$patron]', style: context.text.bodySmall),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (preguntando)
+                Padding(
+                  padding: const EdgeInsets.only(left: 18, bottom: 8),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: MarginNote('¿Cambió lo que estas palabras significan para ti?'),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SubrayadoPainter extends CustomPainter {
+  _SubrayadoPainter(this.t, this.color);
+  final double t;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (t <= 0) return;
+    final y = size.height - 2;
+    canvas.drawPath(
+      partialPath(inkPath(Offset(0, y), Offset(size.width * 0.96, y - 1), seed: size.width.round()), t),
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SubrayadoPainter old) => old.t != t || old.color != color;
+}
+
+class _TildePainter extends CustomPainter {
+  _TildePainter(this.ink);
+  final Color ink;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Path()
+      ..moveTo(1, size.height * 0.55)
+      ..lineTo(size.width * 0.4, size.height - 1)
+      ..lineTo(size.width - 1, 1);
+    canvas.drawPath(p, Paint()
+      ..color = ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TildePainter old) => old.ink != ink;
+}
+
+// --------------------------------------------------- E8: gradiente de reemplazo
+/// Una figura humana que se vuelve a dibujar parte por parte. Siempre humana:
+/// sin circuitos, sin robots.
+class ReplacementGradientProbe extends ConsumerStatefulWidget {
   const ReplacementGradientProbe({super.key, required this.config, required this.onDone});
   final Json config;
   final ProbeDone onDone;
 
   @override
-  State<ReplacementGradientProbe> createState() => _ReplacementGradientProbeState();
+  ConsumerState<ReplacementGradientProbe> createState() => _ReplacementGradientProbeState();
 }
 
-class _ReplacementGradientProbeState extends State<ReplacementGradientProbe> {
+class _ReplacementGradientProbeState extends ConsumerState<ReplacementGradientProbe> {
   double _value = 50;
   bool _never = false;
   bool _touched = false;
+  int _lastParts = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -622,11 +1359,38 @@ class _ReplacementGradientProbeState extends State<ReplacementGradientProbe> {
     final max = asDouble(widget.config['max'], 100);
     final step = asDouble(widget.config['step'], 10);
     final divisions = ((max - min) / step).round();
+    final shown = _value;
+    final parts = _never ? 0 : (shown / 100 * figuraPartes).round();
+    final e = context.enves;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(_never ? 'Nunca dejarías de ser tú' : 'Dejarías de ser tú al reemplazar el ${_value.round()} %',
-            style: context.text.titleMedium),
+        if (ilustracionCabe(context))
+          Center(
+            child: Semantics(
+              label: _never
+                  ? 'La figura se queda como está.'
+                  : 'Figura humana con el ${shown.round()} por ciento vuelto a dibujar.',
+              excludeSemantics: true,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(end: parts.toDouble()),
+                duration: reducedMotion(context, ref) ? Duration.zero : Motion.medium,
+                builder: (context, p, _) => CustomPaint(
+                  size: const Size(150, 190),
+                  painter: _FiguraReemplazoPainter(partes: p.round(), ink: e.ink, graphite: e.graphite),
+                ),
+              ),
+            ),
+          ),
+        const Gap(8),
+        Text(
+          _never
+              ? 'Nunca dejarías de ser tú'
+              : (_touched ? 'Dejarías de ser tú al reemplazar el ${_value.round()} %' : 'Mueve el control: la figura se vuelve a dibujar parte por parte'),
+          style: context.text.titleMedium,
+        ),
+        if (!_never && _touched && _value >= max)
+          Text('La figura está completa, dibujada otra vez de punta a punta.', style: context.text.bodySmall),
         Slider(
           value: _value,
           min: min,
@@ -636,10 +1400,17 @@ class _ReplacementGradientProbeState extends State<ReplacementGradientProbe> {
           semanticFormatterCallback: (v) => '${v.round()} por ciento reemplazado',
           onChanged: _never
               ? null
-              : (v) => setState(() {
+              : (v) {
+                  final newParts = (v / 100 * figuraPartes).round();
+                  if (newParts != _lastParts) {
+                    _lastParts = newParts;
+                    ref.read(feedbackProvider).selection();
+                  }
+                  setState(() {
                     _value = v;
                     _touched = true;
-                  }),
+                  });
+                },
         ),
         RuledOption(
           label: asString(widget.config['never'], 'Nunca dejaría de ser yo'),
@@ -649,17 +1420,33 @@ class _ReplacementGradientProbeState extends State<ReplacementGradientProbe> {
             _touched = true;
           }),
         ),
-        _DoneButton(
-          onPressed: !_touched
-              ? null
-              : () => widget.onDone(_never ? {'never': true} : {'stop': _value.round()}),
+        ProbeDoneButton(
+          onPressed: !_touched ? null : () => widget.onDone(_never ? {'never': true} : {'stop': _value.round()}),
         ),
       ],
     );
   }
 }
 
-// ------------------------------------------------------ tres formas de saber
+class _FiguraReemplazoPainter extends CustomPainter {
+  _FiguraReemplazoPainter({required this.partes, required this.ink, required this.graphite});
+  final int partes;
+  final Color ink;
+  final Color graphite;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawLine(Offset(10, size.height - 2), Offset(size.width - 10, size.height - 2), tinta(graphite, 1));
+    figura(canvas, Offset(size.width / 2, size.height - 6), size.height - 14, tinta(ink, 2.4), rehecha: partes, seed: 4);
+  }
+
+  @override
+  bool shouldRepaint(covariant _FiguraReemplazoPainter old) => old.partes != partes || old.ink != ink;
+}
+
+// ------------------------------------------------- E9: tres formas de saber
+/// Cierre del recorrido: los puntos huecos que conseguiste aparecen, y un hilo
+/// une ambos lados del eje sin fusionarlos.
 class KnowingFormsProbe extends ConsumerStatefulWidget {
   const KnowingFormsProbe({super.key, required this.experienceId, required this.config, required this.onDone});
   final String experienceId;
@@ -678,32 +1465,72 @@ class _KnowingFormsProbeState extends ConsumerState<KnowingFormsProbe> {
     final content = ref.watch(contentProvider).valueOrNull;
     final user = ref.watch(userStateProvider).valueOrNull;
     if (content == null || user == null) return const SizedBox.shrink();
-    final items = <({String id, String title, String position})>[];
+    final items = <({String id, String title, String position, bool recognized})>[];
     for (final e in content.experiences) {
       final p = user.experiences[e.id];
       final c = p?.cruza;
       if (p == null || c == null || c.finalRecognition == null) continue;
       final include = p.status == ExpStatus.completed || e.id == widget.experienceId;
       if (!include) continue;
-      items.add((id: e.id, title: e.title, position: e.pole(c.target).label));
+      items.add((
+        id: e.id,
+        title: e.title,
+        position: e.pole(c.target).label,
+        recognized: Recognition.isRecognized(c.finalRecognition),
+      ));
     }
     final options = asJsonList(widget.config['options']);
     final ready = items.every((i) => _answers.containsKey(i.id));
+    final reduced = reducedMotion(context, ref);
+    final ec = context.enves;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (ilustracionCabe(context))
+          Semantics(
+            label: 'Tú a un lado del eje, quien piensa distinto al otro. '
+                'Aparecen ${items.length} puntos huecos: las posiciones que reconstruiste. Un hilo une ambos lados sin fundirlos.',
+            excludeSemantics: true,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: reduced ? 1 : 0, end: 1),
+              duration: reduced ? Duration.zero : Duration(milliseconds: 900 + items.length * 260),
+              builder: (context, t, _) => CustomPaint(
+                size: const Size(double.infinity, 170),
+                painter: _RecorridoFinalPainter(
+                  t: t,
+                  huecos: [for (final i in items) i.recognized],
+                  ink: ec.ink,
+                  graphite: ec.graphite,
+                  saffron: ec.saffron,
+                ),
+              ),
+            ),
+          ),
+        const Gap(16),
         for (final item in items) ...[
-          Text(item.title, style: context.text.labelMedium),
-          Text('«${item.position}»', style: context.text.bodyLarge),
+          Row(
+            children: [
+              InkDot(style: item.recognized ? DotStyle.hollow : DotStyle.dashed, size: 14, color: item.recognized ? ec.saffron : null),
+              const SizedBox(width: 10),
+              Expanded(child: Text(item.title, style: context.text.labelMedium)),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 24),
+            child: Text('«${item.position}»', style: context.text.bodyLarge),
+          ),
           for (final o in options)
             RuledOption(
               label: asString(o['label']),
               selected: _answers[item.id] == asString(o['id']),
-              onTap: () => setState(() => _answers[item.id] = asString(o['id'])),
+              onTap: () {
+                ref.read(feedbackProvider).selection();
+                setState(() => _answers[item.id] = asString(o['id']));
+              },
             ),
           const Gap(16),
         ],
-        _DoneButton(
+        ProbeDoneButton(
           onPressed: !ready
               ? null
               : () {
@@ -718,4 +1545,60 @@ class _KnowingFormsProbeState extends ConsumerState<KnowingFormsProbe> {
       ],
     );
   }
+}
+
+class _RecorridoFinalPainter extends CustomPainter {
+  _RecorridoFinalPainter({required this.t, required this.huecos, required this.ink, required this.graphite, required this.saffron});
+  final double t;
+  final List<bool> huecos;
+  final Color ink;
+  final Color graphite;
+  final Color saffron;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final suelo = h * 0.72;
+    final cx = w / 2;
+    canvas.drawLine(Offset(cx, 6), Offset(cx, h - 6), tinta(ink, 2.6));
+    final p = tinta(ink, 2);
+    figura(canvas, Offset(w * 0.16, suelo), h * 0.6, p, seed: 1);
+    figura(canvas, Offset(w * 0.84, suelo), h * 0.6, p, seed: 2);
+
+    // Los puntos huecos llegan uno a uno.
+    final n = huecos.length;
+    final span = n <= 1 ? 0.0 : (w * 0.5) / (n - 1);
+    for (var i = 0; i < n; i++) {
+      final local = ((t * (n + 2) - i) / 1.0).clamp(0.0, 1.0);
+      if (local <= 0) continue;
+      final x = n <= 1 ? cx : w * 0.25 + i * span;
+      final pos = Offset(x, h * 0.92);
+      final paint = Paint()
+        ..color = huecos[i] ? saffron : graphite
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+      if (huecos[i]) {
+        canvas.drawCircle(pos, 6 * local, paint);
+      } else {
+        canvas.drawPath(dashedPath(Path()..addOval(Rect.fromCircle(center: pos, radius: 6 * local)), dash: 3, gap: 3), paint);
+      }
+    }
+
+    // El hilo une ambos lados. Se detiene un instante en el eje: no los funde.
+    final threadT = ((t - 0.55) / 0.45).clamp(0.0, 1.0);
+    final y = suelo - h * 0.32;
+    paintHilo(canvas, from: Offset(w * 0.22, y), to: Offset(cx - 6, y), color: ink, progress: (threadT * 2).clamp(0.0, 1.0), seed: 1);
+    paintHilo(canvas, from: Offset(cx + 6, y), to: Offset(w * 0.78, y), color: ink, progress: (threadT * 2 - 1).clamp(0.0, 1.0), seed: 2);
+    if (threadT > 0) canvas.drawCircle(Offset(w * 0.22, y), 4, Paint()..color = ink);
+    if (threadT >= 1) {
+      canvas.drawCircle(Offset(w * 0.78, y), 4, Paint()
+        ..color = saffron
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _RecorridoFinalPainter old) => old.t != t || old.ink != ink;
 }

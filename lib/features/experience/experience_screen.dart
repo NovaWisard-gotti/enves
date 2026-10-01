@@ -7,9 +7,11 @@ import '../../domain/records/records.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/paper.dart';
 import 'completed_summary.dart';
+import 'stages/cruza_anchor.dart';
 import 'stages/cruza_stages.dart';
 import 'stages/elige_stages.dart';
 import 'stages/examen_stages.dart';
+import 'stages/reflection_stage.dart';
 import 'stages/vuelve_stages.dart';
 import 'widgets/stage_frame.dart';
 

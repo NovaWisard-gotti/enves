@@ -9,6 +9,7 @@ import '../../engine/map/map_builder.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/ink_marks.dart';
 import '../../widgets/paper.dart';
+import 'map_interactivo.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key, required this.demo});
@@ -72,7 +73,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 for (final a in model.axes)
                   _list
                       ? _AxisText(view: a, onOpen: () => _openAxis(context, content, a, notes[a.key]))
-                      : _AxisGraphic(view: a, onOpen: () => _openAxis(context, content, a, notes[a.key])),
+                      : EjeInteractivo(view: a, onOpen: () => _openAxis(context, content, a, notes[a.key])),
                 if (model.confidenceStatement != null) ...[
                   const Gap(8),
                   Text(model.confidenceStatement!, style: context.text.bodyLarge),
@@ -85,46 +86,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   Text(model.strongWithoutAgreement!, style: context.text.bodyLarge),
                 ],
                 const Gap(12),
-                Wrap(
-                  spacing: 14,
-                  runSpacing: 12,
-                  children: [
-                    for (final h in model.hollows)
-                      Semantics(
-                        label: '${h.title}: ${content.common.recognition[h.recognition] ?? h.recognition}',
-                        excludeSemantics: true,
-                        child: Column(
-                          children: [
-                            InkDot(
-                              style: h.recognition == Recognition.fuerte
-                                  ? DotStyle.ringed
-                                  : (Recognition.isRecognized(h.recognition) ? DotStyle.hollow : DotStyle.dashed),
-                              size: 22,
-                              color: h.recognition == Recognition.fuerte ? context.enves.saffron : null,
-                            ),
-                            const Gap(4),
-                            SizedBox(
-                              width: 76,
-                              child: Text(h.title, style: context.text.bodySmall, textAlign: TextAlign.center, maxLines: 2),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
+                HuecosDelMapa(hollows: model.hollows, content: content),
                 if (model.threads.isNotEmpty) ...[
                   const Gap(28),
                   SectionLabel('Hilos'),
-                  for (final t in model.threads)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: MarginNote(
-                        t.kind == 'memoria'
-                            ? '${content.titleOf(t.from)} volvió en ${content.titleOf(t.to)}'
-                            : '${content.titleOf(t.from)} y ${content.titleOf(t.to)} comparten una razón',
-                        child: Text(t.label, style: context.text.bodyLarge),
-                      ),
-                    ),
+                  Text('Toca un hilo para ver qué experiencias lo construyeron.', style: context.text.bodySmall),
+                  const Gap(8),
+                  HilosDelMapa(
+                    threads: model.threads,
+                    content: content,
+                    consolidated: model.completedCount >= MapBuilder.minForPattern,
+                  ),
                 ],
                 if (model.openQuestions.isNotEmpty) ...[
                   const Gap(28),
@@ -187,109 +159,6 @@ String _valueText(AxisDef axis, int v) {
   if (v == 0) return 'No lo sé';
   final pole = v < 0 ? axis.left : axis.right;
   return '$pole (${confidenceLabelFor(v)})';
-}
-
-class _AxisGraphic extends StatelessWidget {
-  const _AxisGraphic({required this.view, required this.onOpen});
-  final AxisView view;
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    final e = context.enves;
-    return Semantics(
-      button: true,
-      label: '${view.axis.left} frente a ${view.axis.right}. ${view.statement}',
-      hint: 'Abrir detalle',
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: onOpen,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(child: Text(view.axis.left, style: context.text.labelLarge)),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(view.axis.right, style: context.text.labelLarge, textAlign: TextAlign.right)),
-                ],
-              ),
-              SizedBox(
-                height: 64,
-                child: CustomPaint(
-                  painter: _AxisPainter(
-                    view: view,
-                    ink: e.ink,
-                    graphite: e.graphite,
-                    saffron: e.saffron,
-                    divider: e.divider,
-                  ),
-                ),
-              ),
-              Text(view.statement, style: context.text.bodyMedium),
-              if (view.contextStatement != null) Text(view.contextStatement!, style: context.text.bodySmall),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AxisPainter extends CustomPainter {
-  _AxisPainter({required this.view, required this.ink, required this.graphite, required this.saffron, required this.divider});
-  final AxisView view;
-  final Color ink;
-  final Color graphite;
-  final Color saffron;
-  final Color divider;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const pad = 12.0;
-    final cy = size.height / 2;
-    final half = (size.width - pad * 2) / 2;
-    final center = size.width / 2;
-    double x(int v) => center + v / 3 * half;
-    canvas.drawLine(Offset(pad, cy), Offset(size.width - pad, cy), Paint()
-      ..color = divider
-      ..strokeWidth = 2);
-    canvas.drawLine(Offset(center, cy - 14), Offset(center, cy + 14), Paint()
-      ..color = graphite
-      ..strokeWidth = 1.5);
-    if (view.consolidated && view.decided > 0) {
-      canvas.drawLine(Offset(x(view.min), cy), Offset(x(view.max), cy), Paint()
-        ..color = ink
-        ..strokeWidth = 4
-        ..strokeCap = StrokeCap.round);
-    }
-    final counts = <int, int>{};
-    for (final m in view.mainMarks) {
-      final n = counts[m.value] ?? 0;
-      counts[m.value] = n + 1;
-      final dy = cy + (n.isEven ? -1 : 1) * ((n + 1) ~/ 2) * 11.0;
-      final color = view.consolidated ? ink : graphite;
-      if (m.value == 0) {
-        canvas.drawCircle(Offset(x(0), dy), 5, Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5);
-      } else {
-        canvas.drawCircle(Offset(x(m.value), dy), 6, Paint()..color = color);
-      }
-      if (m.revised && m.initialValue != null) {
-        canvas.drawCircle(Offset(x(m.initialValue!), dy), 5, Paint()
-          ..color = saffron
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _AxisPainter old) => old.view != view || old.ink != ink;
 }
 
 class _AxisText extends StatelessWidget {

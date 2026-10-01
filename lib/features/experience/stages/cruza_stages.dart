@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,7 +7,9 @@ import '../../../domain/records/records.dart';
 import '../../../engine/cruza/cruza_engine.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/motion.dart';
+import '../../../widgets/hilo_vivo.dart';
 import '../../../widgets/ink_marks.dart';
+import '../../../widgets/margen_vivo.dart';
 import '../../../widgets/paper.dart';
 import '../experience_actions.dart';
 import '../widgets/stage_frame.dart';
@@ -49,159 +49,6 @@ class CruzaSideStage extends ConsumerWidget {
             serif: true,
             onTap: () => actions.chooseCruzaSide('right'),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-// ----------------------------------------------------------- cruce anclado
-class CruzaAnchorStage extends ConsumerStatefulWidget {
-  const CruzaAnchorStage({super.key, required this.exp, required this.progress});
-  final ExperienceDef exp;
-  final ExperienceProgress progress;
-
-  @override
-  ConsumerState<CruzaAnchorStage> createState() => _CruzaAnchorStageState();
-}
-
-class _CruzaAnchorStageState extends ConsumerState<CruzaAnchorStage> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: Motion.cross);
-  bool _started = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_started) {
-      _started = true;
-      final reduced = reducedMotionNow(context, ref);
-      _controller.duration = reduced ? Motion.reduced : Motion.cross;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        ref.read(feedbackProvider).cross();
-        _controller.forward();
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final exp = widget.exp;
-    final c = widget.progress.cruza;
-    final stance = widget.progress.initialStance;
-    final target = exp.pole(c?.target ?? 'left').label;
-    final mine = stance == null || stance.value == 0 ? 'No lo sé' : stance.label;
-    final e = context.enves;
-    final reduced = reducedMotion(context, ref);
-    return StageFrame(
-      experienceId: exp.id,
-      title: exp.title,
-      stage: widget.progress.stage,
-      bottom: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) => FilledButton(
-          key: const ValueKey('anchor_done'),
-          onPressed: _controller.isCompleted ? () => ref.read(experienceActionsProvider(exp.id)).anchorDone() : null,
-          child: const Text('Entrar al taller'),
-        ),
-      ),
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) {
-          final t = Motion.turn.transform(_controller.value);
-          final flipped = t >= 0.5;
-          final Widget face;
-          if (!flipped) {
-            face = _AnchorFace(
-              color: e.paper,
-              label: 'Tu postura queda anclada aquí',
-              quote: mine,
-              dot: DotStyle.filled,
-              anchorOpacity: 1,
-            );
-          } else {
-            face = _AnchorFace(
-              color: e.reverse,
-              label: 'Ahora piensa desde el otro lado',
-              quote: target,
-              dot: DotStyle.hollow,
-              anchorOpacity: 0.35,
-              anchorQuote: mine,
-            );
-          }
-          final Widget turned;
-          if (reduced) {
-            turned = Opacity(opacity: flipped ? (t - 0.5) * 2 : 1 - t * 2, child: face);
-          } else {
-            final angle = flipped ? (1 - t) * math.pi : t * math.pi;
-            turned = Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.0012)
-                ..rotateY(flipped ? -angle : angle),
-              child: face,
-            );
-          }
-          return Semantics(
-            liveRegion: true,
-            label: flipped
-                ? 'Cruzaste. Ahora piensas desde: $target. Tu postura sigue anclada: $mine.'
-                : 'Tu postura queda anclada: $mine.',
-            child: ExcludeSemantics(child: turned),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _AnchorFace extends StatelessWidget {
-  const _AnchorFace({
-    required this.color,
-    required this.label,
-    required this.quote,
-    required this.dot,
-    required this.anchorOpacity,
-    this.anchorQuote,
-  });
-  final Color color;
-  final String label;
-  final String quote;
-  final DotStyle dot;
-  final double anchorOpacity;
-  final String? anchorQuote;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 320),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: color, border: Border.all(color: context.enves.divider)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Opacity(opacity: anchorOpacity, child: const CrossGlyph(width: 88, height: 30)),
-          const Gap(28),
-          Text(label, style: context.text.labelMedium),
-          const Gap(8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(padding: const EdgeInsets.only(top: 6, right: 12), child: InkDot(style: dot, size: 18)),
-              Expanded(child: Text('«$quote»', style: context.text.headlineSmall)),
-            ],
-          ),
-          if (anchorQuote != null) ...[
-            const Gap(24),
-            Text('A trasluz, tu postura sigue ahí: «$anchorQuote»', style: context.text.bodySmall),
-          ],
         ],
       ),
     );
@@ -580,6 +427,13 @@ class RecognitionStage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          HiloFirma(
+            width: 200,
+            height: 40,
+            consolidado: Recognition.isRecognized(state),
+            hueco: state != Recognition.noRepresenta,
+          ),
+          const Gap(16),
           Semantics(
             liveRegion: true,
             label: 'Resultado: $label',
@@ -619,10 +473,10 @@ class RecognitionStage extends ConsumerWidget {
           ],
           const Gap(16),
           const Divider(),
-          const Gap(8),
-          Text(common.disclosure, style: context.text.bodySmall),
-          const Gap(4),
-          Text(common.simulationNote, style: context.text.bodySmall),
+          MargenVivo(marca: 'Cómo se escribieron estas voces', texto: common.disclosure, child: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(common.simulationNote, style: context.text.bodySmall),
+          )),
         ],
       ),
     );
