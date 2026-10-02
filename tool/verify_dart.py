@@ -80,7 +80,7 @@ ALL = set().union(*decls.values())
 
 KNOWN = set("""
 AnimatedSize AnimatedOpacity AnimatedDefaultTextStyle TickerProviderStateMixin TapUpDetails TextPainter TextSpan
-TextDirection RRect StrokeJoin BoxShadow VerticalDirection FlutterError MediaQueryData
+TextDirection RRect StrokeJoin BoxShadow VerticalDirection FlutterError MediaQueryData PathOperation
 Object String int double num bool List Map Set Iterable Future FutureOr Stream Duration DateTime Exception StateError
 FormatException RegExp RegExpMatch Match Function Null Never Type Symbol Comparable Record Error ArgumentError
 File Directory Platform MapEntry StringBuffer Uri Random JsonEncoder

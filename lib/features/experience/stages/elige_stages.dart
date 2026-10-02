@@ -8,6 +8,7 @@ import '../../../engine/experience/experience_engine.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/motion.dart';
 import '../../../widgets/balanza.dart';
+import '../../../widgets/composiciones.dart';
 import '../../../widgets/ilustraciones.dart';
 import '../../../widgets/paper.dart';
 import '../experience_actions.dart';
@@ -35,7 +36,7 @@ class ScenarioView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (id != null && !id.startsWith('e2') && ilustracionCabe(context)) ...[
-            Vineta(id, width: 180, height: 110),
+            VinetaArte(id, height: 150),
             const Gap(12),
           ],
           ...paragraphs,
@@ -117,7 +118,7 @@ class IntroStage extends ConsumerWidget {
         children: [
           const Gap(24),
           if (ilustracionCabe(context, hasta: 1.3)) ...[
-            Vineta(exp.id, width: 220, height: 132),
+            VinetaArte(exp.id, height: 220),
             const Gap(24),
           ],
           Semantics(header: true, child: Text(exp.question, style: context.text.displaySmall)),

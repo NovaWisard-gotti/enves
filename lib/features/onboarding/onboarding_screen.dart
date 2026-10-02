@@ -6,7 +6,7 @@ import '../../app/providers.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/motion.dart';
 import '../../widgets/balanza.dart';
-import '../../widgets/hilo_vivo.dart';
+import '../../widgets/composiciones.dart';
 import '../../widgets/paper.dart';
 
 const kOnboardingQuestion = '¿Se puede entender a alguien sin darle la razón?';
@@ -46,9 +46,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         body = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Gap(56),
-            const HiloFirma(width: 240, height: 52, tocable: true),
-            const Gap(40),
+            const Gap(20),
+            Composicion(
+              height: 240,
+              label: 'Dos personas a cada lado de un eje.',
+              pintor: (t, v) => DosPerspectivasPainter(t, v, conHilo: false),
+            ),
+            const Gap(32),
             Semantics(header: true, child: Text(kOnboardingQuestion, style: context.text.displaySmall)),
             const Gap(20),
             Text(
@@ -97,9 +101,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         body = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Gap(48),
-            const HiloFirma(width: 180, height: 40, hueco: false),
-            const Gap(24),
+            const Gap(20),
+            Composicion(
+              height: 240,
+              duracion: const Duration(milliseconds: 1500),
+              label: 'Dos personas a cada lado del eje. Un hilo las une sin fundirlas.',
+              pintor: (t, v) => DosPerspectivasPainter(t, v),
+            ),
+            const Gap(32),
             Text(
               'Aquí nadie va a intentar convencerte.',
               style: context.text.displaySmall,

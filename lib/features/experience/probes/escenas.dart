@@ -5,95 +5,141 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../theme/app_theme.dart';
 import '../../../theme/motion.dart';
+import '../../../widgets/arte.dart';
+import '../../../widgets/composiciones.dart';
 import '../../../widgets/hilo_vivo.dart';
 import '../../../widgets/ilustraciones.dart';
 import '../../../widgets/paper.dart';
 
 // ------------------------------------------------------------ E1: la escena
-/// La misma escena para Ana y para Beto. [t] = 0 es Ana, 1 es Beto. Lo común
-/// (calle, auto, celular) queda quieto; solo aparece el acontecimiento.
-class EscenaDescuido extends StatelessWidget {
-  const EscenaDescuido({super.key, required this.t, this.height = 150});
+/// La misma escena para Ana y para Beto, y a la vez el selector: la ficha
+/// corre por el borde de la calle. [t] = 0 es Ana, 1 es Beto. Lo común
+/// (calle, auto, conductor, teléfono) no se mueve; solo aparece el niño.
+class EscenaComparada extends StatelessWidget {
+  const EscenaComparada({
+    super.key,
+    required this.t,
+    required this.nombreA,
+    required this.nombreB,
+    required this.onChanged,
+    required this.onSoltar,
+    this.height = 190,
+  });
   final double t;
+  final String nombreA;
+  final String nombreB;
+  final ValueChanged<double> onChanged;
+  final VoidCallback onSoltar;
   final double height;
+
+  static const _pad = 22.0;
 
   @override
   Widget build(BuildContext context) {
-    final e = context.enves;
-    return ExcludeSemantics(
-      child: CustomPaint(
-        size: Size(double.infinity, height),
-        painter: _EscenaDescuidoPainter(t, e.ink, e.graphite, e.saffron, e.paper),
-      ),
-    );
+    final tinta = Tinta.of(context);
+    final h = ilustracionCabe(context) ? height : 64.0;
+    String estado(double v) => v < 0.5 ? '$nombreA: no pasa nada' : '$nombreB: un niño cruza';
+    return LayoutBuilder(builder: (context, c) {
+      final w = c.maxWidth;
+      double valor(double dx) => ((dx - _pad) / (w - _pad * 2)).clamp(0.0, 1.0);
+      return Semantics(
+        slider: true,
+        label: 'Comparar las escenas de $nombreA y $nombreB',
+        value: estado(t),
+        increasedValue: estado(1),
+        decreasedValue: estado(0),
+        onIncrease: () => onChanged(1),
+        onDecrease: () => onChanged(0),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onHorizontalDragUpdate: (d) => onChanged(valor(d.localPosition.dx)),
+          onHorizontalDragEnd: (_) => onSoltar(),
+          onTapUp: (d) {
+            onChanged(valor(d.localPosition.dx));
+            onSoltar();
+          },
+          child: CustomPaint(
+            size: Size(w, h),
+            painter: _EscenaPainter(t, tinta, compacta: h < 100),
+          ),
+        ),
+      );
+    });
   }
 }
 
-class _EscenaDescuidoPainter extends CustomPainter {
-  _EscenaDescuidoPainter(this.t, this.ink, this.graphite, this.saffron, this.paper);
+class _EscenaPainter extends CustomPainter {
+  _EscenaPainter(this.t, this.c, {this.compacta = false});
   final double t;
-  final Color ink;
-  final Color graphite;
-  final Color saffron;
-  final Color paper;
+  final Tinta c;
+  final bool compacta;
 
   @override
   void paint(Canvas canvas, Size s) {
     final w = s.width;
     final h = s.height;
-    final p = tinta(ink, 1.8);
-    final g = tinta(graphite, 1.2);
-    final top = h * 0.3;
-    final bottom = h * 0.96;
-    final mid = (top + bottom) / 2;
-
-    // Calle: igual en las dos escenas.
-    trazo(canvas, Offset(0, top), Offset(w, top), g, seed: 1);
-    trazo(canvas, Offset(0, bottom), Offset(w, bottom), g, seed: 2);
-    for (var x = 8.0; x < w; x += 26) {
-      canvas.drawLine(Offset(x, mid), Offset(x + 12, mid), g);
-    }
-    // Auto y conductor: idénticos.
-    final carW = math.min(w * 0.4, 190.0);
-    final carBase = Offset(w * 0.08, mid + h * 0.12);
-    auto(canvas, carBase, carW, p);
-    final head = Offset(carBase.dx + carW * 0.42, carBase.dy - carW * 0.32 * 0.68);
-    canvas.drawCircle(head, carW * 0.045, p);
-    // El celular: tres segundos.
-    final phone = Rect.fromCenter(center: head + Offset(carW * 0.1, carW * 0.03), width: carW * 0.045, height: carW * 0.075);
-    canvas.drawRRect(RRect.fromRectAndRadius(phone, const Radius.circular(1.5)), tinta(saffron, 1.8));
-    for (var i = 0; i < 3; i++) {
-      canvas.drawArc(
-        Rect.fromCircle(center: phone.center, radius: phone.height * (0.9 + i * 0.45)),
-        -math.pi * 0.35,
-        math.pi * 0.25,
-        false,
-        tinta(saffron, 1.1),
+    final roadTop = compacta ? 0.0 : h * 0.6;
+    final roadBottom = compacta ? h * 0.7 : h * 0.9;
+    if (!compacta) {
+      // Plano de fondo: un recorte de papel detrás del auto.
+      plano(canvas, Rect.fromLTWH(w * 0.05, h * 0.12, w * 0.5, h * 0.5), c.plane, sombra: c.ink);
+      // La calle: un gran plano.
+      canvas.drawRect(Rect.fromLTRB(0, roadTop, w, roadBottom), relleno(c.plane2));
+      canvas.drawLine(Offset(0, roadTop), Offset(w, roadTop), linea(c.ink, 2));
+      // Línea central y paso peatonal, iguales en las dos escenas.
+      final mid = (roadTop + roadBottom) / 2;
+      for (var x = 6.0; x < w * 0.6; x += 34) {
+        canvas.drawRect(Rect.fromLTWH(x, mid - 1.5, 18, 3), relleno(c.paper));
+      }
+      for (var x = w * 0.66; x < w * 0.95; x += w * 0.045) {
+        canvas.drawRect(Rect.fromLTWH(x, roadTop + 4, w * 0.024, roadBottom - roadTop - 8), relleno(c.paper));
+      }
+      // Auto, conductor y teléfono: la conducta, idéntica.
+      final carW = math.min(w * 0.58, (roadBottom - h * 0.06) * 2.2);
+      final carH = carW * 0.42;
+      final win = dibujarAuto(canvas, Rect.fromLTWH(w * 0.07, roadBottom - 10 - carH, carW, carH), c);
+      canvas.save();
+      canvas.clipRect(win);
+      canvas.drawPath(
+        busto(Rect.fromLTWH(win.left + win.width * 0.04, win.top + win.height * 0.06, win.width * 0.66, win.height * 1.0)),
+        relleno(c.ink2),
       );
+      canvas.restore();
+      final phone = Rect.fromLTWH(win.left + win.width * 0.66, win.top + win.height * 0.34, win.width * 0.15, win.height * 0.46);
+      dibujarTelefono(canvas, phone, c.saffron, c.paper);
+      for (var i = 0; i < 2; i++) {
+        canvas.drawArc(
+          Rect.fromCircle(center: phone.topCenter, radius: phone.height * (0.55 + i * 0.4)),
+          -math.pi * 0.85,
+          math.pi * 0.7,
+          false,
+          linea(c.saffron, 1.6),
+        );
+      }
+      // Lo único que cambia: un niño en el paso peatonal.
+      if (t > 0.01) {
+        final fh = (roadBottom - h * 0.06) * 0.5;
+        final fw = fh * 100 / 260;
+        final x = w * 0.8 - fw / 2 + 24 * (1 - t);
+        final col = c.ink.withValues(alpha: t);
+        dibujarSilueta(canvas, Rect.fromLTWH(x, roadBottom - 6 - fh, fw, fh), col,
+            derecha: false, nino: true, paso: 0.9, atras: c.ink2.withValues(alpha: t), papel: c.plane2);
+      }
     }
-    // Líneas de movimiento.
-    for (var i = 0; i < 3; i++) {
-      final y = carBase.dy - carW * 0.1 - i * 7;
-      canvas.drawLine(Offset(carBase.dx - 22, y), Offset(carBase.dx - 6, y), g);
-    }
-
-    // Lo único que cambia.
-    if (t > 0.02) {
-      final a = t.clamp(0.0, 1.0);
-      final childX = math.min(carBase.dx + carW + w * 0.18, w - 24);
-      figura(canvas, Offset(childX, bottom - 4), h * 0.34, tinta(ink, 1.8), opacidad: a, seed: 7, brazoArriba: true);
-      // Marcas de frenado.
-      final brake = Paint()
-        ..color = graphite.withValues(alpha: graphite.a * a)
-        ..strokeWidth = 2
-        ..strokeCap = StrokeCap.round;
-      canvas.drawLine(Offset(carBase.dx + carW * 0.1, carBase.dy + 6), Offset(carBase.dx - 30 * a, carBase.dy + 6), brake);
-      canvas.drawLine(Offset(carBase.dx + carW * 0.66, carBase.dy + 6), Offset(carBase.dx + carW * 0.5 - 30 * a, carBase.dy + 6), brake);
-    }
+    // El recorrido de la ficha, sobre el borde inferior de la calle.
+    const pad = EscenaComparada._pad;
+    final ty = compacta ? h * 0.35 : roadBottom + (h - roadBottom) / 2;
+    canvas.drawLine(Offset(pad, ty), Offset(w - pad, ty), linea(c.ink, 2));
+    canvas.drawLine(Offset(pad, ty - 6), Offset(pad, ty + 6), linea(c.ink, 2));
+    canvas.drawLine(Offset(w - pad, ty - 6), Offset(w - pad, ty + 6), linea(c.ink, 2));
+    final x = pad + (w - pad * 2) * t;
+    canvas.drawCircle(Offset(x, ty), 12, relleno(c.paper));
+    canvas.drawCircle(Offset(x, ty), 10.5, linea(c.ink, 3));
+    canvas.drawCircle(Offset(x, ty), 4, relleno(c.ink));
   }
 
   @override
-  bool shouldRepaint(covariant _EscenaDescuidoPainter old) => old.t != t || old.ink != ink;
+  bool shouldRepaint(covariant _EscenaPainter old) => old.t != t || old.c != c || old.compacta != compacta;
 }
 
 // ------------------------------------------------------ E2: hilos de la promesa
@@ -142,7 +188,9 @@ class _HilosPromesaState extends ConsumerState<HilosPromesa> {
         if (show)
           LayoutBuilder(builder: (context, c) {
             final w = c.maxWidth;
-            const h = 200.0;
+            const h = 230.0;
+            final hermana = _PromesaPainter.hermanaEn(Size(w, h));
+            final turno = _PromesaPainter.turnoEn(Size(w, h));
             return SizedBox(
               width: w,
               height: h,
@@ -155,28 +203,22 @@ class _HilosPromesaState extends ConsumerState<HilosPromesa> {
                         duration: reduced ? Duration.zero : const Duration(milliseconds: 1600),
                         curve: Motion.settle,
                         builder: (context, saber, _) => CustomPaint(
-                          painter: _PromesaPainter(
-                            saber: saber,
-                            tocado: _tocado,
-                            ink: e.ink,
-                            graphite: e.graphite,
-                            saffron: e.saffron,
-                          ),
+                          painter: _PromesaPainter(saber: saber, tocado: _tocado, c: Tinta.of(context)),
                         ),
                       ),
                     ),
                   ),
-                  Positioned(left: w * 0.8 - 36, top: 8, child: boton('hermana', 'Tu hermana: qué depende de ti')),
-                  Positioned(left: w * 0.8 - 36, top: h * 0.78 - 36, child: boton('turno', 'El turno extra: qué depende de esta decisión')),
+                  Positioned(left: hermana.dx - 36, top: hermana.dy - 36, child: boton('hermana', 'Tu hermana: qué depende de ti')),
+                  Positioned(left: turno.dx - 36, top: turno.dy - 36, child: boton('turno', 'El turno extra: qué depende de esta decisión')),
                   Positioned(
-                    left: w * 0.5,
-                    top: h * 0.08,
-                    child: ExcludeSemantics(child: Text('la promesa', style: context.text.bodySmall)),
+                    left: w * 0.3,
+                    top: h * 0.12,
+                    child: ExcludeSemantics(child: Text('la promesa', style: context.text.labelMedium?.copyWith(color: e.saffronText))),
                   ),
                   Positioned(
-                    left: w * 0.5,
+                    left: w * 0.36,
                     top: h * 0.86,
-                    child: ExcludeSemantics(child: Text('el turno', style: context.text.bodySmall)),
+                    child: ExcludeSemantics(child: Text('el turno', style: context.text.labelMedium)),
                   ),
                 ],
               ),
@@ -219,80 +261,69 @@ class _HilosPromesaState extends ConsumerState<HilosPromesa> {
 }
 
 class _PromesaPainter extends CustomPainter {
-  _PromesaPainter({required this.saber, required this.tocado, required this.ink, required this.graphite, required this.saffron});
+  _PromesaPainter({required this.saber, required this.tocado, required this.c});
   final double saber;
   final String? tocado;
-  final Color ink;
-  final Color graphite;
-  final Color saffron;
+  final Tinta c;
+
+  static Offset hermanaEn(Size s) => Offset(s.width * 0.76, s.height * 0.24);
+  static Offset turnoEn(Size s) => Offset(s.width * 0.68, s.height * 0.8);
 
   @override
   void paint(Canvas canvas, Size s) {
     final w = s.width;
     final h = s.height;
-    final yo = Offset(w * 0.16, h * 0.92);
-    final yoAlto = h * 0.66;
-    figura(canvas, yo, yoAlto, tinta(ink, 2), seed: 1);
-    final herm = Offset(w * 0.8, h * 0.5);
-    final hermAlto = h * 0.36;
-    // El escenario de la presentación.
-    canvas.drawLine(Offset(herm.dx - 34, herm.dy + 1), Offset(herm.dx + 34, herm.dy + 1), tinta(graphite, 1.2));
-    figura(canvas, herm, hermAlto, tinta(ink, 1.8), seed: 2, brazoArriba: true);
-    // El turno: un reloj.
-    final reloj = Offset(w * 0.8, h * 0.78);
-    canvas.drawCircle(reloj, 15, tinta(tocado == 'turno' ? ink : graphite, tocado == 'turno' ? 2.2 : 1.6));
-    canvas.drawLine(reloj, reloj + const Offset(0, -9), tinta(graphite, 1.6));
-    canvas.drawLine(reloj, reloj + const Offset(7, 0), tinta(graphite, 1.6));
+    // El escenario de la presentación: un plano recortado arriba a la derecha.
+    final stage = Rect.fromLTWH(w * 0.56, h * 0.02, w * 0.4, h * 0.46);
+    plano(canvas, stage, c.plane, sombra: c.ink);
+    canvas.drawLine(Offset(stage.left + 8, stage.bottom - 10), Offset(stage.right - 8, stage.bottom - 10), linea(c.ink, 2.4));
+    // Tú, grande, a la izquierda.
+    final fh = h * 0.96;
+    final fw = fh * 100 / 260;
+    final me = Rect.fromLTWH(w * 0.06, h - fh, fw, fh);
+    dibujarSilueta(canvas, me, c.ink, atras: c.ink2, papel: c.paper);
+    // Tu hermana, en escena.
+    final sh = stage.height * 0.8;
+    final sister = Rect.fromLTWH(w * 0.76 - sh * 0.2, stage.bottom - 10 - sh, sh * 100 / 260, sh);
+    dibujarSilueta(canvas, sister, c.ink, derecha: false, nino: true, gesto: 1, atras: c.ink2, papel: c.plane);
+    // El turno: reloj y recibo de la deuda.
+    final clock = turnoEn(s);
+    dibujarReloj(canvas, clock, h * 0.085, c);
+    dibujarRecibo(canvas, Rect.fromLTWH(w * 0.8, h * 0.6, w * 0.12, h * 0.34), c, giro: 0.1);
 
-    final mano = Offset(yo.dx + yoAlto * 0.2, yo.dy - yoAlto * 0.45);
-    // La promesa: hilo reforzado con un nudo, la palabra dada.
-    final hermMano = Offset(herm.dx - hermAlto * 0.2, herm.dy - hermAlto * 0.45);
-    paintHilo(
-      canvas,
-      from: mano,
-      to: hermMano,
-      color: ink,
-      forma: HiloForma.reforzado,
-      width: tocado == 'hermana' ? 2.4 : 1.8,
-      seed: 3,
-      bend: -18,
-    );
-    final nudo = Offset.lerp(mano, hermMano, 0.5)! + const Offset(0, -12);
-    canvas.drawCircle(nudo, 4.5, Paint()..color = saffron);
-    // El turno: otra dirección, en grafito.
-    paintHilo(canvas, from: mano, to: reloj - const Offset(16, 0), color: graphite, provisional: true, width: 1.8, seed: 4, bend: 12);
-    // Lo que ella sabe: un hilo fino de vuelta hacia ti.
+    final mano = Offset(me.left + me.width * 0.78, me.top + me.height * 0.52);
+    final manoH = Offset(sister.left + sister.width * 0.1, sister.top + sister.height * 0.2);
+    // La promesa: el hilo azafrán, tenso. Si la tocas, se engrosa.
+    canvas.drawLine(mano, manoH, linea(c.saffron, tocado == 'hermana' ? 3.6 : 2.6));
+    canvas.drawCircle(Offset.lerp(mano, manoH, 0.5)!, 5, relleno(c.saffron));
+    // El turno: otra dirección, en tinta suave.
+    canvas.drawLine(mano, clock - Offset(h * 0.09, 0), linea(tocado == 'turno' ? c.ink : c.ink2, tocado == 'turno' ? 2.6 : 1.8));
+    // Lo que ella sabe: un hilo fino de vuelta hacia ti, que se apaga.
     if (saber > 0.01) {
-      final cabezaH = Offset(herm.dx, herm.dy - hermAlto + hermAlto * 0.11);
-      final cabezaY = Offset(yo.dx, yo.dy - yoAlto + yoAlto * 0.11);
-      paintHilo(
-        canvas,
-        from: cabezaH - const Offset(8, 0),
-        to: cabezaY + const Offset(10, 0),
-        color: graphite.withValues(alpha: graphite.a * saber),
-        provisional: true,
-        width: 1.4,
-        seed: 6,
-        bend: -26,
-        progress: saber,
+      final cabezaH = Offset(sister.left + sister.width * 0.4, sister.top + sister.height * 0.08);
+      final cabezaY = Offset(me.left + me.width * 0.62, me.top + me.height * 0.08);
+      canvas.drawPath(
+        dashedPath(Path()
+          ..moveTo(cabezaH.dx, cabezaH.dy)
+          ..quadraticBezierTo((cabezaH.dx + cabezaY.dx) / 2, cabezaY.dy - h * 0.1, cabezaY.dx, cabezaY.dy), dash: 4, gap: 4),
+        linea(c.graphite.withValues(alpha: saber), 1.6),
       );
     }
   }
 
   @override
-  bool shouldRepaint(covariant _PromesaPainter old) => old.saber != saber || old.tocado != tocado || old.ink != ink;
+  bool shouldRepaint(covariant _PromesaPainter old) => old.saber != saber || old.tocado != tocado || old.c != c;
 }
 
 // --------------------------------------------------- E3: círculos de cercanía
+/// Círculos de cercanía como planos de papel. En el centro tú; en cada
+/// círculo, la persona. La decisión con tu hermano queda como sombra.
 class CirculosPainter extends CustomPainter {
   CirculosPainter({
     required this.activo,
     required this.marcas,
     required this.sombra,
-    required this.ink,
-    required this.graphite,
-    required this.saffron,
-    required this.paper,
+    required this.c,
     required this.etiquetas,
     required this.estilo,
   });
@@ -305,21 +336,11 @@ class CirculosPainter extends CustomPainter {
 
   /// La decisión original, con el hermano.
   final int? sombra;
-  final Color ink;
-  final Color graphite;
-  final Color saffron;
-  final Color paper;
+  final Tinta c;
   final List<String> etiquetas;
   final TextStyle estilo;
 
-  static const radios = [0.33, 0.62, 0.92];
-
-  double _radio(double k, double r) {
-    final i = (k - 1).clamp(0.0, radios.length - 1.0);
-    final lo = i.floor();
-    final hi = i.ceil();
-    return r * (radios[lo] + (radios[hi] - radios[lo]) * (i - lo));
-  }
+  static const radios = [0.36, 0.64, 0.94];
 
   static double angulo(int? v) {
     if (v == null) return math.pi * 1.25;
@@ -328,75 +349,66 @@ class CirculosPainter extends CustomPainter {
     return math.pi * 1.5;
   }
 
-  void _texto(Canvas canvas, String s, Offset c) {
+  void _texto(Canvas canvas, String s, Offset at) {
     final tp = TextPainter(text: TextSpan(text: s, style: estilo), textDirection: TextDirection.ltr)..layout(maxWidth: 140);
-    final rect = Rect.fromCenter(center: c, width: tp.width + 8, height: tp.height + 2);
-    canvas.drawRect(rect, Paint()..color = paper);
-    tp.paint(canvas, Offset(c.dx - tp.width / 2, c.dy - tp.height / 2));
+    tp.paint(canvas, Offset(at.dx - tp.width / 2, at.dy - tp.height / 2));
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final c = size.center(Offset.zero);
-    final r = size.shortestSide / 2 - 8;
-    final nRings = math.min(radios.length, etiquetas.length - 1);
-    final activoRedondo = activo.round();
-
-    for (var k = 1; k <= nRings; k++) {
-      final rr = r * radios[k - 1];
-      final isActive = k == activoRedondo;
-      canvas.drawCircle(c, rr, tinta(isActive ? ink : graphite, isActive ? 2.2 : 1));
+    final cc = size.center(Offset.zero);
+    final r = size.shortestSide / 2 - 6;
+    final n = math.min(radios.length, etiquetas.length - 1);
+    final act = activo.round();
+    // Planos concéntricos, del más lejano al más cercano.
+    for (var k = n; k >= 1; k--) {
+      canvas.drawCircle(cc, r * radios[k - 1], relleno(k.isOdd ? c.plane : c.plane2));
+      canvas.drawCircle(cc, r * radios[k - 1], k == act ? linea(c.ink, 2.4) : linea(c.ink2, 0.8));
     }
-    canvas.drawCircle(c, 6, Paint()..color = ink);
-
     Offset at(int ring, int? v) {
       final a = angulo(v);
-      return c + Offset(math.cos(a), math.sin(a)) * (r * radios[ring - 1]);
+      return cc + Offset(math.cos(a), math.sin(a)) * (r * radios[ring - 1]);
     }
 
+    // Tú, al centro.
+    final b = r * 0.36;
+    canvas.drawPath(busto(Rect.fromCenter(center: cc + Offset(0, -b * 0.08), width: b, height: b)), relleno(c.ink));
+    // Las personas de cada círculo, abajo.
+    for (var k = 1; k <= n; k++) {
+      final p = cc + Offset(0, r * radios[k - 1]);
+      final bb = b * (0.62 - k * 0.08);
+      canvas.drawPath(busto(Rect.fromCenter(center: p - Offset(0, bb * 0.62), width: bb, height: bb)), relleno(k == act ? c.ink : c.ink2));
+      _texto(canvas, etiquetas[k], p + const Offset(0, 9));
+    }
     // La sombra: lo que decidiste con tu hermano.
     Offset? sombraPos;
     if (sombra != null) {
       sombraPos = at(1, sombra);
-      canvas.drawCircle(sombraPos, 5, Paint()..color = graphite);
-      canvas.drawPath(
-        dashedPath(Path()..addOval(Rect.fromCircle(center: sombraPos, radius: 9)), dash: 3, gap: 3),
-        tinta(graphite, 1.2),
-      );
+      canvas.drawCircle(sombraPos, 7, relleno(c.graphite));
     }
-
-    // Las decisiones en cada círculo, conectadas a la sombra.
-    for (final entry in marcas.entries) {
-      final v = entry.value;
-      if (v == null || entry.key > nRings) continue;
-      final pos = at(entry.key, v);
-      if (sombraPos != null) {
-        paintHilo(canvas, from: sombraPos, to: pos, color: graphite, provisional: true, width: 1.3, seed: entry.key, bend: 10);
-      }
-      canvas.drawCircle(pos, 6.5, Paint()..color = ink);
+    for (final e in marcas.entries) {
+      if (e.value == null || e.key > n) continue;
+      final pos = at(e.key, e.value);
+      if (sombraPos != null) canvas.drawLine(sombraPos, pos, linea(c.graphite, 1.4));
+      canvas.drawCircle(pos, 8, relleno(c.ink));
     }
-
-    // La situación (el auto rayado) sobre el círculo activo.
-    final valorActivo = marcas[activoRedondo];
-    final a = angulo(valorActivo);
-    final tokenR = _radio(activo, r);
-    final token = c + Offset(math.cos(a), math.sin(a)) * tokenR + const Offset(0, -16);
-    final rect = Rect.fromCenter(center: token, width: 22, height: 12);
-    canvas.drawRect(rect, Paint()..color = paper);
-    canvas.drawRect(rect, tinta(saffron, 1.8));
-    final scratch = Path()..moveTo(rect.left + 3, rect.center.dy);
+    // La situación (el auto rayado), sobre el círculo activo.
+    final ia = (activo - 1).clamp(0.0, radios.length - 1.0);
+    final lo = ia.floor();
+    final hi = ia.ceil();
+    final tokenR = r * (radios[lo] + (radios[hi] - radios[lo]) * (ia - lo));
+    final a = angulo(marcas[act]);
+    final tok = cc + Offset(math.cos(a), math.sin(a)) * tokenR + const Offset(0, -18);
+    final rect = Rect.fromCenter(center: tok, width: 30, height: 15);
+    canvas.drawRRect(RRect.fromRectAndRadius(rect.shift(const Offset(2, 2)), const Radius.circular(3)), relleno(c.ink.withValues(alpha: 0.12)));
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(3)), relleno(c.ink));
+    final scratch = Path()..moveTo(rect.left + 5, rect.center.dy);
     for (var i = 1; i <= 4; i++) {
-      scratch.lineTo(rect.left + 3 + i * 4, rect.center.dy + (i.isOdd ? -3 : 3));
+      scratch.lineTo(rect.left + 5 + i * 5, rect.center.dy + (i.isOdd ? -3.5 : 3.5));
     }
-    canvas.drawPath(scratch, tinta(saffron, 1.4));
-
-    // Etiquetas: el centro y cada círculo, abajo.
-    _texto(canvas, etiquetas.first, c + const Offset(0, 18));
-    for (var k = 1; k <= nRings; k++) {
-      _texto(canvas, etiquetas[k], c + Offset(0, r * radios[k - 1]));
-    }
-    _texto(canvas, 'callar', c + Offset(-r * 0.92 + 18, -14));
-    _texto(canvas, 'contar', c + Offset(r * 0.92 - 18, -14));
+    canvas.drawPath(scratch, linea(c.saffron, 2));
+    _texto(canvas, 'callar', cc + Offset(-r * radios[n - 1] + 26, -12));
+    _texto(canvas, 'contar', cc + Offset(r * radios[n - 1] - 26, -12));
   }
 
   @override
@@ -433,7 +445,6 @@ class _DosFigurasState extends ConsumerState<DosFiguras> {
 
   @override
   Widget build(BuildContext context) {
-    final e = context.enves;
     final reduced = reducedMotion(context, ref);
     final show = ilustracionCabe(context);
     Widget boton(String id, String label) => Semantics(
@@ -453,7 +464,7 @@ class _DosFigurasState extends ConsumerState<DosFiguras> {
         if (show)
           LayoutBuilder(builder: (context, c) {
             final w = c.maxWidth;
-            const h = 200.0;
+            const h = 230.0;
             return SizedBox(
               width: w,
               height: h,
@@ -466,7 +477,7 @@ class _DosFigurasState extends ConsumerState<DosFiguras> {
                         duration: reduced ? Duration.zero : const Duration(milliseconds: 1400),
                         curve: Motion.settle,
                         builder: (context, t, _) => CustomPaint(
-                          painter: _DosFigurasPainter(t: t, tocada: _tocada, ink: e.ink, graphite: e.graphite, saffron: e.saffron),
+                          painter: _DosFigurasPainter(t: t, tocada: _tocada, c: Tinta.of(context)),
                         ),
                       ),
                     ),
@@ -518,35 +529,35 @@ class _DosFigurasState extends ConsumerState<DosFiguras> {
 }
 
 class _DosFigurasPainter extends CustomPainter {
-  _DosFigurasPainter({required this.t, required this.tocada, required this.ink, required this.graphite, required this.saffron});
+  _DosFigurasPainter({required this.t, required this.tocada, required this.c});
   final double t;
   final String? tocada;
-  final Color ink;
-  final Color graphite;
-  final Color saffron;
+  final Tinta c;
 
   @override
   void paint(Canvas canvas, Size s) {
     final w = s.width;
     final h = s.height;
-    final suelo = h - 22;
-    // La página se divide.
+    // La página se divide en dos planos.
     final split = (t / 0.4).clamp(0.0, 1.0);
-    canvas.drawLine(Offset(w / 2, h / 2 - (h / 2 - 4) * split), Offset(w / 2, h / 2 + (h / 2 - 4) * split), tinta(graphite, 1.2));
+    plano(canvas, Rect.fromLTWH(w * 0.5 - w * 0.46 * split, h * 0.06, w * 0.44 * split, h * 0.9), c.plane, sombra: c.ink);
+    plano(canvas, Rect.fromLTWH(w * 0.52, h * 0.02, w * 0.44 * split, h * 0.86), c.plane2, sombra: c.ink);
     final apart = ((t - 0.25) / 0.75).clamp(0.0, 1.0);
-    final xa = w / 2 - (w * 0.23) * apart;
-    final xb = w / 2 + (w * 0.23) * apart;
-    final alto = h - 40;
-    figura(canvas, Offset(xa, suelo), alto, tinta(ink, tocada == 'a' ? 2.8 : 2.2), seed: 4);
-    figura(canvas, Offset(xb, suelo), alto, tinta(ink, tocada == 'b' ? 2.8 : 2.2), rehecha: figuraPartes, seed: 4, opacidad: apart);
-    canvas.drawCircle(Offset(xa, suelo + 12), 4, Paint()..color = ink);
-    canvas.drawCircle(Offset(xb, suelo + 12), 4, Paint()..color = ink.withValues(alpha: apart));
+    final fh = h * 0.92;
+    final fw = fh * 100 / 260;
+    final xa = w / 2 - fw / 2 - w * 0.23 * apart;
+    final xb = w / 2 - fw / 2 + w * 0.23 * apart;
+    final ra = Rect.fromLTWH(xa, h - fh, fw, fh);
+    final rb = Rect.fromLTWH(xb, h - fh, fw, fh);
+    dibujarSilueta(canvas, ra, c.ink, atras: c.ink2, papel: c.plane);
+    if (apart > 0.05) figuraRehecha(canvas, rb, c, siluetaPartes, derecha: false);
+    canvas.drawLine(Offset(w / 2, h * 0.5 - h * 0.5 * split), Offset(w / 2, h * 0.5 + h * 0.5 * split), linea(c.ink, 2.4));
     if (tocada != null) {
-      final x = tocada == 'a' ? xa : xb;
-      canvas.drawLine(Offset(x - 16, suelo + 20), Offset(x + 16, suelo + 20), tinta(saffron, 2.4));
+      final r = tocada == 'a' ? ra : rb;
+      canvas.drawLine(Offset(r.center.dx - 22, h - 3), Offset(r.center.dx + 22, h - 3), linea(c.saffron, 3));
     }
   }
 
   @override
-  bool shouldRepaint(covariant _DosFigurasPainter old) => old.t != t || old.tocada != tocada || old.ink != ink;
+  bool shouldRepaint(covariant _DosFigurasPainter old) => old.t != t || old.tocada != tocada || old.c != c;
 }

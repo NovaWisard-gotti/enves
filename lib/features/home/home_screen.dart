@@ -7,6 +7,7 @@ import '../../domain/records/records.dart';
 import '../../engine/map/map_builder.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/hilo_vivo.dart';
+import '../../widgets/composiciones.dart';
 import '../../widgets/ilustraciones.dart';
 import '../../widgets/ink_marks.dart';
 import '../../widgets/paper.dart';
@@ -119,7 +120,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           const Gap(28),
           if (!suggestion.allDone && ilustracionCabe(context, hasta: 1.3)) ...[
-            Vineta(suggestion.experience!.id),
+            VinetaArte(suggestion.experience!.id, height: 160),
             const Gap(16),
           ],
           Text(eyebrow, style: context.text.labelMedium),

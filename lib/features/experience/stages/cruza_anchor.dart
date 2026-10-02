@@ -7,7 +7,8 @@ import '../../../domain/content/content_models.dart';
 import '../../../domain/records/records.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/motion.dart';
-import '../../../widgets/hilo_vivo.dart';
+import '../../../widgets/arte.dart';
+import '../../../widgets/composiciones.dart';
 import '../../../widgets/paper.dart';
 import '../experience_actions.dart';
 import '../widgets/stage_frame.dart';
@@ -134,10 +135,8 @@ class _CruzaAnchorStageState extends ConsumerState<CruzaAnchorStage> with Ticker
                   drag: flipped ? 1 : math.max(_drag, _crossing ? 1 : 0),
                   flipped: flipped,
                   revealT: revealT,
-                  ink: e.ink,
-                  graphite: e.graphite,
-                  saffron: e.saffron,
-                  paper: flipped ? e.reverse : e.paper,
+                  c: Tinta.of(context),
+                  fondo: flipped ? e.reverse : e.paper,
                 ),
               );
               final Widget turned;
@@ -187,7 +186,7 @@ class _Cara extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 96, width: double.infinity, child: CustomPaint(painter: painter)),
+          SizedBox(height: 290, width: double.infinity, child: CustomPaint(painter: painter)),
           const Gap(20),
           Text(encabezado, style: context.text.labelMedium),
           const Gap(8),
@@ -202,97 +201,69 @@ class _Cara extends StatelessWidget {
   }
 }
 
-/// El punto que cae y se ancla, el eje que se traza, el hilo que se tensa con
-/// el gesto y, del otro lado, el punto hueco con el propio a trasluz.
+/// Dos bustos a cada lado del eje. Tu punto cae y se ancla junto a ti; el
+/// hilo se tensa con el gesto. Del otro lado, la otra perspectiva pasa de
+/// contorno a figura, y la tuya queda a trasluz.
 class _AnclaPainter extends CustomPainter {
   _AnclaPainter({
     required this.anchorT,
     required this.drag,
     required this.flipped,
     required this.revealT,
-    required this.ink,
-    required this.graphite,
-    required this.saffron,
-    required this.paper,
+    required this.c,
+    required this.fondo,
   });
   final double anchorT;
   final double drag;
   final bool flipped;
   final double revealT;
-  final Color ink;
-  final Color graphite;
-  final Color saffron;
-  final Color paper;
+  final Tinta c;
+  final Color fondo;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final cy = size.height * 0.55;
-    final cx = size.width / 2;
+    final w = size.width;
+    final h = size.height;
+    final cx = w / 2;
+    final b = math.min(h * 0.86, w * 0.38);
+    final left = Rect.fromLTWH(0, h - b, b, b);
+    final right = Rect.fromLTWH(w - b, h - b, b, b);
+    final y = h - b * 0.66;
+    // Un plano de papel detrás de quien ocupa este lado.
+    plano(canvas, Rect.fromLTWH(left.left + b * 0.08, h * 0.12, w * 0.4, h * 0.88), flipped ? c.plane2 : c.plane, sombra: c.ink);
     const r = 11.0;
-    final left = Offset(28, cy);
-    final right = Offset(size.width - 28, cy);
-    final axis = Paint()
-      ..color = ink
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
+    final axis = linea(c.ink, 3.2);
 
     if (!flipped) {
-      // El punto cae y se ancla.
+      // Tú, sólido; la otra perspectiva, solo contorno.
+      canvas.drawPath(busto(left), relleno(c.ink));
+      final otra = busto(right, derecha: false);
+      canvas.drawPath(otra, relleno(fondo));
+      canvas.drawPath(otra, linea(c.ink2, 1.6));
       final dropT = (anchorT / 0.5).clamp(0.0, 1.0);
-      final dot = Offset(left.dx, cy - 30 * (1 - dropT));
-      canvas.drawCircle(dot, r, Paint()..color = ink);
-      if (dropT >= 1) {
-        canvas.drawLine(Offset(left.dx - 10, cy + r + 6), Offset(left.dx + 10, cy + r + 6), Paint()
-          ..color = ink
-          ..strokeWidth = 2
-          ..strokeCap = StrokeCap.round);
-      }
-      // El eje aparece.
+      final dot = Offset(left.right + 14, y - 26 * (1 - dropT));
+      canvas.drawCircle(dot, r, relleno(c.ink));
       final axisT = ((anchorT - 0.4) / 0.6).clamp(0.0, 1.0);
-      if (axisT > 0) {
-        final half = size.height * 0.45 * axisT;
-        canvas.drawLine(Offset(cx, cy - half), Offset(cx, cy + half), axis);
-      }
-      // El hilo se tensa hacia el eje con el gesto.
-      if (drag > 0) {
-        paintHilo(canvas, from: left + const Offset(r, 0), to: Offset(cx - 4, cy), color: ink, progress: drag, seed: 3);
-      }
-      // Del otro lado, todavía en grafito.
-      if (axisT >= 1) {
-        const seg = 10;
-        final g = Paint()
-          ..color = graphite
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5;
-        for (var i = 0; i < seg; i++) {
-          canvas.drawArc(Rect.fromCircle(center: right, radius: r - 2), i * 2 * math.pi / seg, math.pi / seg, false, g);
-        }
-      }
+      if (axisT > 0) canvas.drawLine(Offset(cx, h * 0.5 - h * 0.5 * axisT), Offset(cx, h * 0.5 + h * 0.5 * axisT), axis);
+      if (drag > 0) hilo(canvas, dot + const Offset(r, 0), Offset(cx - 5, y), c.ink, w: 1.8, t: drag);
       return;
     }
 
-    // Otra cara: el eje sigue; el propio punto se ve a trasluz, invertido.
-    canvas.drawLine(Offset(cx, cy - size.height * 0.45), Offset(cx, cy + size.height * 0.45), axis);
-    canvas.drawCircle(right, r, Paint()..color = ink.withValues(alpha: 0.22));
-    paintHilo(
-      canvas,
-      from: right - const Offset(r, 0),
-      to: Offset(cx + 4, cy),
-      color: ink.withValues(alpha: 0.22),
-      seed: 3,
-    );
-    // El hilo atraviesa el eje y llega al punto hueco.
-    paintHilo(canvas, from: Offset(cx - 4, cy), to: left + const Offset(r, 0), color: ink, progress: revealT, seed: 4);
-    if (revealT > 0.6) {
-      final k = ((revealT - 0.6) / 0.4).clamp(0.0, 1.0);
-      canvas.drawCircle(left, (r - 2) * k, Paint()
-        ..color = saffron
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 4);
-    }
+    // Otra cara: la otra perspectiva ocupa tu lugar; tú quedas a trasluz.
+    final mia = busto(right, derecha: false);
+    canvas.drawPath(mia, relleno(c.ink.withValues(alpha: 0.16)));
+    final otraT = revealT;
+    canvas.drawPath(busto(left), relleno(Color.lerp(fondo, c.ink2, otraT)!));
+    canvas.drawLine(Offset(cx, 0), Offset(cx, h), axis);
+    final mine = Offset(right.left - 14, y);
+    canvas.drawCircle(mine, r, relleno(c.ink.withValues(alpha: 0.2)));
+    hilo(canvas, mine - const Offset(r, 0), Offset(cx + 5, y), c.ink.withValues(alpha: 0.2), w: 1.8);
+    final hollow = Offset(left.right + 14, y);
+    hilo(canvas, Offset(cx - 5, y), hollow + const Offset(r, 0), c.ink, w: 1.8, t: revealT);
+    if (revealT > 0.6) puntoHueco(canvas, hollow, r * ((revealT - 0.6) / 0.4).clamp(0.0, 1.0), c.saffron, fondo);
   }
 
   @override
   bool shouldRepaint(covariant _AnclaPainter old) =>
-      old.anchorT != anchorT || old.drag != drag || old.flipped != flipped || old.revealT != revealT || old.ink != ink;
+      old.anchorT != anchorT || old.drag != drag || old.flipped != flipped || old.revealT != revealT || old.c != c;
 }

@@ -193,12 +193,13 @@ class EjePainter extends CustomPainter {
     final half = (size.width - pad * 2) / 2;
     final center = size.width / 2;
     double x(int v) => center + v / 3 * half;
-    canvas.drawLine(Offset(pad, cy), Offset(size.width - pad, cy), Paint()
-      ..color = divider
-      ..strokeWidth = 2);
-    canvas.drawLine(Offset(center, cy - 16), Offset(center, cy + 16), Paint()
-      ..color = graphite
-      ..strokeWidth = 1.5);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTRB(pad, cy - 5, size.width - pad, cy + 5), const Radius.circular(5)),
+      Paint()..color = divider,
+    );
+    canvas.drawLine(Offset(center, cy - 20), Offset(center, cy + 20), Paint()
+      ..color = ink
+      ..strokeWidth = 2.6);
     if (view.decided > 0 && view.min != view.max) {
       // El patrón: tinta si se consolidó; grafito punteado si aún es provisional.
       paintHilo(
@@ -227,7 +228,7 @@ class EjePainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.5);
       } else {
-        canvas.drawCircle(p, 6 * local, Paint()..color = color);
+        canvas.drawCircle(p, 8 * local, Paint()..color = color);
       }
       if (m.revised && m.initialValue != null) {
         final from = Offset(x(m.initialValue!), p.dy);

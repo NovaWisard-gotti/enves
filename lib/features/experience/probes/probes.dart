@@ -7,6 +7,8 @@ import '../../../domain/content/content_models.dart';
 import '../../../domain/records/records.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/motion.dart';
+import '../../../widgets/arte.dart';
+import '../../../widgets/composiciones.dart';
 import '../../../widgets/hilo_vivo.dart';
 import '../../../widgets/ilustraciones.dart';
 import '../../../widgets/ink_marks.dart';
@@ -119,7 +121,6 @@ class _TwinCasesProbeState extends ConsumerState<TwinCasesProbe> with SingleTick
     final names = subjects.map((s) => asString(s['label'])).toList();
     final a = names.isNotEmpty ? names.first : 'Ana';
     final b = names.length > 1 ? names[1] : 'Beto';
-    final showScene = ilustracionCabe(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -131,21 +132,23 @@ class _TwinCasesProbeState extends ConsumerState<TwinCasesProbe> with SingleTick
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (showScene) EscenaDescuido(t: t, height: 132),
+                // La escena es el selector: la ficha corre por el borde de la calle.
+                EscenaComparada(
+                  t: t,
+                  nombreA: a,
+                  nombreB: b,
+                  onChanged: (v) {
+                    _cmp.value = v;
+                    if (v >= 0.95 && !_sawBoth) setState(() => _sawBoth = true);
+                  },
+                  onSoltar: () => _goTo(_cmp.value >= 0.5 ? 1 : 0),
+                ),
                 Row(
                   children: [
                     _NombreEscena(nombre: a, activo: !beto, onTap: () => _goTo(0)),
                     const Spacer(),
                     _NombreEscena(nombre: b, activo: beto, onTap: () => _goTo(1)),
                   ],
-                ),
-                Slider(
-                  value: t,
-                  onChanged: (v) {
-                    _cmp.value = v;
-                    if (v >= 0.95 && !_sawBoth) setState(() => _sawBoth = true);
-                  },
-                  semanticFormatterCallback: (v) => v < 0.5 ? '$a: no pasa nada' : '$b: un niño cruza',
                 ),
                 Semantics(
                   liveRegion: true,
@@ -169,35 +172,20 @@ class _TwinCasesProbeState extends ConsumerState<TwinCasesProbe> with SingleTick
             padding: const EdgeInsets.only(top: 6),
             child: Text('Desliza de $a a $b: mira qué se queda quieto y qué cambia.', style: context.text.bodySmall),
           ),
-        const Gap(24),
-        LayoutBuilder(builder: (context, c) {
-          final narrow = c.maxWidth < 456 || !showScene;
-          final columns = [
-            for (final s in subjects)
-              MarcasReproche(
-                nombre: asString(s['label']),
-                escala: scale,
-                valor: _values[asString(s['id'])],
-                semillaFigura: asString(s['id']) == subjects.last['id'] ? 1 : 0,
-                onChanged: (v) {
-                  ref.read(feedbackProvider).selection();
-                  setState(() => _values[asString(s['id'])] = v);
-                },
-              ),
-          ];
-          if (narrow) {
-            return Column(children: [for (final w in columns) Padding(padding: const EdgeInsets.only(bottom: 16), child: w)]);
-          }
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (var i = 0; i < columns.length; i++) ...[
-                if (i > 0) const SizedBox(width: 16),
-                Expanded(child: columns[i]),
-              ],
-            ],
-          );
-        }),
+        const Gap(28),
+        for (final s in subjects)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 18),
+            child: MarcasReproche(
+              nombre: asString(s['label']),
+              escala: scale,
+              valor: _values[asString(s['id'])],
+              onChanged: (v) {
+                ref.read(feedbackProvider).selection();
+                setState(() => _values[asString(s['id'])] = v);
+              },
+            ),
+          ),
         ProbeDoneButton(
           onPressed: !ready
               ? null
@@ -248,7 +236,8 @@ class _NombreEscena extends StatelessWidget {
   }
 }
 
-/// Reproche como marcas de tinta debajo de cada figura: trazos, no barras.
+/// Reproche como conteo de tinta: trazos alineados que se acumulan; el
+/// quinto cruza a los cuatro y cierra el grupo.
 class MarcasReproche extends StatelessWidget {
   const MarcasReproche({
     super.key,
@@ -256,118 +245,104 @@ class MarcasReproche extends StatelessWidget {
     required this.escala,
     required this.valor,
     required this.onChanged,
-    this.semillaFigura = 0,
   });
   final String nombre;
   final List<String> escala;
   final int? valor;
   final ValueChanged<int> onChanged;
-  final int semillaFigura;
 
   String _label(int i) => escala.length == 5 ? escala[i] : '${i + 1} de 5';
 
   @override
   Widget build(BuildContext context) {
-    final e = context.enves;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final t = Tinta.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          children: [
-            ExcludeSemantics(
-              child: CustomPaint(
-                size: const Size(26, 40),
-                painter: _MiniFiguraPainter(e.ink, semillaFigura),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Flexible(child: Text(nombre, style: context.text.titleMedium)),
-          ],
+        SizedBox(
+          width: 86,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(nombre, style: context.text.titleMedium),
+              Text(valor == null ? 'Sin marcar' : _label(valor!), style: context.text.labelMedium),
+            ],
+          ),
         ),
-        const Gap(4),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < 5; i++)
-              Semantics(
-                button: true,
-                selected: valor == i,
-                label: 'Reproche a $nombre: ${_label(i)}',
-                excludeSemantics: true,
-                child: InkResponse(
-                  onTap: () => onChanged(i),
-                  radius: 26,
-                  child: SizedBox(
-                    width: 44,
-                    height: 52,
+        Expanded(
+          child: SizedBox(
+            height: 60,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ExcludeSemantics(
                     child: TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0, end: valor != null && i <= valor! ? 1 : 0),
-                      duration: Duration(milliseconds: 160 + i * 50),
-                      builder: (context, t, _) => CustomPaint(
-                        painter: _MarcaPainter(index: i, t: t, ink: e.ink, graphite: e.graphite),
-                      ),
+                      tween: Tween(end: valor == null ? 0 : valor! + 1.0),
+                      duration: const Duration(milliseconds: 260),
+                      curve: Motion.settle,
+                      builder: (context, v, _) => CustomPaint(painter: ConteoPainter(v, t)),
                     ),
                   ),
                 ),
-              ),
-          ],
+                Row(
+                  children: [
+                    for (var i = 0; i < 5; i++)
+                      Expanded(
+                        child: Semantics(
+                          button: true,
+                          selected: valor == i,
+                          label: 'Reproche a $nombre: ${_label(i)}',
+                          excludeSemantics: true,
+                          child: InkResponse(onTap: () => onChanged(i), radius: 26, child: const SizedBox.expand()),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
-        Text(valor == null ? 'Sin marcar' : _label(valor!), style: context.text.labelMedium),
       ],
     );
   }
 }
 
-class _MarcaPainter extends CustomPainter {
-  _MarcaPainter({required this.index, required this.t, required this.ink, required this.graphite});
-  final int index;
-  final double t;
-  final Color ink;
-  final Color graphite;
+/// [v] marcas (0…5, con decimales mientras se dibuja).
+class ConteoPainter extends CustomPainter {
+  ConteoPainter(this.v, this.t);
+  final double v;
+  final Tinta t;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final h = 14.0 + index * 6.0;
-    final x = size.width / 2;
-    final bottom = size.height - 6;
-    final a = Offset(x - 5, bottom);
-    final b = Offset(x + 5, bottom - h);
-    // La marca vacía, apenas en grafito.
-    canvas.drawPath(
-      dashedPath(inkPath(a, b, seed: index), dash: 2, gap: 3),
-      Paint()
-        ..color = graphite
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2,
-    );
-    if (t > 0) {
-      canvas.drawPath(
-        partialPath(inkPath(a, b, seed: index), t),
-        Paint()
-          ..color = ink
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3.2
-          ..strokeCap = StrokeCap.round,
-      );
+    final slot = size.width / 5;
+    final top = size.height * 0.18;
+    final bottom = size.height * 0.82;
+    final lean = slot * 0.18;
+    // Renglón de papel donde se apoyan las marcas.
+    canvas.drawLine(Offset(0, bottom + 4), Offset(size.width, bottom + 4), linea(t.plane2, 1.2));
+    for (var i = 0; i < 4; i++) {
+      final x = slot * (i + 0.5);
+      final a = Offset(x - lean, bottom);
+      final b = Offset(x + lean, top);
+      final k = (v - i).clamp(0.0, 1.0);
+      canvas.drawLine(a, b, linea(t.plane2, 3));
+      if (k > 0) canvas.drawLine(a, Offset.lerp(a, b, k)!, linea(t.ink, 4.2));
+    }
+    // El quinto: cruza a los cuatro.
+    final k5 = (v - 4).clamp(0.0, 1.0);
+    final a5 = Offset(slot * 0.15, bottom - size.height * 0.12);
+    final b5 = Offset(slot * 4.85, top + size.height * 0.18);
+    if (k5 <= 0) {
+      final x = slot * 4.5;
+      canvas.drawLine(Offset(x - lean, bottom), Offset(x + lean, top), linea(t.plane2, 3));
+    } else {
+      canvas.drawLine(a5, Offset.lerp(a5, b5, k5)!, linea(t.ink, 4.2));
     }
   }
 
   @override
-  bool shouldRepaint(covariant _MarcaPainter old) => old.t != t || old.ink != ink;
-}
-
-class _MiniFiguraPainter extends CustomPainter {
-  _MiniFiguraPainter(this.ink, this.seed);
-  final Color ink;
-  final int seed;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    figura(canvas, Offset(size.width / 2, size.height - 1), size.height - 2, tinta(ink, 1.4), seed: seed);
-  }
-
-  @override
-  bool shouldRepaint(covariant _MiniFiguraPainter old) => old.ink != ink;
+  bool shouldRepaint(covariant ConteoPainter old) => old.v != v || old.t != t;
 }
 
 // ------------------------------------------------------- E2: variante simple
@@ -443,7 +418,6 @@ class _ProximityRingsProbeState extends ConsumerState<ProximityRingsProbe> {
     final user = ref.watch(userStateProvider).valueOrNull;
     final stance = user?.progress(widget.experienceId).initialStance;
     final int? sombra = stance?.value.sign;
-    final e = context.enves;
     final activeId = asString(rings[_active]['id']);
     final activeLabel = asString(rings[_active]['label']);
 
@@ -495,10 +469,7 @@ class _ProximityRingsProbeState extends ConsumerState<ProximityRingsProbe> {
                         activo: ringPos + 2,
                         marcas: marks,
                         sombra: sombra,
-                        ink: e.ink,
-                        graphite: e.graphite,
-                        saffron: e.saffron,
-                        paper: e.paper,
+                        c: Tinta.of(context),
                         etiquetas: ['Tú', 'Hermano', for (final r in rings) asString(r['label'])],
                         estilo: context.text.bodySmall!,
                       ),
@@ -666,7 +637,7 @@ class _LadderProbeState extends ConsumerState<LadderProbe> {
                   duration: reduced ? Duration.zero : Motion.medium,
                   builder: (context, t, _) => CustomPaint(
                     size: const Size(76, 40),
-                    painter: _PeldanoPainter(nivel: level, total: n, t: t, ink: e.ink, graphite: e.graphite),
+                    painter: _PeldanoPainter(nivel: level, total: n, t: t, c: Tinta.of(context)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -730,32 +701,24 @@ class _LineaPainter extends CustomPainter {
 }
 
 class _PeldanoPainter extends CustomPainter {
-  _PeldanoPainter({required this.nivel, required this.total, required this.t, required this.ink, required this.graphite});
+  _PeldanoPainter({required this.nivel, required this.total, required this.t, required this.c});
   final int nivel;
   final int total;
   final double t;
-  final Color ink;
-  final Color graphite;
+  final Tinta c;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width * (0.3 + 0.7 * nivel / total);
-    final rect = Rect.fromLTWH(0, size.height * 0.35, w, size.height * 0.5);
-    final outline = dashedPath(Path()..addRect(rect), dash: 3, gap: 3);
-    canvas.drawPath(outline, Paint()
-      ..color = graphite
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2);
-    if (t > 0) {
-      canvas.drawRect(
-        Rect.fromLTWH(rect.left, rect.top, rect.width * t, rect.height),
-        Paint()..color = ink,
-      );
-    }
+    // Un peldaño: bloque sólido que crece con la gravedad del caso.
+    final w = size.width * (0.28 + 0.72 * nivel / total);
+    final rect = Rect.fromLTWH(0, size.height * 0.3, w, size.height * 0.6);
+    canvas.drawRect(rect.shift(const Offset(2, 3)), relleno(c.ink.withValues(alpha: 0.08)));
+    canvas.drawRect(rect, relleno(c.plane2));
+    if (t > 0) canvas.drawRect(Rect.fromLTWH(rect.left, rect.top, rect.width * t, rect.height), relleno(c.ink));
   }
 
   @override
-  bool shouldRepaint(covariant _PeldanoPainter old) => old.t != t || old.ink != ink;
+  bool shouldRepaint(covariant _PeldanoPainter old) => old.t != t || old.c != c;
 }
 
 // ------------------------------------------------------- E6: red de información
@@ -877,10 +840,7 @@ class _FlowMatrixProbeState extends ConsumerState<FlowMatrixProbe> with SingleTi
                           last: _last,
                           lastT: _anim.value,
                           positions: positions,
-                          ink: e.ink,
-                          graphite: e.graphite,
-                          saffron: e.saffron,
-                          paper: e.paper,
+                          c: Tinta.of(context),
                         ),
                       ),
                     ),
@@ -996,10 +956,7 @@ class RedPainter extends CustomPainter {
     required this.last,
     required this.lastT,
     required this.positions,
-    required this.ink,
-    required this.graphite,
-    required this.saffron,
-    required this.paper,
+    required this.c,
   });
   final int rows;
   final int cols;
@@ -1008,62 +965,53 @@ class RedPainter extends CustomPainter {
   final String? last;
   final double lastT;
   final List<Offset> positions;
-  final Color ink;
-  final Color graphite;
-  final Color saffron;
-  final Color paper;
+  final Tinta c;
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
+    final ph = size.height * 0.36;
+    final phone = Rect.fromCenter(center: center, width: ph * 0.56, height: ph);
     for (var r = 0; r < rows && r < positions.length; r++) {
       final node = Offset(positions[r].dx * size.width, positions[r].dy * size.height);
       final d = node - center;
       final len = d.distance;
       final n = len == 0 ? Offset.zero : Offset(-d.dy / len, d.dx / len);
-      for (var c = 0; c < cols; c++) {
-        final key = '$r:$c';
+      for (var k = 0; k < cols; k++) {
+        final key = '$r:$k';
         if (!accepted.contains(key)) continue;
-        final off = n * ((c - (cols - 1) / 2) * 6);
-        final from = center + off + d / len * 30;
-        final to = node + off - d / len * 12;
+        final off = n * ((k - (cols - 1) / 2) * 7);
+        final from = center + off + d / len * (ph * 0.42);
+        final to = node + off - d / len * 22;
         final t = key == last ? lastT : 1.0;
-        final base = partialPath(inkPath(from, to, seed: r * 3 + c, wobble: 0.8), t);
-        canvas.drawPath(
-          modoPath(base, c),
-          Paint()
-            ..color = c == active ? ink : graphite
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = c == active ? 2.6 : 1.6
-            ..strokeCap = StrokeCap.round,
-        );
+        final end = Offset.lerp(from, to, t)!;
+        final base = Path()
+          ..moveTo(from.dx, from.dy)
+          ..lineTo(end.dx, end.dy);
+        // Lo seleccionado ahora, en azafrán; lo demás, en tinta suave.
+        canvas.drawPath(modoPath(base, k), linea(k == active ? c.saffron : c.ink2, k == active ? 2.8 : 1.6));
       }
     }
-    // Los nodos: llenos si están conectados en el modo activo.
+    // El teléfono, al centro: la ubicación de tu hermana.
+    plano(canvas, phone.inflate(10), c.plane, sombra: c.ink);
+    dibujarTelefono(canvas, phone, c.ink, c.paper);
+    final pc = phone.center;
+    final pr = ph * 0.13;
+    final pin = Path()
+      ..moveTo(pc.dx, pc.dy + pr * 1.3)
+      ..quadraticBezierTo(pc.dx - pr, pc.dy, pc.dx, pc.dy - pr)
+      ..quadraticBezierTo(pc.dx + pr, pc.dy, pc.dx, pc.dy + pr * 1.3);
+    canvas.drawPath(pin, relleno(c.saffron));
+    canvas.drawCircle(pc - Offset(0, pr * 0.1), pr * 0.35, relleno(c.paper));
+    // Las personas: bustos sólidos si están conectadas en este modo.
+    const b = 36.0;
     for (var r = 0; r < rows && r < positions.length; r++) {
       final node = Offset(positions[r].dx * size.width, positions[r].dy * size.height);
       final on = accepted.contains('$r:$active');
-      canvas.drawCircle(node, 9, Paint()..color = paper);
-      if (on) {
-        canvas.drawCircle(node, 8, Paint()..color = ink);
-      } else {
-        canvas.drawCircle(node, 7, Paint()
-          ..color = ink
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2);
-      }
+      final path = busto(Rect.fromCenter(center: node, width: b, height: b), derecha: positions[r].dx < 0.5);
+      canvas.drawPath(path, relleno(on ? c.ink : c.paper));
+      if (!on) canvas.drawPath(path, linea(c.ink2, 1.6));
     }
-    // El punto de ubicación.
-    final pin = Path()
-      ..moveTo(center.dx, center.dy + 14)
-      ..quadraticBezierTo(center.dx - 12, center.dy - 2, center.dx, center.dy - 12)
-      ..quadraticBezierTo(center.dx + 12, center.dy - 2, center.dx, center.dy + 14);
-    canvas.drawPath(pin, Paint()..color = paper);
-    canvas.drawPath(pin, Paint()
-      ..color = saffron
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4);
-    canvas.drawCircle(center + const Offset(0, -2), 3, Paint()..color = saffron);
   }
 
   @override
@@ -1360,8 +1308,7 @@ class _ReplacementGradientProbeState extends ConsumerState<ReplacementGradientPr
     final step = asDouble(widget.config['step'], 10);
     final divisions = ((max - min) / step).round();
     final shown = _value;
-    final parts = _never ? 0 : (shown / 100 * figuraPartes).round();
-    final e = context.enves;
+    final parts = _never ? 0 : (shown / 100 * siluetaPartes).round();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1376,8 +1323,8 @@ class _ReplacementGradientProbeState extends ConsumerState<ReplacementGradientPr
                 tween: Tween(end: parts.toDouble()),
                 duration: reducedMotion(context, ref) ? Duration.zero : Motion.medium,
                 builder: (context, p, _) => CustomPaint(
-                  size: const Size(150, 190),
-                  painter: _FiguraReemplazoPainter(partes: p.round(), ink: e.ink, graphite: e.graphite),
+                  size: const Size(240, 250),
+                  painter: _FiguraReemplazoPainter(partes: p.round(), c: Tinta.of(context)),
                 ),
               ),
             ),
@@ -1401,7 +1348,7 @@ class _ReplacementGradientProbeState extends ConsumerState<ReplacementGradientPr
           onChanged: _never
               ? null
               : (v) {
-                  final newParts = (v / 100 * figuraPartes).round();
+                  final newParts = (v / 100 * siluetaPartes).round();
                   if (newParts != _lastParts) {
                     _lastParts = newParts;
                     ref.read(feedbackProvider).selection();
@@ -1429,19 +1376,21 @@ class _ReplacementGradientProbeState extends ConsumerState<ReplacementGradientPr
 }
 
 class _FiguraReemplazoPainter extends CustomPainter {
-  _FiguraReemplazoPainter({required this.partes, required this.ink, required this.graphite});
+  _FiguraReemplazoPainter({required this.partes, required this.c});
   final int partes;
-  final Color ink;
-  final Color graphite;
+  final Tinta c;
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawLine(Offset(10, size.height - 2), Offset(size.width - 10, size.height - 2), tinta(graphite, 1));
-    figura(canvas, Offset(size.width / 2, size.height - 6), size.height - 14, tinta(ink, 2.4), rehecha: partes, seed: 4);
+    final fh = size.height * 0.96;
+    final fw = fh * 100 / 260;
+    plano(canvas, Rect.fromLTWH(size.width * 0.18, size.height * 0.08, size.width * 0.64, size.height * 0.8), c.plane, sombra: c.ink);
+    final actual = partes > 0 && partes <= siluetaPartes ? Parte.values[partes - 1] : null;
+    figuraRehecha(canvas, Rect.fromLTWH(size.width / 2 - fw / 2, size.height - fh, fw, fh), c, partes, actual: actual);
   }
 
   @override
-  bool shouldRepaint(covariant _FiguraReemplazoPainter old) => old.partes != partes || old.ink != ink;
+  bool shouldRepaint(covariant _FiguraReemplazoPainter old) => old.partes != partes || old.c != c;
 }
 
 // ------------------------------------------------- E9: tres formas de saber
@@ -1495,13 +1444,11 @@ class _KnowingFormsProbeState extends ConsumerState<KnowingFormsProbe> {
               tween: Tween(begin: reduced ? 1 : 0, end: 1),
               duration: reduced ? Duration.zero : Duration(milliseconds: 900 + items.length * 260),
               builder: (context, t, _) => CustomPaint(
-                size: const Size(double.infinity, 170),
+                size: const Size(double.infinity, 230),
                 painter: _RecorridoFinalPainter(
                   t: t,
                   huecos: [for (final i in items) i.recognized],
-                  ink: ec.ink,
-                  graphite: ec.graphite,
-                  saffron: ec.saffron,
+                  c: Tinta.of(context),
                 ),
               ),
             ),
@@ -1548,57 +1495,50 @@ class _KnowingFormsProbeState extends ConsumerState<KnowingFormsProbe> {
 }
 
 class _RecorridoFinalPainter extends CustomPainter {
-  _RecorridoFinalPainter({required this.t, required this.huecos, required this.ink, required this.graphite, required this.saffron});
+  _RecorridoFinalPainter({required this.t, required this.huecos, required this.c});
   final double t;
   final List<bool> huecos;
-  final Color ink;
-  final Color graphite;
-  final Color saffron;
+  final Tinta c;
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
-    final suelo = h * 0.72;
-    final cx = w / 2;
-    canvas.drawLine(Offset(cx, 6), Offset(cx, h - 6), tinta(ink, 2.6));
-    final p = tinta(ink, 2);
-    figura(canvas, Offset(w * 0.16, suelo), h * 0.6, p, seed: 1);
-    figura(canvas, Offset(w * 0.84, suelo), h * 0.6, p, seed: 2);
+    final suelo = h * 0.78;
+    final enter = (t / 0.3).clamp(0.0, 1.0);
+    plano(canvas, Rect.fromLTWH(w * 0.02 - 14 * (1 - enter), h * 0.1, w * 0.4, suelo - h * 0.1), c.plane, sombra: c.ink);
+    plano(canvas, Rect.fromLTWH(w * 0.58 + 14 * (1 - enter), h * 0.02, w * 0.4, suelo - h * 0.12), c.plane2, sombra: c.ink);
+    final fh = suelo * 0.96;
+    final fw = fh * 100 / 260;
+    dibujarSilueta(canvas, Rect.fromLTWH(w * 0.12, suelo - fh, fw, fh), c.ink, atras: c.ink2, papel: c.plane);
+    dibujarSilueta(canvas, Rect.fromLTWH(w * 0.88 - fw, suelo - fh, fw, fh), c.ink2, derecha: false, atras: c.graphite, papel: c.plane2);
+    canvas.drawLine(Offset(w / 2, 0), Offset(w / 2, suelo + 6), linea(c.ink, 3));
 
-    // Los puntos huecos llegan uno a uno.
+    // Los puntos huecos que conseguiste llegan uno a uno.
     final n = huecos.length;
-    final span = n <= 1 ? 0.0 : (w * 0.5) / (n - 1);
+    final span = n <= 1 ? 0.0 : (w * 0.6) / (n - 1);
+    final y0 = h * 0.92;
     for (var i = 0; i < n; i++) {
-      final local = ((t * (n + 2) - i) / 1.0).clamp(0.0, 1.0);
-      if (local <= 0) continue;
-      final x = n <= 1 ? cx : w * 0.25 + i * span;
-      final pos = Offset(x, h * 0.92);
-      final paint = Paint()
-        ..color = huecos[i] ? saffron : graphite
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
+      final k = (t * (n + 3) - i - 1).clamp(0.0, 1.0);
+      if (k <= 0) continue;
+      final pos = Offset(n <= 1 ? w / 2 : w * 0.2 + i * span, y0);
       if (huecos[i]) {
-        canvas.drawCircle(pos, 6 * local, paint);
+        puntoHueco(canvas, pos, 7 * k, c.saffron, c.paper);
       } else {
-        canvas.drawPath(dashedPath(Path()..addOval(Rect.fromCircle(center: pos, radius: 6 * local)), dash: 3, gap: 3), paint);
+        canvas.drawCircle(pos, 6 * k, linea(c.graphite, 1.6));
       }
     }
 
-    // El hilo une ambos lados. Se detiene un instante en el eje: no los funde.
-    final threadT = ((t - 0.55) / 0.45).clamp(0.0, 1.0);
-    final y = suelo - h * 0.32;
-    paintHilo(canvas, from: Offset(w * 0.22, y), to: Offset(cx - 6, y), color: ink, progress: (threadT * 2).clamp(0.0, 1.0), seed: 1);
-    paintHilo(canvas, from: Offset(cx + 6, y), to: Offset(w * 0.78, y), color: ink, progress: (threadT * 2 - 1).clamp(0.0, 1.0), seed: 2);
-    if (threadT > 0) canvas.drawCircle(Offset(w * 0.22, y), 4, Paint()..color = ink);
-    if (threadT >= 1) {
-      canvas.drawCircle(Offset(w * 0.78, y), 4, Paint()
-        ..color = saffron
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2);
-    }
+    // El hilo une ambos lados y atraviesa el eje sin fundirlos.
+    final th = ((t - 0.55) / 0.45).clamp(0.0, 1.0);
+    final y = suelo - fh * 0.55;
+    final a = Offset(w * 0.36, y);
+    final b = Offset(w * 0.64, y);
+    if (th > 0) puntoLleno(canvas, a, 7, c.ink);
+    hilo(canvas, a, b, c.ink, w: 1.6, t: th);
+    if (th >= 1) puntoHueco(canvas, b, 7, c.saffron, c.paper);
   }
 
   @override
-  bool shouldRepaint(covariant _RecorridoFinalPainter old) => old.t != t || old.ink != ink;
+  bool shouldRepaint(covariant _RecorridoFinalPainter old) => old.t != t || old.c != c;
 }

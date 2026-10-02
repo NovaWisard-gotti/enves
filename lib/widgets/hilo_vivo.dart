@@ -14,7 +14,7 @@ enum HiloForma { recto, curvo, bifurcado, reforzado }
 
 /// Trazo con leve temblor de mano. Determinista: el mismo [seed] dibuja
 /// siempre el mismo hilo.
-Path inkPath(Offset a, Offset b, {double bend = 0, int seed = 0, double wobble = 1.1}) {
+Path inkPath(Offset a, Offset b, {double bend = 0, int seed = 0, double wobble = 0.3}) {
   final path = Path()..moveTo(a.dx, a.dy);
   final d = b - a;
   final len = d.distance;

@@ -9,6 +9,8 @@ import '../../engine/map/map_builder.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/ink_marks.dart';
 import '../../widgets/paper.dart';
+import '../../widgets/composiciones.dart';
+import '../../widgets/ilustraciones.dart';
 import 'map_interactivo.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -54,6 +56,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (ilustracionCabe(context, hasta: 1.3)) ...[
+                  Composicion(
+                    height: 170,
+                    label: '${model.completedCount} ${model.completedCount == 1 ? 'decisión' : 'decisiones'} de tu lado; '
+                        '${model.hollows.where((h) => Recognition.isRecognized(h.recognition)).length} posiciones comprendidas del otro.',
+                    pintor: (t, v) => PortadaMapaPainter(
+                      t,
+                      v,
+                      decisiones: model!.completedCount,
+                      comprendidas: model.hollows.where((h) => Recognition.isRecognized(h.recognition)).length,
+                    ),
+                  ),
+                  const Gap(20),
+                ],
                 Text(
                   'No es un test ni un perfil. Describe decisiones que tomaste en situaciones concretas.',
                   style: context.text.bodySmall,
